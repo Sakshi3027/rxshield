@@ -44,7 +44,7 @@ def normalize_availability(value):
 
 
 def build_tables(records, snapshot_ts):
-    events, categories, products, substances, rxcuis = [], [], [], [], []
+    events, categories, products, substances, rxcuis, presentations = [], [], [], [], [], []
 
     for r in records:
         sid = make_shortage_id(r)
@@ -61,13 +61,13 @@ def build_tables(records, snapshot_ts):
             "availability": normalize_availability(r.get("availability")),
             "shortage_reason": r.get("shortage_reason"),
             "dosage_form": r.get("dosage_form"),
-            "presentation": r.get("presentation"),
             "update_type": r.get("update_type"),
             "related_info": r.get("related_info"),
             "resolved_note": r.get("resolved_note"),
             **{col: r.get(col) for col in DATE_COLUMNS},
             "snapshot_ts": snapshot_ts,
         })
+        presentations.append({"shortage_id": sid, "presentation": r.get("presentation")})
 
         for category in r.get("therapeutic_category", []):
             categories.append({"shortage_id": sid, "therapeutic_category": category})
@@ -101,22 +101,37 @@ def build_tables(records, snapshot_ts):
     for col in DATE_COLUMNS:
         events[col] = pd.to_datetime(events[col], format="%m/%d/%Y", errors="coerce").dt.date
 
-    return {
+    tables = {
         "shortage_events": events,
         "shortage_categories": pd.DataFrame(categories),
         "shortage_products": pd.DataFrame(products),
         "shortage_substances": pd.DataFrame(substances),
         "shortage_rxcuis": pd.DataFrame(rxcuis),
+        "shortage_presentations": pd.DataFrame(presentations),
     }
+    tables = {name: df.drop_duplicates().reset_index(drop=True) for name, df in tables.items()}
+    tables["dq_issues"] = build_dq_issues(tables["shortage_presentations"])
+    return tables
 
+def build_dq_issues(presentations):
+    grouped = presentations.groupby("shortage_id")["presentation"].agg(list)
+    multi = grouped[grouped.str.len() > 1]
+    return pd.DataFrame({
+        "shortage_id": multi.index,
+        "issue_type": "multiple_presentations",
+        "detail": [" || ".join(map(str, p)) for p in multi],
+    })
 
 def validate(tables, records):
     events = tables["shortage_events"]
-    print(f"Duplicate shortage_ids: {events['shortage_id'].duplicated().sum()}")
+    dupes = events["shortage_id"].duplicated().sum()
+    print(f"Duplicate shortage_ids: {dupes}")
+    print(f"Products with more than one row per shortage: {tables['shortage_products']['shortage_id'].duplicated().sum()}")
 
+    unique_records = {make_shortage_id(r): r for r in records}.values()
     print("\nDate parsing:")
     for col in DATE_COLUMNS:
-        raw_present = sum(1 for r in records if r.get(col))
+        raw_present = sum(1 for r in unique_records if r.get(col))
         parsed = events[col].notna().sum()
         print(f"  {col}: {parsed} parsed of {raw_present} present")
 
@@ -126,6 +141,12 @@ def validate(tables, records):
     print("\nRow counts:")
     for name, df in tables.items():
         print(f"  {name}: {len(df)}")
+
+    print("\nData quality issues:")
+    print(tables["dq_issues"].to_string(index=False))
+
+    if dupes:
+        raise ValueError("Same shortage_id with different field values. Inspect before continuing.")
 
 
 def save(tables):
