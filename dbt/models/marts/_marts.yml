@@ -35,3 +35,9 @@ models:
           - accepted_values:
               arguments:
                 values: ["critical", "high", "elevated", "watch"]
+
+
+  - name: mart_company_exposure
+    columns:
+      - name: company_duns
+        data_tests: [unique, not_null]

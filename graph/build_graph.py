@@ -49,6 +49,11 @@ NODES = [
         from {A}.stg_recall_events re
         join {A}.stg_recall_products rp on rp.recall_number = re.recall_number
         where rp.product_ndc in ({SHORTAGE_PRODUCTS})"""),
+
+    ("Company", "duns", f"""
+        select company_duns as duns, company_name as name, facility_count, countries,
+               shortage_products_manufactured, sole_company_products
+        from {A}.mart_company_exposure"""),
 ]
 
 RELATIONSHIPS = [
@@ -83,6 +88,11 @@ RELATIONSHIPS = [
      "MATCH (a:Recall {recall_number: row.recall_number}) MATCH (b:Product {product_ndc: row.product_ndc}) "
      "MERGE (a)-[r:RECALLED]->(b) "
      "SET r.linked_by_text = row.linked_by_text, r.linked_by_openfda = row.linked_by_openfda"),
+    ("OWNED_BY", f"""select duns, coalesce(registrant_duns, duns) as company_duns
+        from {A}.stg_facilities
+        where duns in (select duns from {A}.stg_establishment_operations)""",
+     "MATCH (a:Facility {duns: row.duns}) MATCH (b:Company {duns: row.company_duns}) "
+     "MERGE (a)-[:OWNED_BY]->(b)"),
 ]
 
 OPERATION_TYPES = {
