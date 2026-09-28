@@ -13,6 +13,7 @@ STEPS = [
     "ingestion.silver_recalls",
     "ingestion.fetch_spl",
     "ingestion.silver_spl",
+    "ingestion.silver_spl_sections",
     "ingestion.fetch_decrs",
     "ingestion.silver_facilities",
     "ingestion.fetch_rxnorm",
