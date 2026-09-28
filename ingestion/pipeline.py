@@ -14,6 +14,7 @@ STEPS = [
     "ingestion.silver_facilities",
     "ingestion.fetch_rxnorm",
     "ingestion.silver_rxnorm",
+    "ingestion.load_silver",
 ]
 
 
