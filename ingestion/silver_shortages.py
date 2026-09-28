@@ -2,6 +2,7 @@
 import hashlib
 import json
 from pathlib import Path
+from ingestion.ndc import to_product_ndc
 
 import pandas as pd
 
@@ -53,7 +54,7 @@ def build_tables(records, snapshot_ts):
         events.append({
             "shortage_id": sid,
             "package_ndc": package_ndc,
-            "product_ndc": "-".join(package_ndc.split("-")[:2]),
+            "product_ndc": to_product_ndc(package_ndc),
             "generic_name_raw": r.get("generic_name"),
             "company_name": r.get("company_name"),
             "status": r.get("status"),
