@@ -21,7 +21,8 @@ def org_identity(org):
 def operation_name(code):
     if code is None:
         return None
-    return code.get("displayName") or code.get("code")
+    value = code.get("displayName") or code.get("code")
+    return value.upper() if value else None
 
 
 def parse_label(path):
