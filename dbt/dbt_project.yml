@@ -1,0 +1,15 @@
+name: rxshield
+version: "1.0.0"
+config-version: 2
+profile: rxshield
+
+model-paths: ["models"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+models:
+  rxshield:
+    staging:
+      +materialized: view
+    marts:
+      +materialized: table

@@ -1,3 +1,5 @@
+dbt-core==1.12.5
+dbt-postgres==1.11.0
 pandas==3.0.6
 psycopg==3.3.6
 psycopg-binary==3.3.6
