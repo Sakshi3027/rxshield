@@ -40,7 +40,6 @@ def parse_label(path):
             continue
         org = entity.find(f"{V}assignedOrganization")
         name, duns = org_identity(org)
-        country = org.findtext(f"{V}addr/{V}country") if org is not None else None
 
         for perf in performances:
             product = perf.find(f".//{V}manufacturedMaterialKind/{V}code")
@@ -48,7 +47,6 @@ def parse_label(path):
                 "spl_set_id": set_id,
                 "establishment_duns": duns,
                 "establishment_name": name,
-                "country": country,
                 "operation": operation_name(perf.find(f"{V}actDefinition/{V}code")),
                 "product_ndc": product.get("code") if product is not None else None,
             })
@@ -68,7 +66,6 @@ def validate(labels, operations, failures):
     print(f"Labels with no establishment section: {no_establishments}")
     print(f"Distinct establishments (by DUNS): {operations['establishment_duns'].nunique()}")
     print(f"Operations missing DUNS: {operations['establishment_duns'].isna().sum()}")
-    print(f"Operations with a country: {operations['country'].notna().sum()} of {len(operations)}")
 
     print("\nOperation types:")
     print(operations["operation"].value_counts().to_string())
