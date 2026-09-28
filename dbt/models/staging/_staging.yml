@@ -41,11 +41,8 @@ models:
 
   - name: stg_drug_dose_forms
     columns:
-      - name: drug_rxcui
-        data_tests:
-          - unique:
-              config:
-                severity: warn
+      - name: drug_dose_form_id
+        data_tests: [unique, not_null]
 
   - name: stg_ingredient_atc
     columns:

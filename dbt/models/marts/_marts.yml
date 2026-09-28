@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: mart_product_manufacturing
+    columns:
+      - name: product_ndc
+        data_tests: [unique, not_null]
+      - name: sourcing_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["unknown", "single_site", "multi_site"]
+
+  - name: mart_facility_exposure
+    columns:
+      - name: duns
+        data_tests: [unique, not_null]
