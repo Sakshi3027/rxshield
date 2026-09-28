@@ -1,0 +1,107 @@
+version: 2
+
+sources:
+  - name: silver
+    schema: silver
+    tables:
+      - name: shortage_events
+        columns:
+          - name: shortage_id
+            data_tests: [unique, not_null]
+          - name: package_ndc
+            data_tests: [not_null]
+          - name: status
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: ["Current", "To Be Discontinued", "Resolved"]
+          - name: availability
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: ["Available", "Limited Availability", "Unavailable"]
+
+      - name: shortage_products
+        columns:
+          - name: shortage_id
+            data_tests:
+              - unique
+              - relationships:
+                  arguments:
+                    to: source('silver', 'shortage_events')
+                    field: shortage_id
+
+      - name: shortage_categories
+        columns:
+          - name: shortage_id
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: source('silver', 'shortage_events')
+                    field: shortage_id
+
+      - name: shortage_substances
+      - name: shortage_rxcuis
+      - name: shortage_presentations
+      - name: dq_issues
+
+      - name: recall_events
+        columns:
+          - name: recall_number
+            data_tests: [unique, not_null]
+          - name: classification
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: ["Class I", "Class II", "Class III", "Not Yet Classified"]
+
+      - name: recall_products
+        columns:
+          - name: recall_number
+            data_tests:
+              - relationships:
+                  arguments:
+                    to: source('silver', 'recall_events')
+                    field: recall_number
+          - name: link_method
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: ["text", "openfda"]
+
+      - name: spl_labels
+        columns:
+          - name: spl_set_id
+            data_tests: [unique, not_null]
+
+      - name: establishment_operations
+        columns:
+          - name: establishment_duns
+            data_tests:
+              - not_null
+              - relationships:
+                  arguments:
+                    to: source('silver', 'facilities')
+                    field: duns
+          - name: operation
+            data_tests:
+              - accepted_values:
+                  arguments:
+                    values: ["MANUFACTURE", "ANALYSIS", "PACK", "LABEL", "API MANUFACTURE", "STERILIZE", "PARTICLE SIZE REDUCTION"]
+
+      - name: facilities
+        columns:
+          - name: duns
+            data_tests: [unique, not_null]
+          - name: country_code
+            data_tests: [not_null]
+
+      - name: package_rxcui
+        columns:
+          - name: package_ndc
+            data_tests: [unique, not_null]
+
+      - name: drug_concepts
+      - name: ingredient_atc
+      - name: drug_equivalents
+      - name: concept_ndcs
