@@ -16,7 +16,7 @@ models:
       - name: duns
         data_tests: [unique, not_null]
 
-          - name: mart_drug_supply
+  - name: mart_drug_supply
     columns:
       - name: drug_rxcui
         data_tests: [unique, not_null]
