@@ -15,3 +15,13 @@ models:
     columns:
       - name: duns
         data_tests: [unique, not_null]
+
+          - name: mart_drug_supply
+    columns:
+      - name: drug_rxcui
+        data_tests: [unique, not_null]
+      - name: alternative_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["no_listed_alternative", "single_alternative", "multiple_alternatives"]
