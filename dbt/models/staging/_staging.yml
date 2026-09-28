@@ -22,3 +22,48 @@ models:
     columns:
       - name: duns
         data_tests: [unique, not_null]
+
+  - name: stg_package_drugs
+    columns:
+      - name: package_ndc
+        data_tests: [unique, not_null]
+
+  - name: stg_drug_ingredients
+    columns:
+      - name: drug_ingredient_id
+        data_tests: [unique, not_null]
+      - name: drug_rxcui
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_package_drugs')
+                field: drug_rxcui
+
+  - name: stg_drug_dose_forms
+    columns:
+      - name: drug_rxcui
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+
+  - name: stg_ingredient_atc
+    columns:
+      - name: ingredient_atc_id
+        data_tests: [unique, not_null]
+      - name: ingredient_rxcui
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_drug_ingredients')
+                field: ingredient_rxcui
+
+  - name: stg_drug_equivalents
+    columns:
+      - name: drug_equivalent_id
+        data_tests: [unique, not_null]
+
+  - name: stg_concept_ndcs
+    columns:
+      - name: concept_ndc_id
+        data_tests: [unique, not_null]
