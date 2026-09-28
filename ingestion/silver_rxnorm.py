@@ -1,6 +1,7 @@
 """Parse cached RxNav responses into RxNorm silver tables."""
 import json
 from pathlib import Path
+from ingestion.ndc import to_ndc11
 
 import pandas as pd
 
@@ -57,6 +58,47 @@ def build_ingredient_atc():
             })
     return pd.DataFrame(rows)
 
+def build_equivalents():
+    rows = []
+    for rxcui, data in read_all("equivalents"):
+        for group in data.get("relatedGroup", {}).get("conceptGroup", []):
+            for concept in group.get("conceptProperties", []):
+                rows.append({
+                    "drug_rxcui": rxcui,
+                    "equivalent_rxcui": concept["rxcui"],
+                    "equivalent_tty": concept["tty"],
+                    "equivalent_name": concept["name"],
+                })
+    return pd.DataFrame(rows)
+
+
+def build_concept_ndcs():
+    rows = []
+    for rxcui, data in read_all("ndcs"):
+        ndcs = (data.get("ndcGroup", {}).get("ndcList") or {}).get("ndc", [])
+        for ndc11 in ndcs:
+            rows.append({"rxcui": rxcui, "ndc11": ndc11, "labeler_code": ndc11[:5]})
+    return pd.DataFrame(rows)
+
+
+def validate_supply(tables):
+    pkg = tables["package_rxcui"].dropna(subset=["rxcui"]).copy()
+    pkg["ndc11"] = pkg["package_ndc"].map(to_ndc11)
+    shortage_ndc11 = set(pkg["ndc11"])
+
+    supply = tables["drug_equivalents"].merge(
+        tables["concept_ndcs"], left_on="equivalent_rxcui", right_on="rxcui"
+    )
+    supply = supply[~supply["ndc11"].isin(shortage_ndc11)]
+    sources = supply.groupby("drug_rxcui")["labeler_code"].nunique()
+
+    drugs = pkg["rxcui"].unique()
+    counts = sources.reindex(drugs).fillna(0).astype(int)
+    print(f"\nShortage drugs: {len(drugs)}")
+    print(f"  0 other listed sources: {(counts == 0).sum()}")
+    print(f"  1 other listed source: {(counts == 1).sum()}")
+    print(f"  2+ other listed sources: {(counts >= 2).sum()}")
+
 
 def validate(tables):
     pkg = tables["package_rxcui"]
@@ -92,9 +134,12 @@ def main():
         "package_rxcui": build_package_rxcui(),
         "drug_concepts": build_drug_concepts(),
         "ingredient_atc": build_ingredient_atc(),
+        "drug_equivalents": build_equivalents(),
+        "concept_ndcs": build_concept_ndcs(),
     }
     tables = {name: df.drop_duplicates().reset_index(drop=True) for name, df in tables.items()}
     validate(tables)
+    validate_supply(tables)
 
     SILVER_DIR.mkdir(parents=True, exist_ok=True)
     for name, df in tables.items():

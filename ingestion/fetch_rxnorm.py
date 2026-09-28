@@ -44,6 +44,18 @@ def fetch_atc(ingredient_rxcui):
         {"rxcui": ingredient_rxcui, "relaSource": "ATC"},
     )
 
+def equivalents(rxcui):
+    data = cached_get("equivalents", rxcui, f"{BASE_URL}/rxcui/{rxcui}/related.json", {"tty": "SCD SBD"})
+    return [
+        concept["rxcui"]
+        for group in data.get("relatedGroup", {}).get("conceptGroup", [])
+        for concept in group.get("conceptProperties", [])
+    ]
+
+
+def fetch_ndcs(rxcui):
+    cached_get("ndcs", rxcui, f"{BASE_URL}/rxcui/{rxcui}/ndcs.json", {})
+
 
 def main():
     events = pd.read_parquet("data/silver/shortage_events.parquet")
@@ -74,6 +86,21 @@ def main():
         fetch_atc(ingredient)
     print("  done")
 
+    print(f"\nStep 4: fetching generic and brand equivalents for {len(drug_rxcuis)} drugs")
+    equivalent_rxcuis = set()
+    for i, rxcui in enumerate(drug_rxcuis, start=1):
+        equivalent_rxcuis.update(equivalents(rxcui))
+        if i % 200 == 0:
+            print(f"  {i}/{len(drug_rxcuis)}")
+    print(f"  {len(equivalent_rxcuis)} distinct equivalent drugs")
+
+    print(f"\nStep 5: fetching listed NDCs for {len(equivalent_rxcuis)} equivalent drugs")
+    for i, rxcui in enumerate(sorted(equivalent_rxcuis), start=1):
+        fetch_ndcs(rxcui)
+        if i % 200 == 0:
+            print(f"  {i}/{len(equivalent_rxcuis)}")
+    print("  done")
+    
 
 if __name__ == "__main__":
     main()

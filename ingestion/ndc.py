@@ -10,3 +10,7 @@ def extract_ndcs(text):
 
 def to_product_ndc(package_ndc):
     return "-".join(package_ndc.split("-")[:2])
+
+def to_ndc11(package_ndc):
+    labeler, product, package = package_ndc.split("-")
+    return labeler.zfill(5) + product.zfill(4) + package.zfill(2)
