@@ -20,6 +20,7 @@ STEPS = [
     "ingestion.load_silver",
     "dbt.build",
     "graph.build_graph",
+    "graph.failure_impact",
 ]
 
 
