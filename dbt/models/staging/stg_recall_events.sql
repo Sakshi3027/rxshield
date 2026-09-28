@@ -1,0 +1,23 @@
+select
+    recall_number,
+    event_id,
+    recalling_firm,
+    classification,
+    classification = 'Class I' as is_class_1,
+    status as recall_status,
+    voluntary_mandated,
+    reason_for_recall,
+    recall_initiation_date,
+    termination_date,
+    country as firm_country,
+    reason_cgmp,
+    reason_sterility,
+    reason_contamination,
+    reason_particulate,
+    reason_subpotent,
+    reason_superpotent,
+    reason_impurity,
+    reason_dissolution,
+    reason_labeling,
+    reason_nitrosamine
+from {{ source('silver', 'recall_events') }}

@@ -1,0 +1,24 @@
+version: 2
+
+models:
+  - name: stg_shortage_events
+    columns:
+      - name: shortage_id
+        data_tests: [unique, not_null]
+      - name: ndc11
+        data_tests: [not_null]
+
+  - name: stg_recall_products
+    columns:
+      - name: recall_product_id
+        data_tests: [unique, not_null]
+
+  - name: stg_establishment_operations
+    columns:
+      - name: operation_id
+        data_tests: [unique, not_null]
+
+  - name: stg_facilities
+    columns:
+      - name: duns
+        data_tests: [unique, not_null]
