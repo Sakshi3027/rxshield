@@ -1,0 +1,31 @@
+[
+  {"id": "q01", "category": "label", "question": "What are the contraindications for bupivacaine?",
+   "must_include": ["bier", "hypersensitivity"]},
+  {"id": "q02", "category": "label", "question": "How should Nipent (pentostatin) vials be stored?",
+   "must_include": ["refrigerat"]},
+  {"id": "q03", "category": "label", "question": "What is Infumorph used for?",
+   "must_include": ["microinfusion"]},
+  {"id": "q04", "category": "label", "question": "What does the boxed warning for Marcaine (bupivacaine) say?",
+   "must_include": ["cardiac arrest"]},
+
+  {"id": "q05", "category": "multi_hop", "question": "Which critical shortage drugs are made only in India?",
+   "truth_cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(:Facility)-[:LOCATED_IN]->(c:Country) WITH d, collect(DISTINCT c.code) AS countries WHERE countries = ['IND'] MATCH (d)-[:HAS_INGREDIENT]->(i:Ingredient) RETURN collect(DISTINCT i.name) AS expected",
+   "must_not_include": ["quinapril", "bumetanide", "rifampin"]},
+  {"id": "q06", "category": "negative", "question": "Which critical shortage drugs are made only in China?",
+   "truth_cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(:Facility)-[:LOCATED_IN]->(c:Country) WITH d, collect(DISTINCT c.code) AS countries WHERE countries = ['CHN'] MATCH (d)-[:HAS_INGREDIENT]->(i:Ingredient) RETURN collect(DISTINCT i.name) AS expected",
+   "expect_none": true},
+  {"id": "q07", "category": "multi_hop", "question": "Which company would lose the most shortage drugs if all of its plants went offline?",
+   "truth_cypher": "MATCH (c:Company) WHERE c.drugs_lost_if_offline IS NOT NULL WITH c ORDER BY c.drugs_lost_if_offline DESC LIMIT 1 RETURN [toLower(split(c.name, ',')[0])] AS expected"},
+  {"id": "q08", "category": "multi_hop", "question": "If India went offline, how many critical or high risk drugs would lose all known manufacturing?",
+   "truth_cypher": "MATCH (c:Country {code: 'IND'}) RETURN [toString(c.critical_or_high_drugs_lost)] AS expected"},
+  {"id": "q09", "category": "multi_hop", "question": "Which facility in India manufactures the most shortage drugs?",
+   "truth_cypher": "MATCH (f:Facility)-[:LOCATED_IN]->(:Country {code: 'IND'}) WHERE f.drugs_dependent IS NOT NULL WITH f ORDER BY f.drugs_dependent DESC LIMIT 1 RETURN [toLower(split(f.name, ' ')[0])] AS expected"},
+  {"id": "q10", "category": "multi_hop", "question": "Which morphine products currently in shortage have no listed alternative source?",
+   "must_include": ["infumorph", "mitigo"]},
+
+  {"id": "q11", "category": "hybrid", "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+   "truth_cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(:Facility)-[:LOCATED_IN]->(c:Country) WITH d, collect(DISTINCT c.code) AS countries WHERE countries = ['IND'] MATCH (d)-[:HAS_INGREDIENT]->(i:Ingredient) RETURN collect(DISTINCT i.name) AS expected",
+   "must_include": ["refrigerat"], "must_not_include": ["quinapril", "bumetanide", "rifampin"]},
+  {"id": "q12", "category": "hybrid", "question": "Which morphine products have no alternative source, and what are they used for?",
+   "must_include": ["infumorph", "mitigo", "microinfusion"]}
+]

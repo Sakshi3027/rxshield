@@ -1,0 +1,416 @@
+[
+  {
+    "id": "q01",
+    "category": "label",
+    "system": "baseline",
+    "question": "What are the contraindications for bupivacaine?",
+    "expected": [
+      "bier",
+      "hypersensitivity"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2330,
+    "total_ms": 2432,
+    "answer": "Contraindications for bupivacaine (including its spinal formulation) are:\n\n- **Intravenous regional anesthesia (Bier Block)** \u2013 contraindicated in all preparations. [1][3][4][5][6]  \n- **Obstetrical paracervical block anesthesia** \u2013 use has caused fetal bradycardia and death. [3][4][5][6]  \n- **Known hypersensitivity** to bupivacaine, any amide\u2011type local anesthetic, or other components of the product. [1][3][4][5][6]  \n- **Septicemia** \u2013 contraindicated. [1][2]  \n- **Severe hemorrhage, severe hypotension or shock** (reduced cardiac output). [1][2]  \n- **Clinically significant arrhythmias** such as complete heartblock (reduced cardiac output). [1][2]  \n- **Local infection at the site of proposed lumbar puncture** (spinal use). [1][2]"
+  },
+  {
+    "id": "q01",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "What are the contraindications for bupivacaine?",
+    "expected": [
+      "bier",
+      "hypersensitivity"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 4883,
+    "total_ms": 3237,
+    "answer": "**Contraindications for bupivacaine (bupivacaine hydrochloride)**  \n\n- **Obstetrical paracervical block anesthesia** \u2013 use has caused fetal bradycardia and death. [2\u20116]  \n- **Intravenous regional anesthesia (Bier Block)** \u2013 contraindicated. [2\u20116]  \n- **Known hypersensitivity** to bupivacaine, any amide\u2011type local anesthetic, or other components of the product. [2\u20116]  \n- **Severe hemorrhage, severe hypotension or shock, or clinically significant arrhythmias** (e.g., complete heartblock) that reduce cardiac output \u2013 contraindicated for spinal use. [1]  \n\nThese are the contraindications listed in the FDA label excerpts. No additional contraindications are present in the graph facts."
+  },
+  {
+    "id": "q02",
+    "category": "label",
+    "system": "baseline",
+    "question": "How should Nipent (pentostatin) vials be stored?",
+    "expected": [
+      "refrigerat"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 1651,
+    "total_ms": 1225,
+    "answer": "Nipent (pentostatin) vials should be stored refrigerated at 2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)\u30101\u3011\u30102\u3011."
+  },
+  {
+    "id": "q02",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "How should Nipent (pentostatin) vials be stored?",
+    "expected": [
+      "refrigerat"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 3860,
+    "total_ms": 3586,
+    "answer": "Nipent (pentostatin) vials should be stored refrigerated at 2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F) [1][2]."
+  },
+  {
+    "id": "q03",
+    "category": "label",
+    "system": "baseline",
+    "question": "What is Infumorph used for?",
+    "expected": [
+      "microinfusion"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2409,
+    "total_ms": 17309,
+    "answer": "Infumorph is a preservative\u2011free morphine sulfate sterile solution that is **indicated only for use in continuous microinfusion devices for intrathecal or epidural infusion** in the management of intractable chronic pain that is severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate. [1]"
+  },
+  {
+    "id": "q03",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "What is Infumorph used for?",
+    "expected": [
+      "microinfusion"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "microinfusion"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2444,
+    "total_ms": 4137,
+    "answer": "No matching drugs were found for \u201cInfumorph.\u201d"
+  },
+  {
+    "id": "q04",
+    "category": "label",
+    "system": "baseline",
+    "question": "What does the boxed warning for Marcaine (bupivacaine) say?",
+    "expected": [
+      "cardiac arrest"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2056,
+    "total_ms": 13271,
+    "answer": "**Boxed warning for Marcaine (bupivacaine)**  \n- **Risk of cardiac arrest with obstetrical epidural anesthesia** \u2013 reports of cardiac arrest, often with difficult or impossible resuscitation, have been documented when using Marcaine for epidural anesthesia in obstetrical patients. The risk is most pronounced with the 0.75\u202f% (7.5\u202fmg/mL) concentration. Cardiac arrest has occurred after convulsions from systemic toxicity, presumably following unintentional intravascular injection. The 0.75\u202f% concentration is not recommended for obstetrical anesthesia and should be reserved for surgical procedures that require a high degree of muscle relaxation and prolonged effect.  \n- **Full prescribing information** should be consulted for the complete boxed warning.  \n\n[1][2]"
+  },
+  {
+    "id": "q04",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "What does the boxed warning for Marcaine (bupivacaine) say?",
+    "expected": [
+      "cardiac arrest"
+    ],
+    "passed": false,
+    "recall": 0.0,
+    "error": "This question can't be answered with a read-only query on the shortage graph."
+  },
+  {
+    "id": "q05",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Which critical shortage drugs are made only in India?",
+    "expected": [
+      "pentostatin"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "pentostatin"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2499,
+    "total_ms": 16700,
+    "answer": "The excerpts do not contain any mention of a drug\u2019s \u201ccritical shortage\u201d status. Therefore, I cannot identify which critical\u2011shortage drugs are made only in India from the provided sources."
+  },
+  {
+    "id": "q05",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Which critical shortage drugs are made only in India?",
+    "expected": [
+      "pentostatin"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 4200,
+    "total_ms": 16734,
+    "answer": "**Critical\u2011tier shortage drug made only in India**\n\n- Pentostatin 10\u202fmg Injection\u202f[Nipent] (rxcui\u202f105607) \u2013 manufactured by Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited in India\u202f[G]"
+  },
+  {
+    "id": "q06",
+    "category": "negative",
+    "system": "baseline",
+    "question": "Which critical shortage drugs are made only in China?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2302,
+    "total_ms": 19356,
+    "answer": "The provided excerpts do not contain any information indicating which drugs are listed as critical shortages or that they are manufactured exclusively in China. To answer the question, data on the critical\u2011shortage status of each drug and confirmation that its sole manufacturer is located in China would be required."
+  },
+  {
+    "id": "q06",
+    "category": "negative",
+    "system": "graph_rag",
+    "question": "Which critical shortage drugs are made only in China?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2534,
+    "total_ms": 2392,
+    "answer": "No critical\u2011shortage drugs were found that are manufactured exclusively in China."
+  },
+  {
+    "id": "q07",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Which company would lose the most shortage drugs if all of its plants went offline?",
+    "expected": [
+      "hospira"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "hospira"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2674,
+    "total_ms": 18790,
+    "answer": "Novartis would lose the most shortage drugs if all of its plants went offline.  \nThe FDA label excerpt lists Novartis as the manufacturer of three drugs\u2014Anafranil\u00ae, Pamelor\u00ae, and Tofranil\u00ae\u2014making it the most frequently cited company in the provided excerpts [3]."
+  },
+  {
+    "id": "q07",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Which company would lose the most shortage drugs if all of its plants went offline?",
+    "expected": [
+      "hospira"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "hospira"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2473,
+    "total_ms": 6170,
+    "answer": "The graph facts do not provide a value for\u202f`drugs_lost_if_offline`\u202ffor Reed\u2011Lane, Inc., and no other companies are listed. Therefore, the evidence does not allow us to determine which company would lose the most shortage drugs if all of its plants went offline."
+  },
+  {
+    "id": "q08",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "If India went offline, how many critical or high risk drugs would lose all known manufacturing?",
+    "expected": [
+      "15"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "15"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2138,
+    "total_ms": 20255,
+    "answer": "The provided excerpts do not contain any information about manufacturing locations, critical or high\u2011risk drug status, or the impact of India going offline. Therefore, I cannot answer the question."
+  },
+  {
+    "id": "q08",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "If India went offline, how many critical or high risk drugs would lose all known manufacturing?",
+    "expected": [
+      "15"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "15"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 3158,
+    "total_ms": 3388,
+    "answer": "If India went offline, 16 drugs (14 high\u2011risk and 2 critical\u2011risk) would lose all known manufacturing sources. [G]"
+  },
+  {
+    "id": "q09",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Which facility in India manufactures the most shortage drugs?",
+    "expected": [
+      "pfizer"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "pfizer"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 1879,
+    "total_ms": 13209,
+    "answer": "The excerpts do not provide enough data to determine which Indian facility produces the most shortage drugs. Each listed drug is manufactured by a different Indian company, and no counts or comparative information are given."
+  },
+  {
+    "id": "q09",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Which facility in India manufactures the most shortage drugs?",
+    "expected": [
+      "pfizer"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2741,
+    "total_ms": 3431,
+    "answer": "The facility in India that manufactures the most shortage drugs is **Pfizer Healthcare India Private Limited** (DUNS\u202f860037912), which produces **39** drugs that are currently in shortage. [G]"
+  },
+  {
+    "id": "q10",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Which morphine products currently in shortage have no listed alternative source?",
+    "expected": [
+      "infumorph",
+      "mitigo"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "infumorph",
+      "mitigo"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2563,
+    "total_ms": 919,
+    "answer": "The provided excerpts do not contain any information about which morphine products are currently in shortage or whether an alternative source is listed."
+  },
+  {
+    "id": "q10",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Which morphine products currently in shortage have no listed alternative source?",
+    "expected": [
+      "infumorph",
+      "mitigo"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 5029,
+    "total_ms": 15677,
+    "answer": "The following morphine products are in shortage and have no listed alternative source:\n\n- 20\u202fmL morphine sulfate 10\u202fmg/mL Injection\u202f[Infumorph] (rxcui\u202f1731999) \u2013 critical risk tier, no listed alternative\u202f[G]  \n- 20\u202fmL morphine sulfate 25\u202fmg/mL Injection\u202f[Infumorph] (rxcui\u202f892652) \u2013 critical risk tier, no listed alternative\u202f[G]  \n- 20\u202fmL morphine sulfate 10\u202fmg/mL Injection\u202f[Mitigo] (rxcui\u202f2055307) \u2013 critical risk tier, no listed alternative\u202f[G]  \n- 20\u202fmL morphine sulfate 25\u202fmg/mL Injection\u202f[Mitigo] (rxcui\u202f2055311) \u2013 critical risk tier, no listed alternative\u202f[G]"
+  },
+  {
+    "id": "q11",
+    "category": "hybrid",
+    "system": "baseline",
+    "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+    "expected": [
+      "pentostatin",
+      "refrigerat"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "pentostatin",
+      "refrigerat"
+    ],
+    "forbidden_found": [
+      "quinapril",
+      "bumetanide",
+      "rifampin"
+    ],
+    "passed": false,
+    "tokens": 2212,
+    "total_ms": 16581,
+    "answer": "**Critical\u2011shortage drugs that are manufactured only in India and their storage requirements**\n\n| Drug | Manufacturing location (India only) | Storage conditions |\n|------|-------------------------------------|--------------------|\n| Quinapril (quinapril hydrochloride) | Aurobindo\u202fPharma\u202fLimited, Hyderabad, India | Store at 20\u202f\u00b0C to 25\u202f\u00b0C (68\u202f\u00b0F to 77\u202f\u00b0F); protect from light. [1] |\n| Bumetanide (injection) | MSN\u202fLaboratories\u202fPrivate\u202fLimited, Telangana, India (source\u202f3) and Sagent\u202fPharmaceuticals, India (source\u202f5) | Store at 20\u202f\u00b0C to 25\u202f\u00b0C (68\u202f\u00b0F to 77\u202f\u00b0F); excursions permitted 15\u202f\u00b0C to 30\u202f\u00b0C (59\u202f\u00b0F to 86\u202f\u00b0F); protect from light. [3][5] |\n| Rifampin (injection) | OneSource\u202fSpecialty\u202fPharma\u202fLimited (Sterile Product Division), Bengaluru, India | Store at 25\u202f\u00b0C (77\u202f\u00b0F); excursions permitted 15\u202f\u00b0C to 30\u202f\u00b0C (59\u202f\u00b0F to 86\u202f\u00b0F); avoid temperatures above 40\u202f\u00b0C (104\u202f\u00b0F); protect from light. [6] |\n\nThese are the only drugs in the provided excerpts that are explicitly stated to be manufactured in India. The storage instructions are taken directly from the FDA label excerpts."
+  },
+  {
+    "id": "q11",
+    "category": "hybrid",
+    "system": "graph_rag",
+    "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+    "expected": [
+      "pentostatin",
+      "refrigerat"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 4609,
+    "total_ms": 19999,
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n| Drug (RxCUI) | Manufacturer (India) | Storage instructions |\n|--------------|----------------------|----------------------|\n| pentostatin 10\u202fmg Injection\u202f[Nipent] (RxCUI\u202f105607) | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | Store vials refrigerated at **2\u202f\u00b0C\u202f\u2013\u202f8\u202f\u00b0C (36\u202f\u00b0F\u202f\u2013\u202f46\u202f\u00b0F)**. Reconstituted or further diluted solutions may be kept at room temperature and ambient light but must be used within **8\u202fh** because no preservatives are present. [G][1][2] |\n\n*No other critical\u2011tier drugs in the graph are produced exclusively in India.*"
+  },
+  {
+    "id": "q12",
+    "category": "hybrid",
+    "system": "baseline",
+    "question": "Which morphine products have no alternative source, and what are they used for?",
+    "expected": [
+      "infumorph",
+      "microinfusion",
+      "mitigo"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "infumorph",
+      "microinfusion",
+      "mitigo"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2617,
+    "total_ms": 19015,
+    "answer": "The provided excerpts do not contain any information about which morphine products have no alternative source or the specific uses of those products."
+  },
+  {
+    "id": "q12",
+    "category": "hybrid",
+    "system": "graph_rag",
+    "question": "Which morphine products have no alternative source, and what are they used for?",
+    "expected": [
+      "infumorph",
+      "microinfusion",
+      "mitigo"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 5164,
+    "total_ms": 23513,
+    "answer": "**Morphine products with no listed alternative source**\n\n| Product (brand) | Strength | Alternative status |\n|-----------------|----------|--------------------|\n| 20\u202fmL morphine sulfate 10\u202fmg/mL Injection\u202f[Infumorph] | 10\u202fmg/mL | no_listed_alternative |\n| 20\u202fmL morphine sulfate 25\u202fmg/mL Injection\u202f[Infumorph] | 25\u202fmg/mL | no_listed_alternative |\n| 20\u202fmL morphine sulfate 10\u202fmg/mL Injection\u202f[Mitigo] | 10\u202fmg/mL | no_listed_alternative |\n| 20\u202fmL morphine sulfate 25\u202fmg/mL Injection\u202f[Mitigo] | 25\u202fmg/mL | no_listed_alternative |\n\n*Source: Graph facts [G]*\n\n**Indication / use**\n\nAll four products are opioid agonists intended for **continuous microinfusion via intraspinal (epidural or intrathecal) devices for the management of pain**.  \n*Source: Label excerpts [1] (Mitigo) and [2] (Infumorph)*\n\nThese products are supplied in single\u2011use amber ampuls/vials and are used specifically for intraspinal pain control."
+  }
+]
