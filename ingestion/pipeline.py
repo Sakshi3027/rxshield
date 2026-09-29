@@ -19,6 +19,7 @@ STEPS = [
     "ingestion.fetch_rxnorm",
     "ingestion.silver_rxnorm",
     "ingestion.load_silver",
+    "retrieval.embed_labels",
     "dbt.build",
     "graph.build_graph",
     "graph.failure_impact",
