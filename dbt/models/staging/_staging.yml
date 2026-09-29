@@ -64,3 +64,19 @@ models:
     columns:
       - name: concept_ndc_id
         data_tests: [unique, not_null]
+
+  - name: stg_spl_labels
+    columns:
+      - name: spl_set_id
+        data_tests: [unique, not_null]
+
+  - name: stg_product_labels
+    columns:
+      - name: product_label_id
+        data_tests: [unique, not_null]
+      - name: spl_set_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_spl_labels')
+                field: spl_set_id

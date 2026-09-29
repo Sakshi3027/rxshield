@@ -54,6 +54,10 @@ NODES = [
         select company_duns as duns, company_name as name, facility_count, countries,
                shortage_products_manufactured, sole_company_products
         from {A}.mart_company_exposure"""),
+
+    ("Label", "spl_set_id", f"""
+        select spl_set_id, labeler_name, label_effective_date::text as effective_date
+        from {A}.stg_spl_labels"""),
 ]
 
 RELATIONSHIPS = [
@@ -93,6 +97,9 @@ RELATIONSHIPS = [
         where duns in (select duns from {A}.stg_establishment_operations)""",
      "MATCH (a:Facility {duns: row.duns}) MATCH (b:Company {duns: row.company_duns}) "
      "MERGE (a)-[:OWNED_BY]->(b)"),
+    ("DESCRIBES", f"select spl_set_id, product_ndc from {A}.stg_product_labels",
+     "MATCH (a:Label {spl_set_id: row.spl_set_id}) MATCH (b:Product {product_ndc: row.product_ndc}) "
+     "MERGE (a)-[:DESCRIBES]->(b)"),
 ]
 
 OPERATION_TYPES = {

@@ -24,14 +24,35 @@ def embed_query(question):
     return to_vector(vector / np.linalg.norm(vector))
 
 
-def search(question, k=6):
+def search(question, k=6, spl_set_ids=None):
     query_vector = embed_query(question)
+    label_filter = "where spl_set_id = any(:ids)" if spl_set_ids else ""
+    sql = f"""
+        with candidates as materialized (
+            select chunk_id, spl_set_id, product_label, section_name, content,
+                   embedding <=> cast(:q as vector) as distance
+            from rag.label_chunks
+            {label_filter}
+        )
+        select chunk_id, spl_set_id, product_label, section_name, content,
+               1 - distance as similarity
+        from candidates
+        order by distance
+        limit :k"""
+    params = {"q": query_vector, "k": k}
+    if spl_set_ids:
+        params["ids"] = list(spl_set_ids)
+        with get_cached_engine().begin() as conn:
+            conn.execute(text(SEARCH_PATH))
+            rows = conn.execute(text(sql), params).mappings().all()
+        return [dict(row) for row in rows]
+
     with get_cached_engine().begin() as conn:
         conn.execute(text(SEARCH_PATH))
         rows = conn.execute(text("""
-            select chunk_id, product_label, section_name, content,
+            select chunk_id, spl_set_id, product_label, section_name, content,
                    1 - (embedding <=> cast(:q as vector)) as similarity
             from rag.label_chunks
             order by embedding <=> cast(:q as vector)
-            limit :k"""), {"q": query_vector, "k": k}).mappings().all()
+            limit :k"""), params).mappings().all()
     return [dict(row) for row in rows]
