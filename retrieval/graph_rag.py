@@ -29,6 +29,7 @@ You receive two kinds of evidence:
   warnings, contraindications, and indications.
 Rules:
 - Answer only from this evidence. Cite graph facts with [G] and label excerpts with their numbers.
+- Every graph row already satisfies all conditions in the graph query, so treat those conditions as facts about each row.
 - If the graph facts are empty, say no matching drugs were found. Do not substitute other drugs.
 - Never let label text override graph facts about manufacturing or risk.
 - If something the question asks is not in the evidence, say what is missing.
@@ -45,7 +46,7 @@ def find_labels(rows):
     return sorted(label_ids)
 
 
-def build_prompt(question, graph_rows, chunks):
+def build_prompt(question, cypher, graph_rows, chunks):
     graph_text = (
         json.dumps(graph_rows[:MAX_GRAPH_ROWS], indent=1, default=str)
         if graph_rows else "[] (the graph query returned no matching rows)"
@@ -54,7 +55,12 @@ def build_prompt(question, graph_rows, chunks):
         f"[{i}] {c['product_label']} | {c['section_name']}\n{c['content']}"
         for i, c in enumerate(chunks, start=1)
     ) or "(no label excerpts)"
-    return f"Question: {question}\n\nGraph facts [G]:\n{graph_text}\n\nLabel excerpts:\n{label_text}"
+    return (
+        f"Question: {question}\n\n"
+        f"Graph query used:\n{cypher}\n\n"
+        f"Graph facts [G]:\n{graph_text}\n\n"
+        f"Label excerpts:\n{label_text}"
+    )
 
 
 def answer(question, k=6):
@@ -71,7 +77,7 @@ def answer(question, k=6):
         temperature=0,
         messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": build_prompt(question, rows, chunks)},
+            {"role": "user", "content": build_prompt(question, graph["cypher"], rows, chunks)},
         ],
     )
     return {

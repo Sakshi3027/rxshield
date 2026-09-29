@@ -117,6 +117,7 @@ Rules:
 - If the question asks about label content (storage, dosing, warnings, contraindications, indications), also return collect(DISTINCT l.spl_set_id) AS spl_set_ids via (l:Label)-[:DESCRIBES]->(:Product).
 - Always end with a LIMIT of at most {MAX_ROWS}.
 - If the question asks to change, add, or delete data, or cannot be answered from this graph, return exactly: {NO_QUERY}
+- Return every property you filter on (for example risk_tier or alternative_status), so each row shows why it matches.
 
 {EXAMPLES}"""
 
