@@ -92,11 +92,15 @@ def validate_gold(questions):
             problems.append(f"{q['id']} expects no answer, but the graph now returns {q['expected']}")
         if not q.get("expect_none") and not q["expected"]:
             problems.append(f"{q['id']} has an empty expected answer")
+        if len(q["expected"]) > 8:
+            problems.append(f"{q['id']} expects {len(q['expected'])} terms, too many to score reliably")
     if problems:
         raise ValueError("Gold set problems:\n" + "\n".join(problems))
     
 def main():
-    questions = json.loads(QUESTIONS.read_text())
+    path_arg = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--file=")), None)
+    questions_path = Path(path_arg) if path_arg else QUESTIONS
+    questions = json.loads(questions_path.read_text())
     with get_driver() as driver:
         for question in questions:
             question["expected"] = expected_terms(driver, question)
@@ -124,7 +128,7 @@ def main():
     summarize(results)
     RESULTS_DIR.mkdir(parents=True, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
-    path = RESULTS_DIR / f"benchmark_{stamp}.json"
+    path = RESULTS_DIR / f"{questions_path.stem}_{stamp}.json"
     path.write_text(json.dumps(results, indent=2, default=str))
     print(f"\nSaved {len(results)} results to {path}")
 

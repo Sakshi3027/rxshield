@@ -1,0 +1,23 @@
+[
+  {"id": "h01", "category": "label", "question": "What are the contraindications for ropivacaine?",
+   "must_include": ["hypersensitivity"]},
+  {"id": "h02", "category": "label", "question": "What is dexmedetomidine indicated for?",
+   "must_include": ["sedation"]},
+
+  {"id": "h03", "category": "multi_hop", "question": "Other than the United States, which country would cause the most shortage drugs to lose all known manufacturing if it went offline?",
+   "truth_cypher": "MATCH (c:Country) WHERE c.code <> 'USA' AND c.drugs_lost_if_offline IS NOT NULL WITH c ORDER BY c.drugs_lost_if_offline DESC LIMIT 1 RETURN [toLower(c.name)] AS expected"},
+  {"id": "h04", "category": "multi_hop", "question": "Which facility in China manufactures the most shortage drugs?",
+   "truth_cypher": "MATCH (f:Facility)-[:LOCATED_IN]->(:Country {code: 'CHN'}) WHERE f.drugs_dependent IS NOT NULL WITH f ORDER BY f.drugs_dependent DESC LIMIT 1 RETURN [toLower(split(f.name, ' ')[0])] AS expected"},
+  {"id": "h05", "category": "multi_hop", "question": "How many critical shortage drugs have no listed alternative source and only one manufacturing site?",
+   "truth_cypher": "MATCH (d:Drug {risk_tier: 'critical', alternative_status: 'no_listed_alternative'}) WHERE d.manufacturing_site_count = 1 RETURN [toString(count(d))] AS expected"},
+  {"id": "h06", "category": "negative", "question": "Which critical shortage drugs are made only in Germany?",
+   "truth_cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(:Facility)-[:LOCATED_IN]->(c:Country) WITH d, collect(DISTINCT c.code) AS countries WHERE countries = ['DEU'] MATCH (d)-[:HAS_INGREDIENT]->(i:Ingredient) RETURN collect(DISTINCT i.name) AS expected",
+   "expect_none": true},
+
+  {"id": "h07", "category": "hybrid", "question": "Which dexmedetomidine products are in shortage, and what is the drug used for?",
+   "truth_cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient) WHERE i.name = 'dexmedetomidine' AND d.risk_tier IS NOT NULL RETURN collect(DISTINCT i.name) AS expected",
+   "must_include": ["sedation"]},
+  {"id": "h08", "category": "hybrid", "question": "Where is pentostatin manufactured, and what does its boxed warning say?",
+   "truth_cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(:Ingredient {name: 'pentostatin'}) MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility) RETURN collect(DISTINCT toLower(split(f.name, ' ')[0])) AS expected",
+   "must_include": ["fludarabine"]}
+]
