@@ -89,10 +89,10 @@ OPTIONAL MATCH (d)-[:EQUIVALENT_TO]->(e:Drug)
 RETURN d.name AS drug, d.risk_tier AS risk_tier, d.alternative_status AS alternative_status, d.alternative_labeler_count AS alternative_sources, collect(DISTINCT e.name)[..10] AS equivalents
 LIMIT 25
 
-Question: How should heparin be stored?
+Question: How should Precedex be stored?
 Cypher:
 MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)
-WHERE toLower(i.name) CONTAINS 'heparin'
+WHERE toLower(i.name) CONTAINS 'precedex' OR toLower(d.name) CONTAINS 'precedex'
 MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)
 RETURN collect(DISTINCT d.name)[..10] AS drugs, collect(DISTINCT l.spl_set_id) AS spl_set_ids
 LIMIT 1
@@ -112,12 +112,18 @@ SYSTEM_PROMPT = f"""You translate questions about US drug shortages into ONE rea
 Rules:
 - Use only the node labels, relationships, and properties listed above.
 - Return only the Cypher query: no explanation, no markdown, no code fences.
-- When a question names a drug, match it by ingredient: (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient) WHERE toLower(i.name) CONTAINS '<ingredient>'.
+- A drug named in a question may be an ingredient (morphine) or a brand (Infumorph, Marcaine). Match both:
+  (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient) WHERE toLower(i.name) CONTAINS '<name>' OR toLower(d.name) CONTAINS '<name>'.
 - "Made only in <country>" means every known manufacturing site of the drug is in that country: collect countries per drug and compare to a one-item list.
-- If the question asks about label content (storage, dosing, warnings, contraindications, indications), also return collect(DISTINCT l.spl_set_id) AS spl_set_ids via (l:Label)-[:DESCRIBES]->(:Product).
-- Always end with a LIMIT of at most {MAX_ROWS}.
-- If the question asks to change, add, or delete data, or cannot be answered from this graph, return exactly: {NO_QUERY}
+- Facility, Company, and Country nodes already store failure impact counts (drugs_dependent, drugs_lost_if_offline,
+  critical_or_high_drugs_lost). Read these properties instead of recomputing them.
+- When a question asks "how many", return a single total, not a breakdown to add up.
+- Nulls sort FIRST with ORDER BY ... DESC. When ordering by a property, add WHERE <property> IS NOT NULL.
 - Return every property you filter on (for example risk_tier or alternative_status), so each row shows why it matches.
+- Questions about label content (boxed warnings, storage, dosing, contraindications, indications, uses) ARE answerable:
+  find the drug and return collect(DISTINCT l.spl_set_id) AS spl_set_ids via (l:Label)-[:DESCRIBES]->(:Product).
+- Always end with a LIMIT of at most {MAX_ROWS}.
+- Return exactly {NO_QUERY} only if the question asks to change, add, or delete data, or is not about drugs, shortages, manufacturing, recalls, or labels.
 
 {EXAMPLES}"""
 

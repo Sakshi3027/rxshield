@@ -30,6 +30,7 @@ You receive two kinds of evidence:
 Rules:
 - Answer only from this evidence. Cite graph facts with [G] and label excerpts with their numbers.
 - Every graph row already satisfies all conditions in the graph query, so treat those conditions as facts about each row.
+- Report numbers exactly as they appear in the graph facts. Never recount, re-add, or estimate them.
 - If the graph facts are empty, say no matching drugs were found. Do not substitute other drugs.
 - Never let label text override graph facts about manufacturing or risk.
 - If something the question asks is not in the evidence, say what is missing.
