@@ -71,7 +71,7 @@ def run_one(system, fn, question):
     forbidden = [t.lower() for t in question.get("must_not_include", [])]
     return {**row, **score(out["answer"], question),
             "tokens": out["prompt_tokens"] + out["completion_tokens"],
-            "total_ms": out["total_ms"], "answer": out["answer"]}
+            "total_ms": out["total_ms"], "cypher": out.get("cypher"), "answer": out["answer"]}
 
 
 def summarize(results):
