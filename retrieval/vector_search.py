@@ -26,6 +26,7 @@ def detect_sections(question):
     for pattern, names in SECTION_HINTS:
         if re.search(pattern, text_lower):
             sections += [n for n in names if n not in sections]
+            text_lower = re.sub(pattern, " ", text_lower)
     return sections
 
 

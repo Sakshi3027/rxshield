@@ -20,6 +20,11 @@ FORBIDDEN = re.compile(
 READ_START = re.compile(r"^\s*(MATCH|OPTIONAL\s+MATCH|WITH|UNWIND|RETURN)\b", re.IGNORECASE)
 NO_QUERY = "NO_QUERY"
 
+EMPTY_REVIEW = (
+    "This query returned no rows. Check every node label, relationship type, and relationship direction "
+    "against the schema. If the query is correct and the true answer is empty, return it unchanged. "
+    "Otherwise return a corrected query only. Do not return NO_QUERY."
+)
 
 class NotAnswerable(Exception):
     pass
@@ -148,41 +153,54 @@ def validate(cypher):
     return cypher
 
 
-def generate(client, question, previous=None, error=None):
+def generate(client, question, previous=None, feedback=None):
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": question},
     ]
-    if previous and error:
+    if previous and feedback:
         messages += [
             {"role": "assistant", "content": previous},
-            {"role": "user", "content": f"That query failed with this error:\n{error}\nReturn a corrected query only."},
+            {"role": "user", "content": feedback},
         ]
     response = client.chat.completions.create(model=MODEL, temperature=0, messages=messages)
     usage = response.usage
     return clean(response.choices[0].message.content), usage.prompt_tokens, usage.completion_tokens
 
-
 def run(question):
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
     tokens = {"prompt_tokens": 0, "completion_tokens": 0}
-    cypher, p, c = generate(client, question)
-    tokens["prompt_tokens"] += p
-    tokens["completion_tokens"] += c
 
-    for attempt in (1, 2):
+    def ask(previous=None, feedback=None):
+        cypher, p, c = generate(client, question, previous, feedback)
+        tokens["prompt_tokens"] += p
+        tokens["completion_tokens"] += c
+        return cypher
+
+    cypher = ask()
+    fixed_error = reviewed_empty = False
+    attempts = 0
+    while True:
+        attempts += 1
         cypher = validate(cypher)
         try:
             with get_driver() as driver:
                 records, _, _ = driver.execute_query(cypher, routing_=RoutingControl.READ)
-            return {"question": question, "cypher": cypher, "rows": [r.data() for r in records],
-                    "attempts": attempt, **tokens}
         except Exception as err:
-            if attempt == 2:
+            if fixed_error:
                 raise
-            cypher, p, c = generate(client, question, previous=cypher, error=str(err))
-            tokens["prompt_tokens"] += p
-            tokens["completion_tokens"] += c
+            fixed_error = True
+            cypher = ask(cypher, f"That query failed with this error:\n{err}\nReturn a corrected query only.")
+            continue
+
+        rows = [r.data() for r in records]
+        if not rows and not reviewed_empty:
+            reviewed_empty = True
+            revised = ask(cypher, EMPTY_REVIEW)
+            if " ".join(revised.split()) != " ".join(cypher.split()):
+                cypher = revised
+                continue
+        return {"question": question, "cypher": cypher, "rows": rows, "attempts": attempts, **tokens}
 
 
 def main():
