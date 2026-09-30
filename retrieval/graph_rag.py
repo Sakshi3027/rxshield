@@ -10,7 +10,7 @@ from groq import Groq
 from graph.db import get_driver
 from graph.text2cypher import NotAnswerable
 from graph.text2cypher import run as run_cypher
-from retrieval.vector_search import search
+from retrieval.vector_search import detect_sections, search
 
 load_dotenv(".env")
 
@@ -31,6 +31,7 @@ Rules:
 - Answer only from this evidence. Cite graph facts with [G] and label excerpts with their numbers.
 - Every graph row already satisfies all conditions in the graph query, so treat those conditions as facts about each row.
 - Report numbers exactly as they appear in the graph facts. Never recount, re-add, or estimate them.
+- Attribute label content to the section named in its excerpt header. Only call text a "boxed warning" if its excerpt is labeled Boxed Warning.
 - If the graph facts are empty, say no matching drugs were found. Do not substitute other drugs.
 - Never let label text override graph facts about manufacturing or risk.
 - If something the question asks is not in the evidence, say what is missing.
@@ -63,6 +64,15 @@ def build_prompt(question, cypher, graph_rows, chunks):
         f"Label excerpts:\n{label_text}"
     )
 
+def retrieve_label_chunks(question, label_ids, k):
+    sections = detect_sections(question)
+    chunks = search(question, k=3, spl_set_ids=label_ids, sections=sections) if sections else []
+    seen = {c["chunk_id"] for c in chunks}
+    for chunk in search(question, k=k, spl_set_ids=label_ids):
+        if chunk["chunk_id"] not in seen:
+            chunks.append(chunk)
+            seen.add(chunk["chunk_id"])
+    return chunks[:k + 3]
 
 def answer(question, k=6):
     start = time.perf_counter()
@@ -70,7 +80,7 @@ def answer(question, k=6):
     rows = [{key: value for key, value in row.items() if key != "spl_set_ids"} for row in graph["rows"]]
 
     label_ids = find_labels(graph["rows"])
-    chunks = search(question, k=k, spl_set_ids=label_ids) if label_ids else []
+    chunks = retrieve_label_chunks(question, label_ids, k) if label_ids else []
 
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
     response = client.chat.completions.create(

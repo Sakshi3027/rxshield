@@ -2,11 +2,31 @@
 from functools import lru_cache
 
 import numpy as np
+import re
 from fastembed import TextEmbedding
 from sqlalchemy import text
 
 from ingestion.db import get_engine
 from retrieval.embed_labels import MODEL_NAME, QUERY_PREFIX, SEARCH_PATH, to_vector
+
+SECTION_HINTS = [
+    (r"\bboxed warning", ["Boxed Warning"]),
+    (r"\bcontraindicat", ["Contraindications"]),
+    (r"\bindicat|\bused for\b", ["Indications and Usage"]),
+    (r"\bstor(e|ed|age|ing)\b", ["How Supplied / Storage and Handling"]),
+    (r"\bdos(e|es|ing|age)\b", ["Dosage and Administration", "Dosage Forms and Strengths"]),
+    (r"\binteract", ["Drug Interactions"]),
+    (r"\bwarnings?\b|\bprecaution", ["Warnings and Precautions", "Warnings", "Precautions"]),
+]
+
+
+def detect_sections(question):
+    text_lower = question.lower()
+    sections = []
+    for pattern, names in SECTION_HINTS:
+        if re.search(pattern, text_lower):
+            sections += [n for n in names if n not in sections]
+    return sections
 
 
 @lru_cache(maxsize=1)
@@ -24,35 +44,38 @@ def embed_query(question):
     return to_vector(vector / np.linalg.norm(vector))
 
 
-def search(question, k=6, spl_set_ids=None):
-    query_vector = embed_query(question)
-    label_filter = "where spl_set_id = any(:ids)" if spl_set_ids else ""
-    sql = f"""
-        with candidates as materialized (
-            select chunk_id, spl_set_id, product_label, section_name, content,
-                   embedding <=> cast(:q as vector) as distance
-            from rag.label_chunks
-            {label_filter}
-        )
-        select chunk_id, spl_set_id, product_label, section_name, content,
-               1 - distance as similarity
-        from candidates
-        order by distance
-        limit :k"""
-    params = {"q": query_vector, "k": k}
+def search(question, k=6, spl_set_ids=None, sections=None):
+    params = {"q": embed_query(question), "k": k}
+    filters = []
     if spl_set_ids:
+        filters.append("spl_set_id = any(:ids)")
         params["ids"] = list(spl_set_ids)
-        with get_cached_engine().begin() as conn:
-            conn.execute(text(SEARCH_PATH))
-            rows = conn.execute(text(sql), params).mappings().all()
-        return [dict(row) for row in rows]
+    if sections:
+        filters.append("section_name = any(:sections)")
+        params["sections"] = list(sections)
 
-    with get_cached_engine().begin() as conn:
-        conn.execute(text(SEARCH_PATH))
-        rows = conn.execute(text("""
+    if filters:
+        sql = f"""
+            with candidates as materialized (
+                select chunk_id, spl_set_id, product_label, section_name, content,
+                       embedding <=> cast(:q as vector) as distance
+                from rag.label_chunks
+                where {' and '.join(filters)}
+            )
+            select chunk_id, spl_set_id, product_label, section_name, content,
+                   1 - distance as similarity
+            from candidates
+            order by distance
+            limit :k"""
+    else:
+        sql = """
             select chunk_id, spl_set_id, product_label, section_name, content,
                    1 - (embedding <=> cast(:q as vector)) as similarity
             from rag.label_chunks
             order by embedding <=> cast(:q as vector)
-            limit :k"""), params).mappings().all()
+            limit :k"""
+
+    with get_cached_engine().begin() as conn:
+        conn.execute(text(SEARCH_PATH))
+        rows = conn.execute(text(sql), params).mappings().all()
     return [dict(row) for row in rows]

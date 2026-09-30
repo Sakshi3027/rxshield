@@ -1,0 +1,442 @@
+[
+  {
+    "id": "q01",
+    "category": "label",
+    "system": "baseline",
+    "question": "What are the contraindications for bupivacaine?",
+    "expected": [
+      "bier",
+      "hypersensitivity"
+    ],
+    "recall": 0.5,
+    "missing": [
+      "hypersensitivity"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 3652,
+    "total_ms": 9632,
+    "cypher": null,
+    "answer": "Contraindications for bupivacaine (including its spinal and injectable formulations) are:\n\n- **Intravenous regional anesthesia (Bier Block)** \u2013 contraindicated in all bupivacaine products. [1][2][3][4]["
+  },
+  {
+    "id": "q01",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "What are the contraindications for bupivacaine?",
+    "expected": [
+      "bier",
+      "hypersensitivity"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 5031,
+    "total_ms": 33872,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'bupivacaine' OR toLower(d.name) CONTAINS 'bupivacaine'\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN collect(DISTINCT d.name)[..10] AS drugs, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 1",
+    "answer": "**Contraindications for bupivacaine** (as listed in the FDA label excerpts):\n\n- **Intravenous regional anesthesia (Bier Block)** \u2013 contraindicated for all bupivacaine preparations. [1][2][3][4][5][6]  \n- **Septicemia** \u2013 patients with active infection of the bloodstream. [1][2]  \n- **Severe hemorrhage, severe hypotension, or shock** \u2013 conditions that reduce cardiac output. [1][2]  \n- **Clinically significant arrhythmias** (e.g., complete heartblock) that reduce cardiac output. [1][2]  \n- **Known hypersensitivity** to bupivacaine, any amide\u2011type local anesthetic, or other components of the product. [1][2][3][4][5][6]  \n- **Local infection at the site of proposed lumbar puncture** (for spinal use). [1][2]  \n- **Obstetrical paracervical block anesthesia** \u2013 use has caused fetal bradycardia and death. [3][4][5][6]"
+  },
+  {
+    "id": "q02",
+    "category": "label",
+    "system": "baseline",
+    "question": "How should Nipent (pentostatin) vials be stored?",
+    "expected": [
+      "refrigerat"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 1658,
+    "total_ms": 1819,
+    "cypher": null,
+    "answer": "NIPENT (pentostatin) vials should be stored refrigerated at 2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)\u30101\u3011\u30102\u3011."
+  },
+  {
+    "id": "q02",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "How should Nipent (pentostatin) vials be stored?",
+    "expected": [
+      "refrigerat"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 4257,
+    "total_ms": 15668,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'pentostatin' OR toLower(d.name) CONTAINS 'nipent'\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN collect(DISTINCT d.name)[..10] AS drugs, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 1",
+    "answer": "NIPENT vials should be stored refrigerated at **2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)**.  \n[1] Storage: Store NIPENT vials under refrigerated storage conditions 2\u00b0 to 8\u00b0\u202fC (36\u00b0 to 46\u00b0F).  \n[2] Stability: NIPENT vials are stable at refrigerated storage temperature 2\u00b0 to 8\u00b0\u202fC (36\u00b0 to 46\u00b0F) for the period stated on the package."
+  },
+  {
+    "id": "q03",
+    "category": "label",
+    "system": "baseline",
+    "question": "What is Infumorph used for?",
+    "expected": [
+      "microinfusion"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2479,
+    "total_ms": 26536,
+    "cypher": null,
+    "answer": "Infumorph is indicated for use in continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate. [1]"
+  },
+  {
+    "id": "q03",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "What is Infumorph used for?",
+    "expected": [
+      "microinfusion"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 4902,
+    "total_ms": 9457,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'infumorph' OR toLower(d.name) CONTAINS 'infumorph'\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.name AS drug, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 1",
+    "answer": "Infumorph is a preservative\u2011free morphine sulfate solution intended for use in continuous microinfusion devices for intrathecal or epidural infusion. It is indicated only for the management of intractable chronic pain that is severe enough to require an opioid analgesic and for which less invasive means of pain control are inadequate\u30101\u3011."
+  },
+  {
+    "id": "q04",
+    "category": "label",
+    "system": "baseline",
+    "question": "What does the boxed warning for Marcaine (bupivacaine) say?",
+    "expected": [
+      "cardiac arrest"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2105,
+    "total_ms": 25170,
+    "cypher": null,
+    "answer": "The boxed warning for Marcaine (bupivacaine) states that there is a **risk of cardiac arrest with use of Marcaine in obstetrical anesthesia**. Reports describe cardiac arrest with difficult resuscitation or death during epidural anesthesia in obstetrical patients, most often after use of the 0.75\u202f% (7.5\u202fmg/mL) concentration. Resuscitation has been difficult or impossible despite apparently adequate preparation and appropriate management, and cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection. The 0.75\u202f% concentration is **not recommended for obstetrical anesthesia** and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary. [1][2]"
+  },
+  {
+    "id": "q04",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "What does the boxed warning for Marcaine (bupivacaine) say?",
+    "expected": [
+      "cardiac arrest"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 6007,
+    "total_ms": 16868,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'bupivacaine' OR toLower(d.name) CONTAINS 'marcaine'\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN collect(DISTINCT d.name) AS drug_names, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 1",
+    "answer": "**Boxed Warning (Marcaine \u2013 bupivacaine hydrochloride)**  \nThe warning states:  \n\n> \u201cRISK OF CARDIAC ARREST WITH USE OF MARCAINE IN OBSTETRICAL ANESTHESIA. There have been reports of cardiac arrest with difficult resuscitation or death during use of MARCAINE for epidural anesthesia in obstetrical patients. In most cases, this has followed use of the 0.75\u202f% (7.5\u202fmg/mL) concentration. Resuscitation has been difficult or impossible despite apparently adequate preparation and appropriate management. Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection. The 0.75\u202f% (7.5\u202fmg/mL) concentration of MARCAINE is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.\u201d  \n\n(Full text available in the prescribing information.)\u30101\u3011\u30102\u3011"
+  },
+  {
+    "id": "q05",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Which critical shortage drugs are made only in India?",
+    "expected": [
+      "pentostatin"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "pentostatin"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2341,
+    "total_ms": 15051,
+    "cypher": null,
+    "answer": "The excerpts do not provide any information about the critical\u2011shortage status of the drugs listed. Therefore, I cannot determine which critical\u2011shortage drugs are made only in India."
+  },
+  {
+    "id": "q05",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Which critical shortage drugs are made only in India?",
+    "expected": [
+      "pentostatin"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 4571,
+    "total_ms": 32422,
+    "cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility)-[:LOCATED_IN]->(c:Country)\nWITH d, collect(DISTINCT c.code) AS countries, collect(DISTINCT f.name) AS facilities\nWHERE countries = ['IND']\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier, facilities, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n- **Pentostatin 10\u202fMG Injection\u202f[Nipent]** (rxcui\u202f105607) \u2013 manufactured by Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited in India\u202f[G]."
+  },
+  {
+    "id": "q06",
+    "category": "negative",
+    "system": "baseline",
+    "question": "Which critical shortage drugs are made only in China?",
+    "expected": [],
+    "recall": 0.0,
+    "missing": [
+      "<should say none>"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2319,
+    "total_ms": 6422,
+    "cypher": null,
+    "answer": "The excerpts do not provide any information about which of these drugs are designated as critical\u2011shortage drugs. They only list manufacturing locations. Therefore I cannot answer the question."
+  },
+  {
+    "id": "q06",
+    "category": "negative",
+    "system": "graph_rag",
+    "question": "Which critical shortage drugs are made only in China?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2931,
+    "total_ms": 15807,
+    "cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility)-[:LOCATED_IN]->(c:Country)\nWITH d, collect(DISTINCT c.code) AS countries, collect(DISTINCT f.name) AS facilities\nWHERE countries = ['CHN']\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier, facilities, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "answer": "No critical\u2011shortage drugs were found that are manufactured exclusively in China."
+  },
+  {
+    "id": "q07",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Which company would lose the most shortage drugs if all of its plants went offline?",
+    "expected": [
+      "hospira"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "hospira"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2534,
+    "total_ms": 2283,
+    "cypher": null,
+    "answer": "Novartis would lose the most shortage drugs if all of its plants went offline.  \n[3] lists Novartis as the manufacturer of Anafranil\u00ae, Pamelor\u00ae, and Tofranil\u00ae, the highest number of drugs among the companies mentioned."
+  },
+  {
+    "id": "q07",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Which company would lose the most shortage drugs if all of its plants went offline?",
+    "expected": [
+      "hospira"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2602,
+    "total_ms": 7389,
+    "cypher": "MATCH (co:Company)\nWHERE co.drugs_lost_if_offline IS NOT NULL\nRETURN co.name AS company, co.drugs_lost_if_offline AS drugs_lost_if_offline\nORDER BY co.drugs_lost_if_offline DESC\nLIMIT 1",
+    "answer": "Hospira,\u202fInc. would lose the most shortage drugs if all of its plants went offline\u201466 drugs in total. [G]"
+  },
+  {
+    "id": "q08",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "If India went offline, how many critical or high risk drugs would lose all known manufacturing?",
+    "expected": [
+      "15"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "15"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2138,
+    "total_ms": 26301,
+    "cypher": null,
+    "answer": "The provided excerpts do not contain any information about manufacturing locations, critical or high\u2011risk drug status, or the impact of India going offline. Therefore, I cannot answer the question."
+  },
+  {
+    "id": "q08",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "If India went offline, how many critical or high risk drugs would lose all known manufacturing?",
+    "expected": [
+      "15"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 3169,
+    "total_ms": 3889,
+    "cypher": "MATCH (f:Facility)-[:MANUFACTURES]->(p:Product)<-[:OF_PRODUCT]-(pkg:Package)-[:IS_DRUG]->(d:Drug)\nWHERE d.risk_tier IN ['critical','high']\nMATCH (f)-[:LOCATED_IN]->(c:Country)\nWITH d, collect(DISTINCT c.code) AS countries\nWHERE countries = ['IND']\nRETURN count(DISTINCT d) AS lost_drugs\nLIMIT 1",
+    "answer": "15 critical or high\u2011risk drugs would lose all known manufacturing if India went offline. [G]"
+  },
+  {
+    "id": "q09",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Which facility in India manufactures the most shortage drugs?",
+    "expected": [
+      "pfizer"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "pfizer"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2101,
+    "total_ms": 2567,
+    "cypher": null,
+    "answer": "The excerpts list four Indian manufacturers, each mentioned once:\n\n- Aurobindo\u202fPharma\u202fLimited (Hyderabad) \u2013 Quinapril\u30102\u3011  \n- OneSource Specialty Pharma Limited (Bengaluru) \u2013 Rifampin\u30103\u3011  \n- Sagent\u202fPharmaceuticals \u2013 Bumetanide\u30105\u3011  \n- MSN Laboratories Private Limited (Telangana) \u2013 Bumetanide\u30106\u3011\n\nNo facility appears more frequently than the others, so the excerpts do not identify a single Indian facility that manufactures the most shortage drugs."
+  },
+  {
+    "id": "q09",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Which facility in India manufactures the most shortage drugs?",
+    "expected": [
+      "pfizer"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2948,
+    "total_ms": 8697,
+    "cypher": "MATCH (f:Facility)-[:LOCATED_IN]->(c:Country {code: 'IND'})\nMATCH (f)-[:MANUFACTURES]->(p:Product)<-[:OF_PRODUCT]-(pkg:Package)-[:IS_DRUG]->(d:Drug)\nWHERE d.risk_tier IS NOT NULL\nWITH f, count(DISTINCT d) AS shortage_drug_count\nRETURN f.name AS facility, shortage_drug_count\nORDER BY shortage_drug_count DESC\nLIMIT 1",
+    "answer": "The facility in India that manufactures the most shortage drugs is **Pfizer Healthcare India Private Limited**, with **39** shortage drugs. [G]"
+  },
+  {
+    "id": "q10",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Which morphine products currently in shortage have no listed alternative source?",
+    "expected": [
+      "infumorph",
+      "mitigo"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "infumorph",
+      "mitigo"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2529,
+    "total_ms": 18881,
+    "cypher": null,
+    "answer": "The provided FDA label excerpts do not contain any information about current shortages or alternative source listings for morphine products."
+  },
+  {
+    "id": "q10",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Which morphine products currently in shortage have no listed alternative source?",
+    "expected": [
+      "infumorph",
+      "mitigo"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 5373,
+    "total_ms": 31913,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE (toLower(i.name) CONTAINS 'morphine' OR toLower(d.name) CONTAINS 'morphine')\n  AND d.has_current_shortage = true\n  AND d.alternative_status = 'no_listed_alternative'\nRETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier, d.alternative_status AS alternative_status\nLIMIT 50",
+    "answer": "**Morphine products in shortage with no listed alternative source**\n\n| rxcui | Drug name | Risk tier |\n|-------|-----------|-----------|\n| 1731999 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] | critical |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] | critical |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] | critical |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] | critical |\n\nAll four entries are flagged as having no listed alternative source in the FDA shortage data. [G]"
+  },
+  {
+    "id": "q11",
+    "category": "hybrid",
+    "system": "baseline",
+    "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+    "expected": [
+      "pentostatin",
+      "refrigerat"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "pentostatin",
+      "refrigerat"
+    ],
+    "forbidden_found": [
+      "quinapril",
+      "bumetanide",
+      "rifampin"
+    ],
+    "passed": false,
+    "tokens": 2247,
+    "total_ms": 3583,
+    "cypher": null,
+    "answer": "**Critical\u2011shortage drugs manufactured only in India and their storage requirements**\n\n| Drug | Manufacturing location (India only) | Storage conditions |\n|------|-------------------------------------|--------------------|\n| Quinapril (quinapril hydrochloride) | Aurobindo\u202fPharma\u202fLimited, Hyderabad, India | Store at 20\u202f\u00b0C\u202f\u2013\u202f25\u202f\u00b0C (68\u202f\u00b0F\u202f\u2013\u202f77\u202f\u00b0F); protect from light. [1] |\n| Bumetanide (injection) | MSN\u202fLaboratories\u202fPrivate\u202fLimited, Telangana, India (source\u202f3) and SAGENT\u202fPharmaceuticals, India (source\u202f5) | Store at 20\u202f\u00b0C\u202f\u2013\u202f25\u202f\u00b0C (68\u202f\u00b0F\u202f\u2013\u202f77\u202f\u00b0F); excursions permitted 15\u202f\u00b0C\u202f\u2013\u202f30\u202f\u00b0C (59\u202f\u00b0F\u202f\u2013\u202f86\u202f\u00b0F); protect from light. [3][5] |\n| Rifampin (for injection) | OneSource\u202fSpecialty\u202fPharma\u202fLimited (Sterile Product Division), Bengaluru, India | Store at 25\u202f\u00b0C (77\u202f\u00b0F); excursions permitted 15\u202f\u00b0C\u202f\u2013\u202f30\u202f\u00b0C (59\u202f\u00b0F\u202f\u2013\u202f86\u202f\u00b0F); protect from light. [6] |\n\nThese are the only drugs in the provided excerpts that are indicated as manufactured exclusively in India, and the cited storage instructions apply to each."
+  },
+  {
+    "id": "q11",
+    "category": "hybrid",
+    "system": "graph_rag",
+    "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+    "expected": [
+      "pentostatin",
+      "refrigerat"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 4871,
+    "total_ms": 5275,
+    "cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility)-[:LOCATED_IN]->(c:Country)\nWITH d, collect(DISTINCT c.code) AS countries, collect(DISTINCT f.name) AS facilities\nWHERE countries = ['IND']\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier, facilities, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n| Drug | Facility | Storage instructions |\n|------|----------|----------------------|\n| Pentostatin 10\u202fMG Injection\u202f[Nipent] (rxcui\u202f105607) | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | \u2022 Store vials refrigerated at **2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)**\u202f[G][1] <br>\u2022 Reconstituted vials may be kept at room temperature and ambient light but must be used within **8\u202fhours**\u202f[2] |\n\n*Graph fact confirms the drug is a critical\u2011tier shortage product manufactured only in India.*"
+  },
+  {
+    "id": "q12",
+    "category": "hybrid",
+    "system": "baseline",
+    "question": "Which morphine products have no alternative source, and what are they used for?",
+    "expected": [
+      "infumorph",
+      "microinfusion",
+      "mitigo"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "infumorph",
+      "microinfusion",
+      "mitigo"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2588,
+    "total_ms": 1118,
+    "cypher": null,
+    "answer": "The provided excerpts do not contain any information about which morphine products have no alternative source or the specific indications for those products."
+  },
+  {
+    "id": "q12",
+    "category": "hybrid",
+    "system": "graph_rag",
+    "question": "Which morphine products have no alternative source, and what are they used for?",
+    "expected": [
+      "infumorph",
+      "microinfusion",
+      "mitigo"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 6063,
+    "total_ms": 17481,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'morphine' AND d.alternative_status = 'no_listed_alternative'\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui, d.name AS drug, d.alternative_status AS alternative_status, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "answer": "**Morphine products with no listed alternative source**\n\n| rxcui | Drug name | Indication (use) |\n|-------|-----------|------------------|\n| 1731999 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate\u3010G\u3011\u30101\u3011 |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate\u3010G\u3011\u30101\u3011 |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate\u3010G\u3011\u30102\u3011 |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate\u3010G\u3011\u30102\u3011 |\n\nThese products are specifically indicated for continuous microinfusion in intrathecal or epidural settings and are **not** intended for single\u2011dose intravenous, intramuscular, subcutaneous, or single\u2011dose neuraxial injection."
+  }
+]

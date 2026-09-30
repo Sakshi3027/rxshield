@@ -31,6 +31,8 @@ Nodes and properties:
   risk_reasons, alternative_status ('no_listed_alternative'|'single_alternative'|'multiple_alternatives'),
   alternative_labeler_count, manufacturing_site_count}
   Shortage fields (risk_tier, has_current_shortage, alternative_status) exist only on drugs in shortage.
+  "Shortage drugs" means every Drug with a risk_tier: all drugs on the FDA shortage list, including those being discontinued.
+  Filter on has_current_shortage only when the question says "current" or "currently".
   Other Drug nodes are equivalents from other manufacturers and have {rxcui, name, is_brand}.
 - Package {package_ndc, ndc_status}
 - Product {product_ndc, generic_name, company_name, sourcing_status ('single_site'|'multi_site'|'unknown'),
@@ -111,6 +113,7 @@ SYSTEM_PROMPT = f"""You translate questions about US drug shortages into ONE rea
 
 Rules:
 - Use only the node labels, relationships, and properties listed above.
+- Do not add filters the question did not ask for.
 - Return only the Cypher query: no explanation, no markdown, no code fences.
 - A drug named in a question may be an ingredient (morphine) or a brand (Infumorph, Marcaine). Match both:
   (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient) WHERE toLower(i.name) CONTAINS '<name>' OR toLower(d.name) CONTAINS '<name>'.
