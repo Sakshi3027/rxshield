@@ -1,22 +1,27 @@
-"""App database access: least-privilege role with the tenant set per transaction."""
+"""App database access: least-privilege role, identity set per transaction, permissions decided by the database."""
 import os
 from contextlib import contextmanager
 from functools import lru_cache
 
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine, make_url, text
 
 load_dotenv(".env")
 
 
 @lru_cache(maxsize=1)
 def get_app_engine():
-    url = os.environ["APP_DATABASE_URL"].replace("postgresql://", "postgresql+psycopg://", 1)
-    return create_engine(url, pool_pre_ping=True)
-
+    admin_url = make_url(os.environ["DATABASE_URL"])
+    project_ref = admin_url.username.split(".", 1)[1]
+    app_url = admin_url.set(
+        drivername="postgresql+psycopg",
+        username=f"rxshield_app.{project_ref}",
+        password=os.environ["APP_DB_PASSWORD"],
+    )
+    return create_engine(app_url, pool_pre_ping=True, hide_parameters=True)
 
 @contextmanager
-def tenant_session(tenant_id):
+def user_session(user_id):
     with get_app_engine().begin() as conn:
-        conn.execute(text("select set_config('app.tenant_id', :t, true)"), {"t": tenant_id})
+        conn.execute(text("select set_config('app.user_id', :u, true)"), {"u": user_id})
         yield conn
