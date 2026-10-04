@@ -44,7 +44,7 @@ def build_documents(rows):
             "tenant_id": row.tenant_id, "doc_type": "protocol", "allowed_roles": CLINICAL_ROLES,
             "drug_rxcui": row.drug_rxcui, "title": f"Substitution protocol: {row.drug_name}",
             "content": (f"{row.tenant_name} Pharmacy and Therapeutics interim protocol for {row.drug_name}. "
-                        f"Current supply covers about {int(row.days_on_hand)} days at the usual rate of use. "
+                        "Supply is constrained; follow the conservation measures below. "
                         f"{' '.join(rng.sample(CONSERVATION, 2))} {substitution} "
                         f"This protocol applies to all {row.tenant_name} facilities and is reviewed weekly."),
         })

@@ -4,6 +4,12 @@ import os
 import sys
 import time
 
+PROMPT_TOKEN_BUDGET = 6000
+
+
+def approx_tokens(text_value):
+    return len(text_value) // 4
+
 from dotenv import load_dotenv
 from groq import Groq
 from sqlalchemy import text
@@ -73,9 +79,9 @@ def build_prompt(question, cypher, graph_rows, label_chunks, inventory, private)
     return (
         f"Question: {question}\n\n"
         f"Graph query used:\n{cypher}\n\n"
-        f"Graph facts [G]:\n{json.dumps(graph_rows[:25], indent=1, default=str) if graph_rows else '[] (no rows)'}\n\n"
+        f"Graph facts [G]:\n{json.dumps(graph_rows[:25], separators=(',', ':'), default=str) if graph_rows else '[] (no rows)'}\n\n"
         f"Label excerpts:\n{labels}\n\n"
-        f"Hospital inventory [H]:\n{json.dumps(inventory, indent=1, default=str) if inventory else '(none available to this user)'}\n\n"
+        f"Hospital inventory [H]:\n{json.dumps(inventory, separators=(',', ':'), default=str) if inventory else '(none available to this user)'}\n\n"
         f"Hospital documents:\n{documents}"
     )
 
@@ -92,14 +98,22 @@ def answer_for_user(user_id, question, k=6):
         user_id, question, rxcuis, audit_extra={"cypher": graph["cypher"], "labels": label_ids})
     identity = tenant["identity"]
 
+    system = SYSTEM_PROMPT.format(**identity)
+    prompt = build_prompt(question, graph["cypher"], rows, label_chunks, tenant["inventory"], tenant["private_sources"])
+    while approx_tokens(system + prompt) > PROMPT_TOKEN_BUDGET and (label_chunks or len(rows) > 5):
+        if label_chunks:
+            label_chunks = label_chunks[:-1]
+        else:
+            rows = rows[:-1]
+        prompt = build_prompt(question, graph["cypher"], rows, label_chunks, tenant["inventory"], tenant["private_sources"])
+
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
     response = client.chat.completions.create(
         model=ANSWER_MODEL,
         temperature=0,
         messages=[
-            {"role": "system", "content": SYSTEM_PROMPT.format(**identity)},
-            {"role": "user", "content": build_prompt(
-                question, graph["cypher"], rows, label_chunks, tenant["inventory"], tenant["private_sources"])},
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
         ],
     )
     return {

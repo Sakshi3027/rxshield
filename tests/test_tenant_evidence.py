@@ -35,3 +35,10 @@ def test_procurement_gets_inventory_with_prices():
 def test_unknown_user_is_rejected():
     with pytest.raises(PermissionError):
         gather_tenant_evidence("intruder", QUESTION, northshore_rxcuis())
+
+
+def test_clinician_documents_contain_no_inventory_numbers():
+    evidence = gather_tenant_evidence("northshore-clinician", QUESTION, northshore_rxcuis())
+    for doc in evidence["private_sources"]:
+        assert "days" not in doc["content"].lower()
+        assert "units" not in doc["content"].lower()
