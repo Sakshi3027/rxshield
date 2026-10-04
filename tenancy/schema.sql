@@ -95,3 +95,27 @@ grant usage on all sequences in schema tenancy to rxshield_app;
 grant select on all tables in schema analytics, rag to rxshield_app;
 alter default privileges in schema analytics grant select on tables to rxshield_app;
 alter default privileges in schema rag grant select on tables to rxshield_app;
+
+create table if not exists rag.answer_cache (
+    cache_id bigint generated always as identity primary key,
+    scope_tenant text not null references tenancy.tenants (tenant_id),
+    scope_role text not null,
+    signature text not null,
+    question text not null,
+    embedding extensions.vector(384) not null,
+    answer jsonb not null,
+    data_version text not null,
+    created_at timestamptz not null default now()
+);
+create index if not exists answer_cache_lookup on rag.answer_cache (signature, data_version);
+
+alter table rag.answer_cache enable row level security;
+drop policy if exists cache_read on rag.answer_cache;
+create policy cache_read on rag.answer_cache for select
+    using (scope_tenant = tenancy.session_tenant() and scope_role = tenancy.session_role());
+drop policy if exists cache_write on rag.answer_cache;
+create policy cache_write on rag.answer_cache for insert
+    with check (scope_tenant = tenancy.session_tenant() and scope_role = tenancy.session_role());
+
+grant select, insert on rag.answer_cache to rxshield_app;
+grant usage on all sequences in schema rag to rxshield_app;
