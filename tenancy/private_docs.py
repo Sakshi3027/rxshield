@@ -20,14 +20,29 @@ CONSERVATION = [
 
 SOURCE_SQL = """
     select t.tenant_id, t.name as tenant_name, f.drug_rxcui, f.drug_name,
-           round(f.on_hand_units / f.avg_daily_units) as days_on_hand,
-           c.supplier, c.unit_price, c.contract_end, r.alternative_status
+           c.supplier, c.unit_price, c.contract_end, r.alternative_status,
+           exists (
+               select 1
+               from analytics.stg_drug_ingredients i
+               join analytics.stg_drug_ingredients i2 on i2.ingredient_rxcui = i.ingredient_rxcui
+               join analytics.stg_drug_dose_forms df on df.drug_rxcui = i2.drug_rxcui
+               where i.drug_rxcui = f.drug_rxcui and df.dose_form_group_name ilike '%oral%'
+           )
+           and not exists (
+               select 1 from analytics.stg_drug_dose_forms d0
+               where d0.drug_rxcui = f.drug_rxcui and d0.dose_form_group_name ilike '%oral%'
+           ) as oral_option
     from tenancy.formulary f
     join tenancy.tenants t on t.tenant_id = f.tenant_id
     join tenancy.contracts c on c.tenant_id = f.tenant_id and c.drug_rxcui = f.drug_rxcui
     join analytics.mart_shortage_risk r on r.drug_rxcui = f.drug_rxcui
     where r.risk_tier in ('critical', 'high')
 """
+
+def measures_for(row):
+    if row.oral_option:
+        return CONSERVATION
+    return [m for m in CONSERVATION if "oral route" not in m]
 
 
 def build_documents(rows):
@@ -45,7 +60,7 @@ def build_documents(rows):
             "drug_rxcui": row.drug_rxcui, "title": f"Substitution protocol: {row.drug_name}",
             "content": (f"{row.tenant_name} Pharmacy and Therapeutics interim protocol for {row.drug_name}. "
                         "Supply is constrained; follow the conservation measures below. "
-                        f"{' '.join(rng.sample(CONSERVATION, 2))} {substitution} "
+                        f"{' '.join(rng.sample(measures_for(row), 2))} {substitution} "
                         f"This protocol applies to all {row.tenant_name} facilities and is reviewed weekly."),
         })
         docs.append({
@@ -62,7 +77,7 @@ def build_documents(rows):
 
 def main():
     engine = get_engine()
-    docs = build_documents(pd.read_sql(SOURCE_SQL, engine))
+    docs = build_documents(pd.read_sql(text(SOURCE_SQL), engine))
     print(f"Built {len(docs)} private documents")
 
     model = TextEmbedding(MODEL_NAME)
