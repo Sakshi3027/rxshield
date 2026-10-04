@@ -57,3 +57,10 @@ def test_audit_log_cannot_be_deleted():
     with pytest.raises(DBAPIError, match="permission denied"):
         with user_session("northshore-executive") as conn:
             conn.execute(text("delete from tenancy.audit_log"))
+
+def test_onboarded_tenant_sees_only_its_own_data():
+    with user_session("riverbend-pharmacist") as conn:
+        formulary = conn.execute(text("select distinct tenant_id from tenancy.formulary")).scalars().all()
+        users = conn.execute(text("select distinct tenant_id from tenancy.users")).scalars().all()
+    assert formulary == ["riverbend"]
+    assert users == ["riverbend"]
