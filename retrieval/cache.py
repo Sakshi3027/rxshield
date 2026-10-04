@@ -1,5 +1,6 @@
 """Permission-aware semantic answer cache: entity signature plus similarity, scoped by tenant and role."""
 import re
+import json
 from functools import lru_cache
 
 from sqlalchemy import text
@@ -32,6 +33,7 @@ INTENTS = {
     r"\bprotocol": "protocol",
     r"\bindicat|\bused for\b": "indications",
     r"\bhow many\b": "count",
+    r"\bshortage|\bin short supply": "shortage_status",
 }
 
 
@@ -99,12 +101,7 @@ def store(conn, question, sig, query_vector, payload, version):
             (scope_tenant, scope_role, signature, question, embedding, answer, data_version)
         values (tenancy.session_tenant(), tenancy.session_role(), :sig, :question,
                 cast(:q as vector), cast(:answer as jsonb), :v)"""),
-        {"sig": sig, "question": question, "q": query_vector, "answer": json_dumps(payload), "v": version})
-
-
-def json_dumps(payload):
-    import json
-    return json.dumps(payload, default=str)
+        {"sig": sig, "question": question, "q": query_vector, "answer": json.dumps(payload, default=str), "v": version})
 
 
 def cached_answer_for_user(user_id, question):

@@ -44,8 +44,8 @@ def main():
                      "d": f"{name.split()[0]} {role.title()}", "r": role})
 
         users = conn.execute(text("select count(*) from tenancy.users")).scalar()
-        print(f"Role {APP_ROLE} {'updated' if exists else 'created'}, schema applied, {len(TENANTS)} tenants and {users} users seeded")
-
+        tenants = conn.execute(text("select count(*) from tenancy.tenants")).scalar()
+    print(f"Role {APP_ROLE} {'updated' if exists else 'created'}, schema applied, {tenants} tenants and {users} users")
 
 if __name__ == "__main__":
     main()

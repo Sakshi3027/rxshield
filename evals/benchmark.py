@@ -4,6 +4,7 @@ import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
+from retrieval import router
 
 import pandas as pd
 from groq import RateLimitError
@@ -14,7 +15,7 @@ from retrieval import baseline_rag, graph_rag
 
 QUESTIONS = Path("evals/questions.json")
 RESULTS_DIR = Path("evals/results")
-SYSTEMS = {"baseline": baseline_rag.answer, "graph_rag": graph_rag.answer}
+ALL_SYSTEMS = {"baseline": baseline_rag.answer, "graph_rag": graph_rag.answer, "routed": router.answer_routed}
 
 NONE_PHRASES = [
     "no matching", "no critical", "none", "not found", "no drugs",
@@ -71,8 +72,8 @@ def run_one(system, fn, question):
     forbidden = [t.lower() for t in question.get("must_not_include", [])]
     return {**row, **score(out["answer"], question),
             "tokens": out["prompt_tokens"] + out["completion_tokens"],
-            "total_ms": out["total_ms"], "cypher": out.get("cypher"), "answer": out["answer"]}
-
+            "total_ms": out["total_ms"], "cypher": out.get("cypher"),
+            "route": out.get("route"), "answer": out["answer"]}
 
 def summarize(results):
     df = pd.DataFrame(results)
@@ -100,6 +101,8 @@ def validate_gold(questions):
 def main():
     path_arg = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--file=")), None)
     questions_path = Path(path_arg) if path_arg else QUESTIONS
+    systems_arg = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--systems=")), "baseline,graph_rag")
+    systems = {name: ALL_SYSTEMS[name] for name in systems_arg.split(",")}
     questions = json.loads(questions_path.read_text())
     with get_driver() as driver:
         for question in questions:
@@ -118,7 +121,7 @@ def main():
     results = []
     for question in questions:
         print(f"{question['id']} {question['question']}")
-        for system, fn in SYSTEMS.items():
+        for system, fn in systems.items():
             row = run_one(system, fn, question)
             status = "PASS" if row["passed"] else "FAIL"
             detail = row.get("error") or f"missing {row.get('missing')} forbidden {row.get('forbidden_found')}"
