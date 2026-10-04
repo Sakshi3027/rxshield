@@ -1,0 +1,13 @@
+{
+  "tenant_id": "riverbend",
+  "source_file": "riverbend_formulary_export.csv",
+  "mapping": {
+    "drug_name": "Item Description",
+    "ndc": "NDC",
+    "on_hand_units": "QOH",
+    "avg_daily_units": "Avg Daily Usage",
+    "unit_price": "Unit Cost",
+    "supplier": "Primary Vendor",
+    "contract_end": "Contract Exp"
+  }
+}
