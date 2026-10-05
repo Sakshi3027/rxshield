@@ -8,6 +8,7 @@ from groq import Groq
 from neo4j import RoutingControl
 
 from graph.db import get_driver
+from retrieval.llm import complete
 
 load_dotenv(".env")
 
@@ -123,6 +124,7 @@ Rules:
 - A drug named in a question may be an ingredient (morphine) or a brand (Infumorph, Marcaine). Match both:
   (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient) WHERE toLower(i.name) CONTAINS '<name>' OR toLower(d.name) CONTAINS '<name>'.
 - "Made only in <country>" means every known manufacturing site of the drug is in that country: collect countries per drug and compare to a one-item list.
+- When a question asks where a drug is made, return both facility names and countries.
 - Facility, Company, and Country nodes already store failure impact counts (drugs_dependent, drugs_lost_if_offline,
   critical_or_high_drugs_lost). Read these properties instead of recomputing them.
 - When a question asks "how many", return a single total, not a breakdown to add up.
@@ -153,7 +155,7 @@ def validate(cypher):
     return cypher
 
 
-def generate(client, question, previous=None, feedback=None):
+def generate(question, previous=None, feedback=None):
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": question},
@@ -163,16 +165,15 @@ def generate(client, question, previous=None, feedback=None):
             {"role": "assistant", "content": previous},
             {"role": "user", "content": feedback},
         ]
-    response = client.chat.completions.create(model=MODEL, temperature=0, messages=messages)
-    usage = response.usage
-    return clean(response.choices[0].message.content), usage.prompt_tokens, usage.completion_tokens
+    content, usage = complete(MODEL, messages)
+    return clean(content), usage["prompt_tokens"], usage["completion_tokens"]
+
 
 def run(question):
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
     tokens = {"prompt_tokens": 0, "completion_tokens": 0}
 
     def ask(previous=None, feedback=None):
-        cypher, p, c = generate(client, question, previous, feedback)
+        cypher, p, c = generate(question, previous, feedback)
         tokens["prompt_tokens"] += p
         tokens["completion_tokens"] += c
         return cypher
@@ -201,7 +202,7 @@ def run(question):
                 cypher = revised
                 continue
         return {"question": question, "cypher": cypher, "rows": rows, "attempts": attempts, **tokens}
-
+    
 
 def main():
     question = " ".join(sys.argv[1:]) or "Which critical shortage drugs are made only in India?"

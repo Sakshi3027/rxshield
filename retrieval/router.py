@@ -12,6 +12,7 @@ from retrieval.baseline_rag import SYSTEM_PROMPT as LABEL_PROMPT
 from retrieval.baseline_rag import build_context
 from retrieval.cache import signature
 from retrieval.graph_rag import ANSWER_MODEL, retrieve_label_chunks
+from retrieval.llm import complete
 
 load_dotenv(".env")
 
@@ -41,20 +42,13 @@ def answer_from_labels(question, ingredients, k=6):
         return None
 
     chunks = retrieve_label_chunks(question, label_ids, k)
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
-    response = client.chat.completions.create(
-        model=ANSWER_MODEL,
-        temperature=0,
-        messages=[
-            {"role": "system", "content": LABEL_PROMPT},
-            {"role": "user", "content": f"Question: {question}\n\nSources:\n{build_context(chunks)}"},
-        ],
-    )
+    content, usage = complete(ANSWER_MODEL, [
+        {"role": "system", "content": LABEL_PROMPT},
+        {"role": "user", "content": f"Question: {question}\n\nSources:\n{build_context(chunks)}"},
+    ])
     return {
-        "question": question, "answer": response.choices[0].message.content,
-        "sources": chunks, "label_ids": label_ids, "cypher": None, "model": ANSWER_MODEL,
-        "prompt_tokens": response.usage.prompt_tokens,
-        "completion_tokens": response.usage.completion_tokens,
+        "question": question, "answer": content, "sources": chunks, "label_ids": label_ids,
+        "cypher": None, "model": ANSWER_MODEL, **usage,
         "total_ms": round((time.perf_counter() - start) * 1000),
     }
 

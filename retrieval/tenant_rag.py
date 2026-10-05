@@ -20,6 +20,7 @@ from retrieval.graph_rag import ANSWER_MODEL, find_labels, retrieve_label_chunks
 from retrieval.private_search import query_private
 from tenancy.audit import log_access
 from tenancy.db import user_session
+from retrieval.llm import complete
 
 load_dotenv(".env")
 
@@ -107,22 +108,16 @@ def answer_for_user(user_id, question, k=6):
             rows = rows[:-1]
         prompt = build_prompt(question, graph["cypher"], rows, label_chunks, tenant["inventory"], tenant["private_sources"])
 
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
-    response = client.chat.completions.create(
-        model=ANSWER_MODEL,
-        temperature=0,
-        messages=[
-            {"role": "system", "content": system},
-            {"role": "user", "content": prompt},
-        ],
-    )
+    content, usage = complete(ANSWER_MODEL, [
+        {"role": "system", "content": system},
+        {"role": "user", "content": prompt},
+    ])
     return {
-        "user_id": user_id, **identity, "question": question,
-        "answer": response.choices[0].message.content,
+        "user_id": user_id, **identity, "question": question, "answer": content,
         "inventory": tenant["inventory"], "private_sources": tenant["private_sources"],
         "label_sources": label_chunks, "graph_rows": rows,
-        "prompt_tokens": graph["prompt_tokens"] + response.usage.prompt_tokens,
-        "completion_tokens": graph["completion_tokens"] + response.usage.completion_tokens,
+        "prompt_tokens": graph["prompt_tokens"] + usage["prompt_tokens"],
+        "completion_tokens": graph["completion_tokens"] + usage["completion_tokens"],
         "total_ms": round((time.perf_counter() - start) * 1000),
     }
 

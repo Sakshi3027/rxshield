@@ -11,6 +11,7 @@ from graph.db import get_driver
 from graph.text2cypher import NotAnswerable
 from graph.text2cypher import run as run_cypher
 from retrieval.vector_search import detect_sections, search
+from retrieval.llm import complete
 
 load_dotenv(".env")
 
@@ -78,29 +79,17 @@ def answer(question, k=6):
     start = time.perf_counter()
     graph = run_cypher(question)
     rows = [{key: value for key, value in row.items() if key != "spl_set_ids"} for row in graph["rows"]]
-
     label_ids = find_labels(graph["rows"])
     chunks = retrieve_label_chunks(question, label_ids, k) if label_ids else []
-
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
-    response = client.chat.completions.create(
-        model=ANSWER_MODEL,
-        temperature=0,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": build_prompt(question, graph["cypher"], rows, chunks)},
-        ],
-    )
+    content, usage = complete(ANSWER_MODEL, [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": build_prompt(question, graph["cypher"], rows, chunks)},
+    ])
     return {
-        "question": question,
-        "answer": response.choices[0].message.content,
-        "cypher": graph["cypher"],
-        "graph_rows": rows,
-        "label_ids": label_ids,
-        "sources": chunks,
-        "model": ANSWER_MODEL,
-        "prompt_tokens": graph["prompt_tokens"] + response.usage.prompt_tokens,
-        "completion_tokens": graph["completion_tokens"] + response.usage.completion_tokens,
+        "question": question, "answer": content, "cypher": graph["cypher"], "graph_rows": rows,
+        "label_ids": label_ids, "sources": chunks, "model": ANSWER_MODEL,
+        "prompt_tokens": graph["prompt_tokens"] + usage["prompt_tokens"],
+        "completion_tokens": graph["completion_tokens"] + usage["completion_tokens"],
         "total_ms": round((time.perf_counter() - start) * 1000),
     }
 

@@ -1,0 +1,146 @@
+[
+  {
+    "id": "h01",
+    "category": "label",
+    "system": "routed",
+    "question": "What are the contraindications for ropivacaine?",
+    "expected": [
+      "hypersensitivity"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 742,
+    "total_ms": 2433,
+    "cypher": null,
+    "route": "label",
+    "answer": "Contraindications for ropivacaine  \n- It is contraindicated in patients with a known hypersensitivity to ropivacaine or to any local anesthetic agent of the amide type. [1][2][3][4][5][6]"
+  },
+  {
+    "id": "h02",
+    "category": "label",
+    "system": "routed",
+    "question": "What is dexmedetomidine indicated for?",
+    "expected": [
+      "sedation"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2560,
+    "total_ms": 3511,
+    "cypher": null,
+    "route": "label",
+    "answer": "Dexmedetomidine injection is indicated for:\n\n- Sedation of initially intubated and mechanically ventilated adult patients during treatment in an intensive\u2011care setting (continuous infusion not to exceed 24\u202fh)\u30101\u3011.  \n- Sedation of non\u2011intubated adult patients prior to and/or during surgical and other procedures\u30101\u3011.  \n- Sedation of non\u2011intubated pediatric patients aged 1\u202fmonth to <18\u202fyears prior to and during non\u2011invasive procedures\u30101\u3011."
+  },
+  {
+    "id": "h03",
+    "category": "multi_hop",
+    "system": "routed",
+    "question": "Other than the United States, which country would cause the most shortage drugs to lose all known manufacturing if it went offline?",
+    "expected": [
+      "india"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 3317,
+    "total_ms": 15585,
+    "cypher": "MATCH (d:Drug)\nWHERE d.risk_tier IS NOT NULL\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility)-[:LOCATED_IN]->(c:Country)\nWITH d, collect(DISTINCT c) AS countries\nWHERE size(countries) = 1 AND countries[0].code <> 'USA'\nWITH countries[0] AS country, count(DISTINCT d) AS drugCount\nRETURN country.name AS country, country.code AS code, drugCount AS shortage_drugs_lost\nORDER BY drugCount DESC\nLIMIT 1",
+    "route": "graph",
+    "answer": "The country that would cause the most shortage drugs to lose all known manufacturing if it went offline (excluding the United States) is **India** (code **IND**), with **24** drugs affected. [G]"
+  },
+  {
+    "id": "h04",
+    "category": "multi_hop",
+    "system": "routed",
+    "question": "Which facility in China manufactures the most shortage drugs?",
+    "expected": [
+      "zhejiang"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2882,
+    "total_ms": 4663,
+    "cypher": "MATCH (f:Facility)-[:LOCATED_IN]->(c:Country {code: 'CHN'})\nMATCH (f)-[:MANUFACTURES]->(p:Product)<-[:OF_PRODUCT]-(:Package)-[:IS_DRUG]->(d:Drug)\nWHERE d.risk_tier IS NOT NULL\nWITH f, count(DISTINCT d) AS shortage_drug_count\nORDER BY shortage_drug_count DESC\nRETURN f.name AS facility, f.duns AS duns, shortage_drug_count\nLIMIT 1",
+    "route": "graph",
+    "answer": "The facility in China that manufactures the most shortage drugs is **Zhejiang\u202fHuahai\u202fPharmaceutical\u202fCo.,\u202fLtd.**  \n- **DUNS:** 530732460  \n- **Shortage drug count:** 10  \n\n[ G ]"
+  },
+  {
+    "id": "h05",
+    "category": "multi_hop",
+    "system": "routed",
+    "question": "How many critical shortage drugs have no listed alternative source and only one manufacturing site?",
+    "expected": [
+      "8"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2836,
+    "total_ms": 3247,
+    "cypher": "MATCH (d:Drug)\nWHERE d.risk_tier = 'critical' \n  AND d.alternative_status = 'no_listed_alternative' \n  AND d.manufacturing_site_count = 1\nRETURN count(d) AS total_critical_shortage_drugs\nLIMIT 1",
+    "route": "graph",
+    "answer": "There are **8** critical shortage drugs that have no listed alternative source and only one manufacturing site. [G]"
+  },
+  {
+    "id": "h06",
+    "category": "negative",
+    "system": "routed",
+    "question": "Which critical shortage drugs are made only in Germany?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 5998,
+    "total_ms": 38983,
+    "cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(p:Product)\nMATCH (f:Facility)-[:MANUFACTURES|MANUFACTURES_API]->(p)-[:LOCATED_IN]->(c:Country)\nWITH d, collect(DISTINCT c.code) AS countries, collect(DISTINCT f.name) AS facilities\nWHERE countries = ['DEU']\nRETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier, facilities, countries\nLIMIT 50",
+    "route": "graph",
+    "answer": "No critical\u2011shortage drugs were found that are manufactured exclusively in Germany."
+  },
+  {
+    "id": "h07",
+    "category": "hybrid",
+    "system": "routed",
+    "question": "Which dexmedetomidine products are in shortage, and what is the drug used for?",
+    "expected": [
+      "dexmedetomidine",
+      "sedation"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 8418,
+    "total_ms": 23100,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'dexmedetomidine' AND d.risk_tier IS NOT NULL\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(pkg:Package)-[:OF_PRODUCT]->(prod:Product)\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(pkg2:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui,\n       d.name AS drug,\n       d.risk_tier AS risk_tier,\n       collect(DISTINCT prod.generic_name) AS product_names,\n       collect(DISTINCT prod.company_name) AS manufacturers,\n       collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "route": "graph",
+    "answer": "**Dexmedetomidine products currently in shortage**\n\n| rxcui | Product name(s) | Manufacturer(s) | Risk tier |\n|-------|-----------------|-----------------|-----------|\n| 1718909 | Dexmedetomidine Hydrochloride Injection | Baxter Healthcare, Jiangsu\u202fHengrui\u202fPharmaceuticals\u202fCo.,\u202fLtd., Par\u202fHealth,\u202fUSA\u202fLLC, Gland\u202fPharma\u202fLimited, HQ\u202fSpecialty\u202fPharma, Azurity\u202fPharmaceuticals,\u202fInc, Eguria\u202fUS\u202fLLC, Fresenius\u202fKabi\u202fUSA,\u202fLLC, Mylan\u202fInstitutional,\u202fa\u202fViatris\u202fCompany, Amneal\u202fPharmaceuticals, Slayback\u202fPharma | elevated |\n| 1788947 | Dexmedetomidine Hydrochloride Injection | HQ\u202fSpecialty\u202fPharma, Somerset\u202fTherapeutics,\u202fLLC | high |\n| 284397 | Dexmedetomidine Hydrochloride Injection | Pfizer\u202fInc. | elevated |\n| 2396892 | Dexmedetomidine Hydrochloride Injection | Pfizer\u202fInc. | elevated |\n| 1718910 | Dexmedetomidine Hydrochloride Injection | Pfizer\u202fInc. | elevated |\n| 1718907 | Dexmedetomidine Hydrochloride Injection | Pfizer\u202fInc. | elevated |\n| 1718900 | Dexmedetomidine Hydrochloride Injection | Jiangsu\u202fHengrui\u202fPharmaceuticals\u202fCo.,\u202fLtd., Fresenius\u202fKabi\u202fUSA,\u202fLLC | high |\n| 1718906 | Dexmedetomidine Hydrochloride Injection | Baxter Healthcare, Jiangsu\u202fHengrui\u202fPharmaceuticals\u202fCo.,\u202fLtd., Par\u202fHealth,\u202fUSA\u202fLLC, Gland\u202fPharma\u202fLimited, HQ\u202fSpecialty\u202fPharma, Azurity\u202fPharmaceuticals,\u202fInc, Eguria\u202fUS\u202fLLC, Fresenius\u202fKabi\u202fUSA,\u202fLLC, Mylan\u202fInstitutional,\u202fa\u202fViatris\u202fCompany, Amneal\u202fPharmaceuticals, Slayback\u202fPharma | elevated |\n| 1718902 | Dexmedetomidine Hydrochloride Injection | Pfizer\u202fInc. | elevated |\n| 309710 | Dexmedetomidine Hydrochloride Injection | Hikma\u202fPharmaceuticals\u202fUSA,\u202fInc., Accord\u202fHealthcare\u202fInc., Par\u202fHealth,\u202fUSA\u202fLLC, Eguria\u202fUS\u202fLLC, Fresenius\u202fKabi\u202fUSA,\u202fLLC, Gland\u202fPharma\u202fLimited, Mylan\u202fInstitutional,\u202fa\u202fViatris\u202fCompany, Meitheal\u202fPharmaceuticals,\u202fInc., Jiangsu\u202fHengrui\u202fPharmaceuticals\u202fCo. (US Agent eVenus\u202fPharmaceutical\u202fLaboratories,\u202fInc.) | elevated |\n\n*All listed products are in shortage per the graph facts [G].*\n\n**Indication for dexmedetomidine**\n\nDexmedetomidine is an \u03b1\u2082\u2011adrenergic receptor agonist used for:\n\n* Sedation of initially intubated and mechanically ventilated adult patients during treatment in an intensive\u2011care setting (continuous infusion \u2264\u202f24\u202fh).  \n* Sedation of non\u2011intubated adult patients prior to and/or during surgical and other procedures (procedural sedation).  \n\nThese indications are taken from the FDA label excerpts [1] (and similarly [2] and [3])."
+  },
+  {
+    "id": "h08",
+    "category": "hybrid",
+    "system": "routed",
+    "question": "Where is pentostatin manufactured, and what does its boxed warning say?",
+    "expected": [
+      "fludarabine",
+      "zydus"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 8895,
+    "total_ms": 36272,
+    "cypher": "MATCH (d:Drug)\nOPTIONAL MATCH (d)-[:HAS_INGREDIENT]->(i:Ingredient)\nWITH d,i\nWHERE toLower(d.name) CONTAINS 'pentostatin' OR (i IS NOT NULL AND toLower(i.name) CONTAINS 'pentostatin')\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility)-[:LOCATED_IN]->(c:Country)\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nWITH d, collect(DISTINCT f.name) AS facilities, collect(DISTINCT c.code) AS countries, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nRETURN d.rxcui AS rxcui, d.name AS drug, facilities, countries, spl_set_ids\nLIMIT 50",
+    "route": "graph",
+    "answer": "Pentostatin is manufactured by **Zydus\u202fHospira Oncology Private Limited** in **India (IND)**\u3010G\u3011.  \n\n**Boxed warning** (from the FDA label):  \n> \u201cNIPENT should be administered under the supervision of a physician qualified and experienced in the use of cancer chemotherapeutic agents. The use of higher doses than those specified (see DOSAGE AND ADMINISTRATION) is not recommended. Dose\u2011limiting severe renal, liver, pulmonary, and CNS toxicities occurred in Phase\u202f1 studies that used NIPENT at higher doses (20\u201150\u202fmg/m\u00b2 in divided doses over 5\u202fdays) than recommended. In a clinical investigation in patients with refractory chronic lymphocytic leukemia using NIPENT at the recommended dose in combination with fludarabine phosphate, 4 of 6 patients entered in the study had severe or fatal pulmonary toxicity. The use of NIPENT in combination with fludarabine phosphate is not recommended.\u201d\u30101\u3011"
+  }
+]

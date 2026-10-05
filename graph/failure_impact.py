@@ -52,6 +52,10 @@ def main():
         records, _, _ = driver.execute_query(DEPENDENCY_QUERY)
         df = pd.DataFrame([r.data() for r in records])
         print(f"{df['drug'].nunique()} drugs with known manufacturing sites")
+        driver.execute_query(
+            "MATCH (n) WHERE n:Facility OR n:Company OR n:Country "
+            "SET n.drugs_dependent = 0, n.drugs_lost_if_offline = 0, "
+            "n.current_shortage_drugs_lost = 0, n.critical_or_high_drugs_lost = 0")
 
         results = []
         for label, (id_col, name_col, key) in LEVELS.items():

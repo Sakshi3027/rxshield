@@ -7,6 +7,7 @@ from pathlib import Path
 import pandas as pd
 from dotenv import load_dotenv
 from groq import Groq
+from retrieval.llm import complete
 
 load_dotenv(".env")
 
@@ -46,17 +47,11 @@ def profile(df):
 
 def propose_mapping(df):
     fields = "\n".join(f"- {name}: {desc}" for name, desc in CANONICAL_FIELDS.items())
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
-    response = client.chat.completions.create(
-        model=MODEL,
-        temperature=0,
-        response_format={"type": "json_object"},
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Canonical fields:\n{fields}\n\nExport columns:\n{profile(df)}"},
-        ],
-    )
-    return json.loads(response.choices[0].message.content)["mapping"]
+    content, _ = complete(MODEL, [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": f"Canonical fields:\n{fields}\n\nExport columns:\n{profile(df)}"},
+    ], response_format={"type": "json_object"})
+    return json.loads(content)["mapping"]
 
 
 def validate_mapping(mapping, df):

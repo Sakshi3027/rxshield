@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from groq import Groq
 
 from retrieval.vector_search import search
+from retrieval.llm import complete
 
 load_dotenv(".env")
 
@@ -29,25 +30,13 @@ def answer(question, k=6):
     start = time.perf_counter()
     chunks = search(question, k)
     retrieval_ms = (time.perf_counter() - start) * 1000
-
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
-    response = client.chat.completions.create(
-        model=MODEL,
-        temperature=0,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": f"Question: {question}\n\nSources:\n{build_context(chunks)}"},
-        ],
-    )
+    content, usage = complete(MODEL, [
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "user", "content": f"Question: {question}\n\nSources:\n{build_context(chunks)}"},
+    ])
     return {
-        "question": question,
-        "answer": response.choices[0].message.content,
-        "sources": chunks,
-        "model": MODEL,
-        "prompt_tokens": response.usage.prompt_tokens,
-        "completion_tokens": response.usage.completion_tokens,
-        "retrieval_ms": round(retrieval_ms),
-        "total_ms": round((time.perf_counter() - start) * 1000),
+        "question": question, "answer": content, "sources": chunks, "model": MODEL, **usage,
+        "retrieval_ms": round(retrieval_ms), "total_ms": round((time.perf_counter() - start) * 1000),
     }
 
 
