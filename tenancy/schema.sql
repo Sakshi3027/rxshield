@@ -119,3 +119,22 @@ create policy cache_write on rag.answer_cache for insert
 
 grant select, insert on rag.answer_cache to rxshield_app;
 grant usage on all sequences in schema rag to rxshield_app;
+
+create schema if not exists ops;
+
+create table if not exists ops.llm_calls (
+    call_id bigint generated always as identity primary key,
+    occurred_at timestamptz not null default now(),
+    caller text not null,
+    model text not null,
+    prompt_tokens int not null,
+    completion_tokens int not null,
+    latency_ms int not null,
+    finish_reason text,
+    attempts int not null,
+    succeeded boolean not null
+);
+
+grant usage on schema ops to rxshield_app;
+grant insert on ops.llm_calls to rxshield_app;
+grant usage on all sequences in schema ops to rxshield_app;

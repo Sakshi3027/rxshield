@@ -1,9 +1,14 @@
-"""Single gateway for every LLM call: consistent settings, truncation detection, and one retry."""
+"""Single gateway for every LLM call: consistent settings, truncation detection, retry, and call logging."""
 import os
+import sys
+import time
 from functools import lru_cache
 
 from dotenv import load_dotenv
 from groq import Groq
+from sqlalchemy import text
+
+from tenancy.db import get_app_engine
 
 load_dotenv(".env")
 
@@ -17,9 +22,26 @@ def client():
     return Groq(api_key=os.environ["GROQ_API_KEY"])
 
 
+def log_call(caller, model, usage, latency_ms, finish_reason, attempts, succeeded):
+    try:
+        with get_app_engine().begin() as conn:
+            conn.execute(text("""
+                insert into ops.llm_calls
+                    (caller, model, prompt_tokens, completion_tokens, latency_ms, finish_reason, attempts, succeeded)
+                values (:caller, :model, :p, :c, :ms, :finish, :attempts, :ok)"""),
+                {"caller": caller, "model": model, "p": usage["prompt_tokens"], "c": usage["completion_tokens"],
+                 "ms": latency_ms, "finish": finish_reason, "attempts": attempts, "ok": succeeded})
+    except Exception as err:
+        print(f"warning: could not log LLM call: {err}")
+
+
 def complete(model, messages, max_completion_tokens=4096, reasoning_effort="medium", **kwargs):
+    caller = sys._getframe(1).f_globals.get("__name__", "unknown")
+    start = time.perf_counter()
     usage = {"prompt_tokens": 0, "completion_tokens": 0}
+    attempts = 0
     for effort in (reasoning_effort, "low"):
+        attempts += 1
         response = client().chat.completions.create(
             model=model, messages=messages, temperature=0,
             max_completion_tokens=max_completion_tokens, reasoning_effort=effort, **kwargs)
@@ -28,5 +50,9 @@ def complete(model, messages, max_completion_tokens=4096, reasoning_effort="medi
         choice = response.choices[0]
         content = (choice.message.content or "").strip()
         if content and choice.finish_reason != "length":
+            log_call(caller, model, usage, round((time.perf_counter() - start) * 1000),
+                     choice.finish_reason, attempts, True)
             return content, usage
+    log_call(caller, model, usage, round((time.perf_counter() - start) * 1000),
+             choice.finish_reason, attempts, False)
     raise EmptyCompletion(f"{model} returned no complete answer (finish_reason={choice.finish_reason})")
