@@ -138,3 +138,18 @@ create table if not exists ops.llm_calls (
 grant usage on schema ops to rxshield_app;
 grant insert on ops.llm_calls to rxshield_app;
 grant usage on all sequences in schema ops to rxshield_app;
+
+create index if not exists audit_log_tenant_time on tenancy.audit_log (tenant_id, occurred_at);
+
+create or replace function tenancy.recent_answer_counts(window_seconds int)
+returns table (user_requests bigint, tenant_requests bigint)
+language sql stable security definer set search_path = tenancy as $$
+    select count(*) filter (where user_id = current_setting('app.user_id', true)),
+           count(*)
+    from tenancy.audit_log
+    where tenant_id = tenancy.session_tenant()
+      and action = 'answer'
+      and occurred_at > now() - make_interval(secs => window_seconds)
+$$;
+revoke all on function tenancy.recent_answer_counts(int) from public;
+grant execute on function tenancy.recent_answer_counts(int) to rxshield_app;

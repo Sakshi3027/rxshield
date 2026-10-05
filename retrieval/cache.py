@@ -10,6 +10,7 @@ from retrieval.tenant_rag import answer_for_user
 from retrieval.vector_search import embed_query
 from tenancy.audit import log_access
 from tenancy.db import get_app_engine, user_session
+from retrieval.rate_limit import RateLimited, quota_exceeded
 
 SIMILARITY_THRESHOLD = 0.90
 MAX_AGE_HOURS = 24
@@ -106,22 +107,27 @@ def store(conn, question, sig, query_vector, payload, version):
 
 def cached_answer_for_user(user_id, question):
     sig = signature(question)
-    if not sig:
-        return {**answer_for_user(user_id, question), "cache": "skipped"}
+    query_vector = embed_query(question) if sig else None
 
-    query_vector = embed_query(question)
     with user_session(user_id) as conn:
         version = current_data_version(conn)
-        hit = lookup(conn, sig, query_vector, version)
-        if hit:
-            log_access(conn, "cache_hit", question, {
-                "cache_id": hit["cache_id"], "matched_question": hit["question"],
-                "similarity": round(float(hit["similarity"]), 3)})
-            return {**hit["answer"], "cache": "hit", "similarity": round(float(hit["similarity"]), 3),
-                    "prompt_tokens": 0, "completion_tokens": 0}
+        if sig:
+            hit = lookup(conn, sig, query_vector, version)
+            if hit:
+                log_access(conn, "cache_hit", question, {
+                    "cache_id": hit["cache_id"], "matched_question": hit["question"],
+                    "similarity": round(float(hit["similarity"]), 3)})
+                return {**hit["answer"], "cache": "hit", "similarity": round(float(hit["similarity"]), 3),
+                        "prompt_tokens": 0, "completion_tokens": 0}
+        limited = quota_exceeded(conn)
+        if limited:
+            log_access(conn, "rate_limited", question, {"reason": limited}, outcome="rejected")
+    if limited:
+        raise RateLimited(limited)
 
     result = answer_for_user(user_id, question)
-    payload = {key: result[key] for key in ("answer", "role", "tenant_name", "display_name")}
-    with user_session(user_id) as conn:
-        store(conn, question, sig, query_vector, payload, version)
-    return {**result, "cache": "miss"}
+    if sig:
+        payload = {key: result[key] for key in ("answer", "role", "tenant_name", "display_name")}
+        with user_session(user_id) as conn:
+            store(conn, question, sig, query_vector, payload, version)
+    return {**result, "cache": "miss" if sig else "skipped"}
