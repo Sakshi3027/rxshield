@@ -1,4 +1,4 @@
-"""Train a shortage prediction model on rolling past cutoffs and evaluate on a held-out future window."""
+"""Shortage prediction: ablation over training windows and feature sets, evaluated on a held-out future window."""
 import json
 import subprocess
 from pathlib import Path
@@ -24,7 +24,13 @@ FEATURES = [
     "quality_recalls_before", "labeler_recalls_before", "labeler_prior_shortages",
     "family_prior_shortages", "labelers_for_drug",
 ]
-ARTIFACTS = Path("ml/artifacts")
+SUSPECT = {"labelers_for_drug", "family_prior_shortages"}
+CLEAN_FEATURES = [f for f in FEATURES if f not in SUSPECT]
+EXPERIMENTS = [
+    ("A: all windows, all features", TRAIN_CUTOFFS, FEATURES),
+    ("B: all windows, clean features", TRAIN_CUTOFFS, CLEAN_FEATURES),
+    ("C: 2022 window, clean features", ["2022-10-01"], CLEAN_FEATURES),
+]
 RESULTS = Path("ml/results")
 
 
@@ -37,58 +43,60 @@ def build_features(cutoff):
 
 
 def precision_at_k(y, scores, k=100):
-    top = np.argsort(-scores)[:k]
-    return y[top].mean()
+    return y[np.argsort(-scores)[:k]].mean()
 
 
-def evaluate(name, y, scores):
-    return {"model": name,
+def evaluate(experiment, model_name, y, scores):
+    return {"experiment": experiment, "model": model_name,
             "pr_auc": round(average_precision_score(y, scores), 3),
             "roc_auc": round(roc_auc_score(y, scores), 3),
             "precision_at_100": round(precision_at_k(y, scores), 3)}
 
 
-def main():
-    train = pd.concat([build_features(c) for c in TRAIN_CUTOFFS], ignore_index=True)
-    test = build_features(TEST_CUTOFF)
-
-    print("Training windows:")
-    print(train.groupby("cutoff")["label"].agg(positives="sum", products="count").to_string())
-    print(f"Test window {TEST_CUTOFF}: {int(test['label'].sum())} positives of {len(test)} products\n")
-
-    X_train, y_train = train[FEATURES].astype(float), train["label"].to_numpy()
-    X_test, y_test = test[FEATURES].astype(float), test["label"].to_numpy()
-
-    model = xgb.XGBClassifier(
+def fit_models(train, features):
+    X, y = train[features].astype(float), train["label"].to_numpy()
+    booster = xgb.XGBClassifier(
         n_estimators=300, max_depth=4, learning_rate=0.05, subsample=0.8, colsample_bytree=0.8,
-        scale_pos_weight=(y_train == 0).sum() / max((y_train == 1).sum(), 1),
+        scale_pos_weight=(y == 0).sum() / max((y == 1).sum(), 1),
         eval_metric="aucpr", random_state=42)
-    model.fit(X_train, y_train)
-
+    booster.fit(X, y)
     logistic = make_pipeline(StandardScaler(), LogisticRegression(max_iter=1000, class_weight="balanced"))
-    logistic.fit(X_train, y_train)
+    logistic.fit(X, y)
+    return booster, logistic
 
-    results = [
-        evaluate("random", y_test, np.random.default_rng(42).random(len(y_test))),
-        evaluate("heuristic: maker prior shortages", y_test, X_test["labeler_prior_shortages"].to_numpy()),
-        evaluate("logistic regression", y_test, logistic.predict_proba(X_test)[:, 1]),
-        evaluate("xgboost", y_test, model.predict_proba(X_test)[:, 1]),
+
+def main():
+    windows = {cutoff: build_features(cutoff) for cutoff in TRAIN_CUTOFFS}
+    test = build_features(TEST_CUTOFF)
+    y_test = test["label"].to_numpy()
+
+    rows = [
+        evaluate("baseline", "random", y_test, np.random.default_rng(42).random(len(y_test))),
+        evaluate("baseline", "heuristic: maker prior shortages", y_test,
+                 test["labeler_prior_shortages"].to_numpy().astype(float)),
     ]
-    print(pd.DataFrame(results).to_string(index=False))
+    coefficients = {}
+    for name, cutoffs, features in EXPERIMENTS:
+        train = pd.concat([windows[c] for c in cutoffs], ignore_index=True)
+        booster, logistic = fit_models(train, features)
+        X_test = test[features].astype(float)
+        rows.append(evaluate(name, "logistic regression", y_test, logistic.predict_proba(X_test)[:, 1]))
+        rows.append(evaluate(name, "xgboost", y_test, booster.predict_proba(X_test)[:, 1]))
+        coefficients[name] = dict(zip(features, logistic.named_steps["logisticregression"].coef_[0].round(3)))
+
+    table = pd.DataFrame(rows)
+    print(table.to_string(index=False))
     print(f"\nBase rate: {y_test.mean():.3f}")
 
-    contributions = model.get_booster().predict(xgb.DMatrix(X_test), pred_contribs=True)[:, :-1]
-    importance = pd.Series(np.abs(contributions).mean(axis=0), index=FEATURES).sort_values(ascending=False)
-    print("\nMean absolute SHAP contribution:")
-    print(importance.round(3).to_string())
+    print("\nLogistic regression coefficients, experiment B (standardized features):")
+    print(pd.Series(coefficients["B: all windows, clean features"]).sort_values(ascending=False).to_string())
 
-    ARTIFACTS.mkdir(parents=True, exist_ok=True)
     RESULTS.mkdir(parents=True, exist_ok=True)
-    model.save_model(ARTIFACTS / "shortage_model.json")
-    (RESULTS / "evaluation.json").write_text(json.dumps(
-        {"train_cutoffs": TRAIN_CUTOFFS, "test_cutoff": TEST_CUTOFF, "results": results,
-         "shap_importance": importance.round(4).to_dict()}, indent=2))
-    print(f"\nSaved model to {ARTIFACTS} and evaluation to {RESULTS}")
+    (RESULTS / "ablation.json").write_text(json.dumps(
+        {"test_cutoff": TEST_CUTOFF, "results": rows,
+         "logistic_coefficients": {k: {f: float(v) for f, v in c.items()} for k, c in coefficients.items()}},
+        indent=2))
+    print(f"\nSaved ablation results to {RESULTS / 'ablation.json'}")
 
 
 if __name__ == "__main__":

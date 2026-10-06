@@ -1,0 +1,95 @@
+{
+  "test_cutoff": "2025-10-01",
+  "results": [
+    {
+      "experiment": "baseline",
+      "model": "random",
+      "pr_auc": 0.045,
+      "roc_auc": 0.495,
+      "precision_at_100": 0.0
+    },
+    {
+      "experiment": "baseline",
+      "model": "heuristic: maker prior shortages",
+      "pr_auc": 0.086,
+      "roc_auc": 0.61,
+      "precision_at_100": 0.27
+    },
+    {
+      "experiment": "A: all windows, all features",
+      "model": "logistic regression",
+      "pr_auc": 0.177,
+      "roc_auc": 0.792,
+      "precision_at_100": 0.33
+    },
+    {
+      "experiment": "A: all windows, all features",
+      "model": "xgboost",
+      "pr_auc": 0.133,
+      "roc_auc": 0.78,
+      "precision_at_100": 0.16
+    },
+    {
+      "experiment": "B: all windows, clean features",
+      "model": "logistic regression",
+      "pr_auc": 0.191,
+      "roc_auc": 0.757,
+      "precision_at_100": 0.24
+    },
+    {
+      "experiment": "B: all windows, clean features",
+      "model": "xgboost",
+      "pr_auc": 0.072,
+      "roc_auc": 0.569,
+      "precision_at_100": 0.11
+    },
+    {
+      "experiment": "C: 2022 window, clean features",
+      "model": "logistic regression",
+      "pr_auc": 0.179,
+      "roc_auc": 0.745,
+      "precision_at_100": 0.27
+    },
+    {
+      "experiment": "C: 2022 window, clean features",
+      "model": "xgboost",
+      "pr_auc": 0.061,
+      "roc_auc": 0.581,
+      "precision_at_100": 0.09
+    }
+  ],
+  "logistic_coefficients": {
+    "A: all windows, all features": {
+      "is_brand": -0.211,
+      "is_injectable": -0.455,
+      "recalls_before": 0.608,
+      "class_1_recalls_before": -0.153,
+      "recalls_last_2y": -0.202,
+      "quality_recalls_before": -0.286,
+      "labeler_recalls_before": 0.069,
+      "labeler_prior_shortages": 0.144,
+      "family_prior_shortages": -0.579,
+      "labelers_for_drug": -1.509
+    },
+    "B: all windows, clean features": {
+      "is_brand": 0.22,
+      "is_injectable": -0.155,
+      "recalls_before": 0.756,
+      "class_1_recalls_before": -0.18,
+      "recalls_last_2y": -0.247,
+      "quality_recalls_before": -0.251,
+      "labeler_recalls_before": 0.037,
+      "labeler_prior_shortages": 0.197
+    },
+    "C: 2022 window, clean features": {
+      "is_brand": 0.17,
+      "is_injectable": -0.234,
+      "recalls_before": 0.735,
+      "class_1_recalls_before": -0.205,
+      "recalls_last_2y": -0.25,
+      "quality_recalls_before": -0.201,
+      "labeler_recalls_before": 0.112,
+      "labeler_prior_shortages": 0.118
+    }
+  }
+}
