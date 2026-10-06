@@ -21,6 +21,7 @@ from retrieval.private_search import query_private
 from tenancy.audit import log_access
 from tenancy.db import user_session
 from retrieval.llm import complete
+from graph.db import get_driver
 
 load_dotenv(".env")
 
@@ -38,6 +39,15 @@ INVENTORY_SQL = """
     left join tenancy.contracts c on c.tenant_id = f.tenant_id and c.drug_rxcui = f.drug_rxcui
     where f.drug_rxcui = any(:rxcuis)
 """
+
+DRUGS_FOR_INGREDIENTS = """
+MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)
+WHERE toLower(i.name) IN $ingredients AND d.risk_tier IS NOT NULL
+RETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier,
+       d.has_current_shortage AS has_current_shortage
+LIMIT 50
+"""
+
 SYSTEM_PROMPT = """You are a drug shortage assistant for {display_name}, a {role} at {tenant_name}.
 Evidence:
 - Graph facts [G]: public FDA shortage, manufacturing, recall, and RxNorm data.
@@ -86,10 +96,24 @@ def build_prompt(question, cypher, graph_rows, label_chunks, inventory, private)
         f"Hospital documents:\n{documents}"
     )
 
+def graph_evidence(question):
+    try:
+        return run_cypher(question)
+    except NotAnswerable:
+        from retrieval.cache import signature
+
+        ingredients = sorted(t.split(":", 1)[1] for t in signature(question).split("|") if t.startswith("drug:"))
+        if not ingredients:
+            raise
+        with get_driver() as driver:
+            records, _, _ = driver.execute_query(DRUGS_FOR_INGREDIENTS, ingredients=ingredients)
+        return {"cypher": "(deterministic lookup by ingredient)", "rows": [r.data() for r in records],
+                "prompt_tokens": 0, "completion_tokens": 0}
+    
 
 def answer_for_user(user_id, question, k=6):
     start = time.perf_counter()
-    graph = run_cypher(question)
+    graph = graph_evidence(question)
     rows = [{key: v for key, v in row.items() if key != "spl_set_ids"} for row in graph["rows"]]
     label_ids = find_labels(graph["rows"])
     label_chunks = retrieve_label_chunks(question, label_ids, k) if label_ids else []
