@@ -1,0 +1,46 @@
+{
+  "train_cutoffs": [
+    "2022-10-01",
+    "2023-10-01",
+    "2024-10-01"
+  ],
+  "test_cutoff": "2025-10-01",
+  "results": [
+    {
+      "model": "random",
+      "pr_auc": 0.045,
+      "roc_auc": 0.495,
+      "precision_at_100": 0.0
+    },
+    {
+      "model": "heuristic: maker prior shortages",
+      "pr_auc": 0.086,
+      "roc_auc": 0.61,
+      "precision_at_100": 0.27
+    },
+    {
+      "model": "logistic regression",
+      "pr_auc": 0.177,
+      "roc_auc": 0.792,
+      "precision_at_100": 0.33
+    },
+    {
+      "model": "xgboost",
+      "pr_auc": 0.133,
+      "roc_auc": 0.78,
+      "precision_at_100": 0.16
+    }
+  ],
+  "shap_importance": {
+    "labelers_for_drug": 2.1382999420166016,
+    "family_prior_shortages": 1.0422999858856201,
+    "labeler_recalls_before": 0.7735000252723694,
+    "labeler_prior_shortages": 0.3853999972343445,
+    "is_injectable": 0.25600001215934753,
+    "recalls_before": 0.12860000133514404,
+    "is_brand": 0.07119999825954437,
+    "quality_recalls_before": 0.022700000554323196,
+    "class_1_recalls_before": 0.010300000198185444,
+    "recalls_last_2y": 0.00430000014603138
+  }
+}

@@ -11,4 +11,6 @@ pyarrow==25.0.1
 pytest==9.1.1
 python-dotenv==1.2.3
 requests==2.34.2
+scikit-learn==1.9.1
 SQLAlchemy==2.1.1
+xgboost==3.4.1
