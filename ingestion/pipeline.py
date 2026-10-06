@@ -23,6 +23,7 @@ STEPS = [
     "dbt.build",
     "graph.build_graph",
     "graph.failure_impact",
+    "ml.predict",
 ]
 
 

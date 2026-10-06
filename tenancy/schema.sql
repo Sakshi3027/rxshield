@@ -153,3 +153,8 @@ language sql stable security definer set search_path = tenancy as $$
 $$;
 revoke all on function tenancy.recent_answer_counts(int) from public;
 grant execute on function tenancy.recent_answer_counts(int) to rxshield_app;
+
+create schema if not exists ml;
+grant usage on schema ml to rxshield_app;
+grant select on all tables in schema ml to rxshield_app;
+alter default privileges in schema ml grant select on tables to rxshield_app;
