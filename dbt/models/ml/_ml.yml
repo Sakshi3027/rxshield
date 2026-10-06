@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: ml_product_features
+    columns:
+      - name: product
+        data_tests: [unique, not_null]
+      - name: label
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [0, 1]
