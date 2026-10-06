@@ -158,3 +158,46 @@ create schema if not exists ml;
 grant usage on schema ml to rxshield_app;
 grant select on all tables in schema ml to rxshield_app;
 alter default privileges in schema ml grant select on tables to rxshield_app;
+
+create table if not exists tenancy.agent_actions (
+    action_id bigint generated always as identity primary key,
+    tenant_id text not null references tenancy.tenants (tenant_id),
+    created_by text not null,
+    action_type text not null,
+    subject text not null,
+    draft text not null,
+    evidence jsonb,
+    status text not null default 'pending_approval'
+        check (status in ('pending_approval', 'approved', 'rejected')),
+    reviewed_by text,
+    review_note text,
+    created_at timestamptz not null default now(),
+    reviewed_at timestamptz
+);
+
+alter table tenancy.agent_actions enable row level security;
+
+drop policy if exists actions_read on tenancy.agent_actions;
+create policy actions_read on tenancy.agent_actions for select
+    using (tenant_id = tenancy.session_tenant()
+           and tenancy.session_role() in ('pharmacist', 'procurement', 'executive'));
+
+drop policy if exists actions_create on tenancy.agent_actions;
+create policy actions_create on tenancy.agent_actions for insert
+    with check (tenant_id = tenancy.session_tenant()
+                and created_by = current_setting('app.user_id', true)
+                and status = 'pending_approval'
+                and tenancy.session_role() in ('pharmacist', 'procurement', 'executive'));
+
+drop policy if exists actions_review on tenancy.agent_actions;
+create policy actions_review on tenancy.agent_actions for update
+    using (tenant_id = tenancy.session_tenant()
+           and status = 'pending_approval'
+           and tenancy.session_role() in ('pharmacist', 'executive'))
+    with check (tenant_id = tenancy.session_tenant()
+                and status in ('approved', 'rejected')
+                and reviewed_by = current_setting('app.user_id', true)
+                and reviewed_by <> created_by);
+
+grant select, insert on tenancy.agent_actions to rxshield_app;
+grant update (status, reviewed_by, review_note, reviewed_at) on tenancy.agent_actions to rxshield_app;
