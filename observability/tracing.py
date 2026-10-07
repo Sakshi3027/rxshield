@@ -61,7 +61,8 @@ def _write(current, started_at, duration_ms, status, error_type):
 
 
 @contextmanager
-def span(name, **attributes):
+def span(name, denied=(), **attributes):
+    refusals = (PermissionError, *denied)
     parent = _current.get()
     current = Span(
         trace_id=parent.trace_id if parent else uuid.uuid4().hex,
@@ -76,8 +77,8 @@ def span(name, **attributes):
     status, error_type = "ok", None
     try:
         yield current
-    except PermissionError:
-        status, error_type = "denied", "PermissionError"
+    except refusals as exc:
+        status, error_type = "denied", type(exc).__name__
         raise
     except Exception as exc:
         status, error_type = "error", type(exc).__name__

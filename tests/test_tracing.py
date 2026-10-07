@@ -49,3 +49,15 @@ def test_app_cannot_read_traces():
     with pytest.raises(exc.ProgrammingError, match="permission denied"):
         with user_session("northshore-pharmacist") as conn:
             conn.execute(text("select count(*) from ops.spans"))
+
+class QuotaHit(Exception):
+    pass
+
+
+def test_listed_refusals_are_denied():
+    with pytest.raises(QuotaHit):
+        with span("test_quota", denied=(QuotaHit,)) as limited:
+            raise QuotaHit("slow down")
+    row = fetch(limited.trace_id).iloc[0]
+    assert row["status"] == "denied"
+    assert row["error_type"] == "QuotaHit"

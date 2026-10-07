@@ -11,6 +11,7 @@ from retrieval.vector_search import embed_query
 from tenancy.audit import log_access
 from tenancy.db import get_app_engine, user_session
 from retrieval.rate_limit import RateLimited, quota_exceeded
+from observability.tracing import span
 
 SIMILARITY_THRESHOLD = 0.90
 MAX_AGE_HOURS = 24
@@ -106,28 +107,42 @@ def store(conn, question, sig, query_vector, payload, version):
 
 
 def cached_answer_for_user(user_id, question):
-    sig = signature(question)
-    query_vector = embed_query(question) if sig else None
-
-    with user_session(user_id) as conn:
-        version = current_data_version(conn)
+    with span("request", denied=(RateLimited,), entry="cached_answer", user_id=user_id) as request:
+        sig = signature(question)
+        request.attributes.update(signature=sig, question_chars=len(question))
+        query_vector = None
         if sig:
-            hit = lookup(conn, sig, query_vector, version)
-            if hit:
-                log_access(conn, "cache_hit", question, {
-                    "cache_id": hit["cache_id"], "matched_question": hit["question"],
-                    "similarity": round(float(hit["similarity"]), 3)})
-                return {**hit["answer"], "cache": "hit", "similarity": round(float(hit["similarity"]), 3),
-                        "prompt_tokens": 0, "completion_tokens": 0}
-        limited = quota_exceeded(conn)
-        if limited:
-            log_access(conn, "rate_limited", question, {"reason": limited}, outcome="rejected")
-    if limited:
-        raise RateLimited(limited)
+            with span("embed_query"):
+                query_vector = embed_query(question)
 
-    result = answer_for_user(user_id, question)
-    if sig:
-        payload = {key: result[key] for key in ("answer", "role", "tenant_name", "display_name")}
         with user_session(user_id) as conn:
-            store(conn, question, sig, query_vector, payload, version)
-    return {**result, "cache": "miss" if sig else "skipped"}
+            version = current_data_version(conn)
+            if sig:
+                with span("cache_lookup") as lookup_span:
+                    hit = lookup(conn, sig, query_vector, version)
+                    lookup_span.attributes["hit"] = bool(hit)
+                if hit:
+                    similarity = round(float(hit["similarity"]), 3)
+                    log_access(conn, "cache_hit", question, {
+                        "cache_id": hit["cache_id"], "matched_question": hit["question"],
+                        "similarity": similarity})
+                    request.attributes["cache"] = "hit"
+                    return {**hit["answer"], "cache": "hit", "similarity": similarity,
+                            "prompt_tokens": 0, "completion_tokens": 0, "trace_id": request.trace_id}
+            limited = quota_exceeded(conn)
+            if limited:
+                log_access(conn, "rate_limited", question, {"reason": limited}, outcome="rejected")
+        if limited:
+            request.attributes["cache"] = "rate_limited"
+            raise RateLimited(limited)
+
+        with span("answer"):
+            result = answer_for_user(user_id, question)
+        cache_status = "miss" if sig else "skipped"
+        if sig:
+            payload = {key: result[key] for key in ("answer", "role", "tenant_name", "display_name")}
+            with span("cache_store"):
+                with user_session(user_id) as conn:
+                    store(conn, question, sig, query_vector, payload, version)
+        request.attributes["cache"] = cache_status
+        return {**result, "cache": cache_status, "trace_id": request.trace_id}
