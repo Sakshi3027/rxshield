@@ -1,7 +1,9 @@
 """Single gateway for every LLM call: consistent settings, truncation detection, retry, logging, tracing."""
+import contextvars
 import os
 import sys
 import time
+from contextlib import contextmanager
 from functools import lru_cache
 
 from dotenv import load_dotenv
@@ -12,6 +14,8 @@ from observability.tracing import current_ids, span
 from tenancy.db import get_app_engine
 
 load_dotenv(".env")
+
+_capture = contextvars.ContextVar("rxshield_llm_capture", default=None)
 
 
 class EmptyCompletion(Exception):
@@ -26,6 +30,17 @@ def client():
 @lru_cache(maxsize=1)
 def _engine():
     return get_app_engine()
+
+
+@contextmanager
+def capture_calls():
+    """Collect full prompts and outputs in memory for evaluation. Never persisted."""
+    calls = []
+    token = _capture.set(calls)
+    try:
+        yield calls
+    finally:
+        _capture.reset(token)
 
 
 def log_call(caller, model, usage, latency_ms, finish_reason, attempts, succeeded):
@@ -63,6 +78,10 @@ def complete(model, messages, max_completion_tokens=4096, reasoning_effort="medi
             if content and choice.finish_reason != "length":
                 log_call(caller, model, usage, round((time.perf_counter() - start) * 1000),
                          choice.finish_reason, attempts, True)
+                captured = _capture.get()
+                if captured is not None:
+                    captured.append({"caller": caller, "model": model, "messages": messages,
+                                     "content": content, "tokens": sum(usage.values())})
                 return content, usage
         log_call(caller, model, usage, round((time.perf_counter() - start) * 1000),
                  choice.finish_reason, attempts, False)

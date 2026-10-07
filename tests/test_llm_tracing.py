@@ -49,3 +49,12 @@ def test_truncated_answer_is_a_traced_error(monkeypatch):
     assert call["attempts"] == 2
     assert call["prompt_tokens"] == 22
     assert not call["succeeded"]
+
+def test_capture_collects_calls_only_inside_the_block(monkeypatch):
+    monkeypatch.setattr(llm, "client", lambda: fake_client("Answer.", "stop"))
+    with llm.capture_calls() as calls:
+        llm.complete("test-model", [{"role": "user", "content": "hi"}])
+    llm.complete("test-model", [{"role": "user", "content": "outside"}])
+    assert len(calls) == 1
+    assert calls[0]["content"] == "Answer."
+    assert calls[0]["messages"][-1]["content"] == "hi"

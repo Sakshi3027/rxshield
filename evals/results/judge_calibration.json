@@ -1,0 +1,170 @@
+[
+  {
+    "question": "What are the contraindications for bupivacaine?",
+    "route": "label",
+    "variant": "original",
+    "caught": null,
+    "claims": 8,
+    "unsupported": [],
+    "faithfulness": 1.0,
+    "answers_question": true
+  },
+  {
+    "question": "What are the contraindications for bupivacaine?",
+    "route": "label",
+    "variant": "planted_claim",
+    "caught": true,
+    "claims": 9,
+    "unsupported": [
+      "It is also manufactured at a facility in Nuuk, Greenland."
+    ],
+    "faithfulness": 0.889,
+    "answers_question": true
+  },
+  {
+    "question": "How should Nipent (pentostatin) vials be stored?",
+    "route": "label",
+    "variant": "original",
+    "caught": null,
+    "claims": 1,
+    "unsupported": [],
+    "faithfulness": 1.0,
+    "answers_question": true
+  },
+  {
+    "question": "How should Nipent (pentostatin) vials be stored?",
+    "route": "label",
+    "variant": "number_swap",
+    "caught": true,
+    "claims": 1,
+    "unsupported": [
+      "NIPENT (pentostatin) vials should be stored refrigerated at 97\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)"
+    ],
+    "faithfulness": 0.0,
+    "answers_question": true
+  },
+  {
+    "question": "How should Nipent (pentostatin) vials be stored?",
+    "route": "label",
+    "variant": "planted_claim",
+    "caught": true,
+    "claims": 2,
+    "unsupported": [
+      "NIPENT (pentostatin) is also manufactured at a facility in Nuuk, Greenland"
+    ],
+    "faithfulness": 0.5,
+    "answers_question": true
+  },
+  {
+    "question": "What is Infumorph used for?",
+    "route": "label",
+    "variant": "original",
+    "caught": null,
+    "claims": 7,
+    "unsupported": [],
+    "faithfulness": 1.0,
+    "answers_question": true
+  },
+  {
+    "question": "What is Infumorph used for?",
+    "route": "label",
+    "variant": "planted_claim",
+    "caught": true,
+    "claims": 7,
+    "unsupported": [
+      "Infumorph is manufactured at a facility in Nuuk, Greenland"
+    ],
+    "faithfulness": 0.857,
+    "answers_question": true
+  },
+  {
+    "question": "What does the boxed warning for Marcaine (bupivacaine) say?",
+    "route": "label",
+    "variant": "original",
+    "caught": null,
+    "claims": 6,
+    "unsupported": [],
+    "faithfulness": 1.0,
+    "answers_question": true
+  },
+  {
+    "question": "What does the boxed warning for Marcaine (bupivacaine) say?",
+    "route": "label",
+    "variant": "number_swap",
+    "caught": true,
+    "claims": 6,
+    "unsupported": [
+      "\u201cIn most cases, this has followed use of the 97\u202f% (7.5\u202fmg/mL) concentration.\u201d"
+    ],
+    "faithfulness": 0.833,
+    "answers_question": true
+  },
+  {
+    "question": "What does the boxed warning for Marcaine (bupivacaine) say?",
+    "route": "label",
+    "variant": "planted_claim",
+    "caught": true,
+    "claims": 7,
+    "unsupported": [
+      "It is also manufactured at a facility in Nuuk, Greenland."
+    ],
+    "faithfulness": 0.857,
+    "answers_question": true
+  },
+  {
+    "question": "Which critical shortage drugs are made only in India?",
+    "route": "graph",
+    "variant": "original",
+    "caught": null,
+    "claims": 4,
+    "unsupported": [],
+    "faithfulness": 1.0,
+    "answers_question": true
+  },
+  {
+    "question": "Which critical shortage drugs are made only in India?",
+    "route": "graph",
+    "variant": "number_swap",
+    "caught": true,
+    "claims": 4,
+    "unsupported": [
+      "Pentostatin 97\u202fMG Injection (Nipent) is a critical\u2011shortage drug made only in India"
+    ],
+    "faithfulness": 0.75,
+    "answers_question": false
+  },
+  {
+    "question": "Which critical shortage drugs are made only in India?",
+    "route": "graph",
+    "variant": "planted_claim",
+    "caught": true,
+    "claims": 3,
+    "unsupported": [
+      "Pentostatin 10\u202fMG Injection is also manufactured at a facility in Nuuk, Greenland."
+    ],
+    "faithfulness": 0.667,
+    "answers_question": true
+  },
+  {
+    "question": "Which critical shortage drugs are made only in China?",
+    "route": "graph",
+    "variant": "original",
+    "caught": null,
+    "claims": 1,
+    "unsupported": [],
+    "faithfulness": 1.0,
+    "answers_question": true
+  },
+  {
+    "question": "Which critical shortage drugs are made only in China?",
+    "route": "graph",
+    "variant": "planted_claim",
+    "caught": true,
+    "claims": 2,
+    "unsupported": [
+      "It is also manufactured at a facility in Nuuk, Greenland."
+    ],
+    "faithfulness": 0.5,
+    "answers_question": true
+  }
+]
