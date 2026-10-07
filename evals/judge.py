@@ -1,10 +1,11 @@
-"""LLM-as-judge for answer faithfulness, calibrated against planted errors."""
+"""LLM-as-judge for answer faithfulness, calibrated against blatant and subtle planted errors."""
+import argparse
 import json
 import re
-import sys
 import time
 from collections import deque
 from pathlib import Path
+from groq import RateLimitError
 
 import pandas as pd
 
@@ -15,7 +16,9 @@ JUDGE_MODEL = "openai/gpt-oss-120b"
 JUDGE_TPM = 7000
 PLANTED_CLAIM = "It is also manufactured at a facility in Nuuk, Greenland [G]."
 PLANTED_MARKER = "Greenland"
+PLAUSIBLE_COUNTRIES = ["India", "China", "Germany", "Italy"]
 DECOY_NUMBERS = ["97", "83", "61", "47", "389"]
+NUMBER_VARIANTS = {"number_swap", "number_shift"}
 NUMBER = re.compile(r"(?<![\[\w.])\d+(?:\.\d+)?(?![\]\w])")
 RESULTS = Path("evals/results/judge_calibration.json")
 
@@ -26,6 +29,12 @@ A claim is supported only if the source states it. Plausible general knowledge d
 Numbers, names, places and dates must match the source exactly.
 Citation markers such as [1], [G], [L2], [H], [P1] are not claims.
 Return only JSON: {"claims": [{"claim": "...", "supported": true, "reason": "..."}], "answers_question": true}"""
+SHAPE_FIX = ("Each item in claims must be an object with a string 'claim', a boolean 'supported' "
+             "and a string 'reason'. Return the corrected JSON only.")
+
+
+class JudgeError(Exception):
+    pass
 
 
 class TokenBudget:
@@ -54,18 +63,71 @@ def parse_json(content):
     return json.loads(cleaned)
 
 
+def valid_verdict(verdict):
+    claims = verdict.get("claims") if isinstance(verdict, dict) else None
+    return isinstance(claims, list) and all(
+        isinstance(c, dict) and isinstance(c.get("claim"), str) and isinstance(c.get("supported"), bool)
+        for c in claims)
+
+
+def appears(number, text_value):
+    return re.search(rf"(?<![\d.]){re.escape(number)}(?![\d.])", text_value) is not None
+
+
+def unverified_numbers(answer, source):
+    return sorted({m.group() for m in NUMBER.finditer(answer) if not appears(m.group(), source)})
+
+
+def replace_first_number(answer, source, candidates_for):
+    match = NUMBER.search(answer)
+    if not match:
+        return None, None
+    decoy = next((c for c in candidates_for(match.group()) if not appears(c, source)), None)
+    if decoy is None:
+        return None, None
+    return answer[:match.start()] + decoy + answer[match.end():], decoy
+
+
+def plant_number(answer, source):
+    return replace_first_number(answer, source, lambda value: DECOY_NUMBERS)
+
+
+def shift_number(answer, source):
+    def nearby(value):
+        base = float(value)
+        shifted = [base + d for d in (1, -1, 2, -2) if base + d >= 0]
+        return [f"{v:g}" if "." in value else str(int(v)) for v in shifted]
+
+    return replace_first_number(answer, source, nearby)
+
+
+def contains_marker(marker, text_value):
+    return appears(marker, text_value) if marker[0].isdigit() else marker in text_value
+
+
 def judge(source, answer, budget):
     messages = [
         {"role": "system", "content": JUDGE_PROMPT},
         {"role": "user", "content": f"SOURCE MATERIAL:\n{source}\n\nANSWER:\n{answer}"},
     ]
-    budget.wait(len(source + answer) // 4 + 1500)
-    content, usage = complete(JUDGE_MODEL, messages, max_completion_tokens=3000,
-                              response_format={"type": "json_object"})
-    budget.record(usage["prompt_tokens"] + usage["completion_tokens"])
-    verdict = parse_json(content)
-    claims = verdict.get("claims", [])
-    unsupported = [c.get("claim", "") for c in claims if not c.get("supported")]
+    for attempt in range(2):
+        budget.wait(len(source + answer) // 4 + 1500)
+        content, usage = complete(JUDGE_MODEL, messages, max_completion_tokens=3000,
+                                  response_format={"type": "json_object"})
+        budget.record(usage["prompt_tokens"] + usage["completion_tokens"])
+        try:
+            verdict = parse_json(content)
+        except json.JSONDecodeError:
+            verdict = None
+        if valid_verdict(verdict):
+            break
+        messages = messages + [{"role": "assistant", "content": content},
+                               {"role": "user", "content": SHAPE_FIX}]
+    else:
+        raise JudgeError("judge returned malformed output twice")
+
+    claims = verdict["claims"]
+    unsupported = [c["claim"] for c in claims if not c["supported"]]
     return {
         "claims": len(claims),
         "unsupported": unsupported,
@@ -74,12 +136,20 @@ def judge(source, answer, budget):
     }
 
 
-def plant_number(answer, source):
-    match = NUMBER.search(answer)
-    decoy = next((d for d in DECOY_NUMBERS if d not in source), None)
-    if not match or decoy is None:
-        return None, None
-    return answer[:match.start()] + decoy + answer[match.end():], decoy
+def build_variants(answer, source):
+    variants = [("original", answer, None)]
+    for kind, (changed, marker) in {"number_swap": plant_number(answer, source),
+                                    "number_shift": shift_number(answer, source)}.items():
+        if changed:
+            variants.append((kind, changed, marker))
+    if PLANTED_MARKER not in source:
+        variants.append(("planted_claim", f"{answer.rstrip()} {PLANTED_CLAIM}", PLANTED_MARKER))
+    country = next((c for c in PLAUSIBLE_COUNTRIES if c not in source), None)
+    if country:
+        variants.append(("plausible_claim",
+                         f"{answer.rstrip()} Some of these products are also manufactured in {country} [G].",
+                         country))
+    return variants
 
 
 def evaluate(question, budget):
@@ -90,47 +160,81 @@ def evaluate(question, budget):
         if call["model"] == JUDGE_MODEL:
             budget.record(call["tokens"])
     source = calls[-1]["messages"][-1]["content"]
-    answer = result["answer"]
-
-    variants = [("original", answer, None)]
-    swapped, decoy = plant_number(answer, source)
-    if swapped:
-        variants.append(("number_swap", swapped, decoy))
-    if PLANTED_MARKER not in source:
-        variants.append(("planted_claim", f"{answer.rstrip()} {PLANTED_CLAIM}", PLANTED_MARKER))
 
     rows = []
-    for variant, text_value, marker in variants:
-        scored = judge(source, text_value, budget)
-        caught = None if marker is None else any(marker in claim for claim in scored["unsupported"])
-        rows.append({"question": question, "route": result["route"], "variant": variant,
-                     "caught": caught, **scored})
-        print(f"  {variant:<14} faithfulness={scored['faithfulness']}  caught={caught}")
+    for variant, text_value, marker in build_variants(result["answer"], source):
+        numbers = unverified_numbers(text_value, source)
+        base = {"question": question, "route": result["route"], "variant": variant, "marker": marker,
+                "answer": text_value, "unverified_numbers": numbers,
+                "numbers_caught": marker in numbers if variant in NUMBER_VARIANTS else None}
+        try:
+            scored = judge(source, text_value, budget)
+        except JudgeError:
+            rows.append({**base, "judge_error": True})
+            print(f"  {variant:<16} judge_error")
+            continue
+        caught = None if marker is None else any(contains_marker(marker, c) for c in scored["unsupported"])
+        rows.append({**base, "judge_error": False, "caught": caught, **scored})
+        print(f"  {variant:<16} faithfulness={scored['faithfulness']}  caught={caught}  "
+              f"unverified_numbers={numbers}")
     return rows
 
 
 def summarize(rows):
     df = pd.DataFrame(rows)
+    errors = int(df["judge_error"].sum())
+    df = df[~df["judge_error"]]
     originals = df[df["variant"] == "original"]
     planted = df[df["variant"] != "original"]
+
     grounded = (originals["unsupported"].str.len() == 0).mean()
     print(f"\nOriginal answers: mean faithfulness {originals['faithfulness'].mean():.3f}, "
           f"fully grounded {grounded:.0%}")
-    print(f"Planted errors caught: {int(planted['caught'].astype(bool).sum())}/{len(planted)}")
-    print(planted.groupby("variant")["caught"].apply(lambda s: s.astype(bool).mean()).to_string())
-    for _, row in originals[originals["unsupported"].str.len() > 0].iterrows():
-        print(f"\nFlagged original: {row['question']}\n  unsupported: {row['unsupported']}")
+    print(f"Planted errors caught by judge: {int(planted['caught'].astype(bool).sum())}/{len(planted)}")
+    print(planted.groupby("variant")["caught"].agg(
+        caught=lambda s: int(s.astype(bool).sum()), total="size").to_string())
+
+    numeric = planted[planted["variant"].isin(NUMBER_VARIANTS)]
+    if len(numeric):
+        judge_hits = numeric["caught"].astype(bool)
+        check_hits = numeric["numbers_caught"].astype(bool)
+        print(f"\nNumber errors of {len(numeric)}: judge {int(judge_hits.sum())}, "
+              f"number check {int(check_hits.sum())}, either {int((judge_hits | check_hits).sum())}")
+    noisy = originals[originals["unverified_numbers"].str.len() > 0]
+    print(f"Original answers with numbers not in the source: {len(noisy)}/{len(originals)}")
+    for _, row in noisy.iterrows():
+        print(f"  {row['question']}: {row['unverified_numbers']}")
+
+    for _, row in planted[~planted["caught"].astype(bool)].iterrows():
+        sentence = next((s for s in re.split(r"(?<=[.!?])\s+|\n", row["answer"])
+                         if contains_marker(row["marker"], s)), "")
+        print(f"\nJudge missed {row['variant']} ({row['marker']}): {row['question']}\n  planted in: {sentence.strip()}")
+    if errors:
+        print(f"\nJudge errors (malformed output twice): {errors}")
 
 
 def main():
-    limit = int(sys.argv[1]) if len(sys.argv) > 1 else None
-    questions = [q["question"] for q in json.loads(Path("evals/questions.json").read_text())][:limit]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--limit", type=int)
+    parser.add_argument("--resume", action="store_true")
+    args = parser.parse_args()
+
+    questions = [q["question"] for q in json.loads(Path("evals/questions.json").read_text())][:args.limit]
+    rows = json.loads(RESULTS.read_text()) if args.resume and RESULTS.exists() else []
+    done = {row["question"] for row in rows}
     budget = TokenBudget(JUDGE_TPM)
-    rows = []
     for i, question in enumerate(questions, start=1):
+        if question in done:
+            print(f"[{i}/{len(questions)}] already judged, skipping")
+            continue
         print(f"[{i}/{len(questions)}] {question}")
-        rows.extend(evaluate(question, budget))
-    RESULTS.write_text(json.dumps(rows, indent=2))
+        try:
+            rows.extend(evaluate(question, budget))
+        except RateLimitError:
+            print("\nProvider token limit reached. Finished questions are saved; "
+                  "rerun with --resume after the limit resets.")
+            break
+        RESULTS.write_text(json.dumps(rows, indent=2))
     summarize(rows)
 
 
