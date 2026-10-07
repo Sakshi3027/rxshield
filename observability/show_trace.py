@@ -8,7 +8,7 @@ from ingestion.db import get_engine
 
 LATEST_SQL = text("""
     select trace_id from ops.spans
-    where parent_id is null and name = 'request'
+    where parent_id is null and name in ('request', 'http')
     order by started_at desc limit 1""")
 SPANS_SQL = text("select * from ops.spans where trace_id = :t order by started_at")
 

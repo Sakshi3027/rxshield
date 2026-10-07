@@ -1,29 +1,34 @@
 """RxShield HTTP API: authentication, request tracing, safe error mapping, and core endpoints."""
 import json
+import time
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from typing import Literal
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
+from groq import APIConnectionError
+from groq import RateLimitError as ProviderRateLimit
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
 
+from agent.shortage_memo import draft_memo
 from api.auth import TOKEN_TTL_SECONDS, AuthError, check_password, current_user, issue_token
-from graph.db import get_driver
+from graph.db import close_driver, get_driver, shared_driver
 from graph.text2cypher import NotAnswerable
 from observability.tracing import span
-from retrieval.cache import cached_answer_for_user
+from retrieval.cache import cached_answer_for_user, vocabulary
 from retrieval.rate_limit import RateLimited
 from retrieval.tenant_rag import IDENTITY_SQL
+from retrieval.vector_search import embed_query
 from simulation.patient_impact import run_patient_impact
-from tenancy.db import get_app_engine, user_session
-from agent.shortage_memo import draft_memo
 from tenancy.actions import get_action, pending_actions, review_action
+from tenancy.db import get_app_engine, user_session
 
 load_dotenv(".env")
 
-UNTRACED = {"/health", "/ready"}
+
 class NotFound(Exception):
     pass
 
@@ -31,6 +36,9 @@ class NotFound(Exception):
 class InvalidRequest(Exception):
     pass
 
+
+UNTRACED = {"/health", "/ready"}
+LLM_UNAVAILABLE = (503, "llm_unavailable", "The language model is temporarily unavailable. Please try again later.")
 ERRORS = {
     AuthError: (401, "unauthorized", "Invalid credentials or token."),
     PermissionError: (403, "forbidden", "You do not have access to this resource."),
@@ -38,11 +46,37 @@ ERRORS = {
     NotAnswerable: (422, "not_answerable", "This question cannot be answered from RxShield data."),
     NotFound: (404, "not_found", "Not found."),
     InvalidRequest: (400, "invalid_request", "This request cannot be applied."),
+    ProviderRateLimit: LLM_UNAVAILABLE,
+    APIConnectionError: LLM_UNAVAILABLE,
 }
 INTERNAL_ERROR = {"error": "internal_error",
                   "message": "Something went wrong. Share the trace id with support."}
+WARMUPS = {
+    "embedding_model": lambda: embed_query("warm up"),
+    "vocabulary": vocabulary,
+    "neo4j": lambda: shared_driver().verify_connectivity(),
+}
 
-app = FastAPI(title="RxShield API", version="0.1.0")
+
+def warm_up():
+    with span("startup") as current:
+        for name, step in WARMUPS.items():
+            started = time.perf_counter()
+            try:
+                step()
+                current.attributes[name] = round((time.perf_counter() - started) * 1000)
+            except Exception as exc:
+                current.attributes[name] = type(exc).__name__
+
+
+@asynccontextmanager
+async def lifespan(app):
+    warm_up()
+    yield
+    close_driver()
+
+
+app = FastAPI(title="RxShield API", version="0.1.0", lifespan=lifespan)
 
 
 class LoginRequest(BaseModel):
@@ -61,6 +95,7 @@ class WhatIfRequest(BaseModel):
     scope: Literal["facility", "company", "country"]
     entity: str = Field(min_length=2, max_length=20, pattern=r"^[A-Za-z0-9]+$")
     duration_days: int = Field(ge=1, le=365)
+
 
 class MemoRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -176,6 +211,7 @@ def whatif(body: WhatIfRequest, user_id: str = Depends(current_user)):
         "patients_affected": total_patients,
         "drugs": json.loads(ranked.to_json(orient="records")),
     }
+
 
 @app.post("/memos", status_code=201)
 def create_memo(body: MemoRequest, user_id: str = Depends(current_user)):
