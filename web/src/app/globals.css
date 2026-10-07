@@ -1,26 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --paper: #f5f7f6;
+  --surface: #ffffff;
+  --ink: #16201e;
+  --muted: #56645f;
+  --rule: #d5dcd9;
+  --public: #0d6b64;
+  --public-soft: #e1f0ed;
+  --private: #5b3f8f;
+  --private-soft: #eee8f7;
+  --caution: #9a4f0b;
+  --caution-soft: #fbeedd;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #101716;
+    --surface: #18211f;
+    --ink: #e6ecea;
+    --muted: #9aa9a4;
+    --rule: #2c3936;
+    --public: #5cc4b8;
+    --public-soft: #173431;
+    --private: #b9a2e6;
+    --private-soft: #2a2340;
+    --caution: #f0a45b;
+    --caution-soft: #3a2a17;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-rule: var(--rule);
+  --color-public: var(--public);
+  --color-public-soft: var(--public-soft);
+  --color-private: var(--private);
+  --color-private-soft: var(--private-soft);
+  --color-caution: var(--caution);
+  --color-caution-soft: var(--caution-soft);
+  --font-sans: var(--font-public-sans), system-ui, sans-serif;
+}
+
+:focus-visible {
+  outline: 2px solid var(--public);
+  outline-offset: 2px;
 }
