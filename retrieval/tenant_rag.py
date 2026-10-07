@@ -111,9 +111,12 @@ def graph_evidence(question):
     tokens = {t for t in signature(question).split("|") if t}
     ingredients = sorted(t.split(":", 1)[1] for t in tokens if t.startswith("drug:"))
     intents = {t for t in tokens if not t.startswith("drug:")}
-    tenant_only = bool(ingredients) and bool(intents & TENANT_INTENTS) and intents <= TENANT_INTENTS | {"count"}
+    tenant_only = bool(intents & TENANT_INTENTS) and intents <= TENANT_INTENTS | {"count"}
 
     with span("graph_evidence", denied=(NotAnswerable,)) as current:
+        if tenant_only and not ingredients:
+            current.attributes["method"] = "unknown_drug"
+            raise NotAnswerable("Inventory question names no drug RxShield knows")
         if tenant_only:
             result, method = ingredient_lookup(ingredients), "ingredient_direct"
         else:
@@ -126,13 +129,15 @@ def graph_evidence(question):
                 result, method = ingredient_lookup(ingredients), "ingredient_fallback"
         current.attributes.update(method=method, rows=len(result["rows"]))
         return result
-
+    
 
 def answer_for_user(user_id, question, k=6):
     start = time.perf_counter()
     graph = graph_evidence(question)
     rows = [{key: v for key, v in row.items() if key != "spl_set_ids"} for row in graph["rows"]]
-    label_ids = find_labels(graph["rows"])
+    with span("find_labels") as labels_span:
+        label_ids = find_labels(graph["rows"])
+        labels_span.attributes["labels"] = len(label_ids)
     with span("label_search", labels=len(label_ids)) as search:
         label_chunks = retrieve_label_chunks(question, label_ids, k) if label_ids else []
         search.attributes["chunks"] = len(label_chunks)

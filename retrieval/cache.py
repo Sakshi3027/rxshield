@@ -116,7 +116,8 @@ def cached_answer_for_user(user_id, question):
                 query_vector = embed_query(question)
 
         with user_session(user_id) as conn:
-            version = current_data_version(conn)
+            with span("data_version"):
+                version = current_data_version(conn)
             if sig:
                 with span("cache_lookup") as lookup_span:
                     hit = lookup(conn, sig, query_vector, version)
@@ -129,7 +130,8 @@ def cached_answer_for_user(user_id, question):
                     request.attributes["cache"] = "hit"
                     return {**hit["answer"], "cache": "hit", "similarity": similarity,
                             "prompt_tokens": 0, "completion_tokens": 0, "trace_id": request.trace_id}
-            limited = quota_exceeded(conn)
+            with span("quota_check"):
+                limited = quota_exceeded(conn)
             if limited:
                 log_access(conn, "rate_limited", question, {"reason": limited}, outcome="rejected")
         if limited:

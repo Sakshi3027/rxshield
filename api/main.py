@@ -25,6 +25,7 @@ from retrieval.vector_search import embed_query
 from simulation.patient_impact import run_patient_impact
 from tenancy.actions import get_action, pending_actions, review_action
 from tenancy.db import get_app_engine, user_session
+from observability import writer
 
 load_dotenv(".env")
 
@@ -73,6 +74,7 @@ def warm_up():
 async def lifespan(app):
     warm_up()
     yield
+    writer.flush()
     close_driver()
 
 

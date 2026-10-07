@@ -8,12 +8,18 @@ from functools import lru_cache
 
 from dotenv import load_dotenv
 from groq import Groq
-from sqlalchemy import text
 
+from observability import writer
 from observability.tracing import current_ids, span
-from tenancy.db import get_app_engine
 
 load_dotenv(".env")
+
+LOG_SQL = """
+    insert into ops.llm_calls
+        (caller, model, prompt_tokens, completion_tokens, latency_ms, finish_reason,
+         attempts, succeeded, trace_id, span_id)
+    values (:caller, :model, :p, :c, :ms, :finish, :attempts, :ok, :trace_id, :span_id)
+"""
 
 _capture = contextvars.ContextVar("rxshield_llm_capture", default=None)
 
@@ -25,11 +31,6 @@ class EmptyCompletion(Exception):
 @lru_cache(maxsize=1)
 def client():
     return Groq(api_key=os.environ["GROQ_API_KEY"])
-
-
-@lru_cache(maxsize=1)
-def _engine():
-    return get_app_engine()
 
 
 @contextmanager
@@ -45,18 +46,10 @@ def capture_calls():
 
 def log_call(caller, model, usage, latency_ms, finish_reason, attempts, succeeded):
     trace_id, span_id = current_ids()
-    try:
-        with _engine().begin() as conn:
-            conn.execute(text("""
-                insert into ops.llm_calls
-                    (caller, model, prompt_tokens, completion_tokens, latency_ms, finish_reason,
-                     attempts, succeeded, trace_id, span_id)
-                values (:caller, :model, :p, :c, :ms, :finish, :attempts, :ok, :trace_id, :span_id)"""),
-                {"caller": caller, "model": model, "p": usage["prompt_tokens"], "c": usage["completion_tokens"],
-                 "ms": latency_ms, "finish": finish_reason, "attempts": attempts, "ok": succeeded,
-                 "trace_id": trace_id, "span_id": span_id})
-    except Exception as err:
-        print(f"warning: could not log LLM call: {type(err).__name__}")
+    writer.submit(LOG_SQL, {
+        "caller": caller, "model": model, "p": usage["prompt_tokens"], "c": usage["completion_tokens"],
+        "ms": latency_ms, "finish": finish_reason, "attempts": attempts, "ok": succeeded,
+        "trace_id": trace_id, "span_id": span_id})
 
 
 def complete(model, messages, max_completion_tokens=4096, reasoning_effort="medium", **kwargs):
