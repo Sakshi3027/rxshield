@@ -223,3 +223,4 @@ dbt/logs/
 dbt/dbt_packages/
 dbt/.user.yml
 ml/artifacts/
+!web/src/lib/
