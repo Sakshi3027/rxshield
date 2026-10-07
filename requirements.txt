@@ -1,6 +1,7 @@
 dbt-core==1.12.5
 dbt-postgres==1.11.0
 fastembed==0.8.1
+fhir.resources==8.3.0
 groq==1.7.0
 langgraph==1.2.14
 neo4j==6.3.1

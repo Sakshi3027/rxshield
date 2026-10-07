@@ -201,3 +201,23 @@ create policy actions_review on tenancy.agent_actions for update
 
 grant select, insert on tenancy.agent_actions to rxshield_app;
 grant update (status, reviewed_by, review_note, reviewed_at) on tenancy.agent_actions to rxshield_app;
+
+create table if not exists tenancy.medication_orders (
+    order_id text primary key,
+    tenant_id text not null references tenancy.tenants (tenant_id),
+    patient_ref text not null,
+    drug_rxcui text not null,
+    care_unit text not null,
+    status text not null,
+    authored_on date not null,
+    resource jsonb not null
+);
+create index if not exists medication_orders_lookup on tenancy.medication_orders (tenant_id, drug_rxcui, status);
+
+alter table tenancy.medication_orders enable row level security;
+drop policy if exists orders_read on tenancy.medication_orders;
+create policy orders_read on tenancy.medication_orders for select
+    using (tenant_id = tenancy.session_tenant()
+           and tenancy.session_role() in ('pharmacist', 'clinician', 'executive'));
+
+grant select on tenancy.medication_orders to rxshield_app;
