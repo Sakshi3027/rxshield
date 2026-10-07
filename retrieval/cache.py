@@ -91,9 +91,11 @@ def lookup(conn, sig, query_vector, version):
         select cache_id, question, answer, 1 - (embedding <=> cast(:q as vector)) as similarity
         from rag.answer_cache
         where signature = :sig and data_version = :v
+          and answer->>'format' = :fmt
           and created_at > now() - make_interval(hours => :h)
         order by embedding <=> cast(:q as vector)
-        limit 1"""), {"q": query_vector, "sig": sig, "v": version, "h": MAX_AGE_HOURS}).mappings().one_or_none()
+        limit 1"""), {"q": query_vector, "sig": sig, "v": version, "h": MAX_AGE_HOURS,
+                      "fmt": str(CACHE_FORMAT)}).mappings().one_or_none()
     if row and row["similarity"] >= SIMILARITY_THRESHOLD:
         return dict(row)
     return None
@@ -124,8 +126,6 @@ def cached_answer_for_user(user_id, question):
             if sig:
                 with span("cache_lookup") as lookup_span:
                     hit = lookup(conn, sig, query_vector, version)
-                    if hit and hit["answer"].get("format") != CACHE_FORMAT:
-                        hit = None
                     lookup_span.attributes["hit"] = bool(hit)
                 if hit:
                     similarity = round(float(hit["similarity"]), 3)
