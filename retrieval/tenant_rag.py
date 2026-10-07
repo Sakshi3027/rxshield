@@ -1,29 +1,25 @@
 """Tenant-aware GraphRAG: public FDA evidence plus the user's permitted hospital data, audited per request."""
 import json
-import os
 import sys
 import time
 
-PROMPT_TOKEN_BUDGET = 6000
-
-
-def approx_tokens(text_value):
-    return len(text_value) // 4
-
 from dotenv import load_dotenv
-from groq import Groq
 from sqlalchemy import text
 
+from graph.db import get_driver
 from graph.text2cypher import NotAnswerable
 from graph.text2cypher import run as run_cypher
+from observability.tracing import span
 from retrieval.graph_rag import ANSWER_MODEL, find_labels, retrieve_label_chunks
+from retrieval.llm import complete
 from retrieval.private_search import query_private
 from tenancy.audit import log_access
 from tenancy.db import user_session
-from retrieval.llm import complete
-from graph.db import get_driver
 
 load_dotenv(".env")
+
+PROMPT_TOKEN_BUDGET = 6000
+TENANT_INTENTS = {"inventory", "pricing", "protocol"}
 
 IDENTITY_SQL = """
     select u.display_name, u.role, t.name as tenant_name
@@ -63,6 +59,10 @@ Rules:
 Be concise and clinically precise."""
 
 
+def approx_tokens(text_value):
+    return len(text_value) // 4
+
+
 def gather_tenant_evidence(user_id, question, rxcuis, k=4, audit_extra=None):
     with user_session(user_id) as conn:
         identity = conn.execute(text(IDENTITY_SQL)).mappings().one_or_none()
@@ -96,41 +96,67 @@ def build_prompt(question, cypher, graph_rows, label_chunks, inventory, private)
         f"Hospital documents:\n{documents}"
     )
 
-def graph_evidence(question):
-    try:
-        return run_cypher(question)
-    except NotAnswerable:
-        from retrieval.cache import signature
 
-        ingredients = sorted(t.split(":", 1)[1] for t in signature(question).split("|") if t.startswith("drug:"))
-        if not ingredients:
-            raise
-        with get_driver() as driver:
-            records, _, _ = driver.execute_query(DRUGS_FOR_INGREDIENTS, ingredients=ingredients)
-        return {"cypher": "(deterministic lookup by ingredient)", "rows": [r.data() for r in records],
-                "prompt_tokens": 0, "completion_tokens": 0}
-    
+def ingredient_lookup(ingredients):
+    with get_driver() as driver:
+        records, _, _ = driver.execute_query(DRUGS_FOR_INGREDIENTS, ingredients=ingredients)
+    return {"cypher": "(deterministic lookup by ingredient)", "rows": [r.data() for r in records],
+            "prompt_tokens": 0, "completion_tokens": 0}
+
+
+def graph_evidence(question):
+    from retrieval.cache import signature
+
+    tokens = {t for t in signature(question).split("|") if t}
+    ingredients = sorted(t.split(":", 1)[1] for t in tokens if t.startswith("drug:"))
+    intents = {t for t in tokens if not t.startswith("drug:")}
+    tenant_only = bool(ingredients) and bool(intents & TENANT_INTENTS) and intents <= TENANT_INTENTS | {"count"}
+
+    with span("graph_evidence", denied=(NotAnswerable,)) as current:
+        if tenant_only:
+            result, method = ingredient_lookup(ingredients), "ingredient_direct"
+        else:
+            try:
+                result, method = run_cypher(question), "text2cypher"
+            except NotAnswerable:
+                if not ingredients:
+                    current.attributes["method"] = "not_answerable"
+                    raise
+                result, method = ingredient_lookup(ingredients), "ingredient_fallback"
+        current.attributes.update(method=method, rows=len(result["rows"]))
+        return result
+
 
 def answer_for_user(user_id, question, k=6):
     start = time.perf_counter()
     graph = graph_evidence(question)
     rows = [{key: v for key, v in row.items() if key != "spl_set_ids"} for row in graph["rows"]]
     label_ids = find_labels(graph["rows"])
-    label_chunks = retrieve_label_chunks(question, label_ids, k) if label_ids else []
+    with span("label_search", labels=len(label_ids)) as search:
+        label_chunks = retrieve_label_chunks(question, label_ids, k) if label_ids else []
+        search.attributes["chunks"] = len(label_chunks)
     rxcuis = sorted({row["rxcui"] for row in graph["rows"] if row.get("rxcui")})
 
-    tenant = gather_tenant_evidence(
-        user_id, question, rxcuis, audit_extra={"cypher": graph["cypher"], "labels": label_ids})
+    with span("tenant_evidence", drugs=len(rxcuis)) as evidence:
+        tenant = gather_tenant_evidence(
+            user_id, question, rxcuis, audit_extra={"cypher": graph["cypher"], "labels": label_ids})
+        evidence.attributes.update(inventory_rows=len(tenant["inventory"]),
+                                   private_chunks=len(tenant["private_sources"]))
     identity = tenant["identity"]
 
-    system = SYSTEM_PROMPT.format(**identity)
-    prompt = build_prompt(question, graph["cypher"], rows, label_chunks, tenant["inventory"], tenant["private_sources"])
-    while approx_tokens(system + prompt) > PROMPT_TOKEN_BUDGET and (label_chunks or len(rows) > 5):
-        if label_chunks:
-            label_chunks = label_chunks[:-1]
-        else:
-            rows = rows[:-1]
+    with span("build_prompt") as budget:
+        rows_before, chunks_before = len(rows), len(label_chunks)
+        system = SYSTEM_PROMPT.format(**identity)
         prompt = build_prompt(question, graph["cypher"], rows, label_chunks, tenant["inventory"], tenant["private_sources"])
+        while approx_tokens(system + prompt) > PROMPT_TOKEN_BUDGET and (label_chunks or len(rows) > 5):
+            if label_chunks:
+                label_chunks = label_chunks[:-1]
+            else:
+                rows = rows[:-1]
+            prompt = build_prompt(question, graph["cypher"], rows, label_chunks, tenant["inventory"], tenant["private_sources"])
+        budget.attributes.update(approx_tokens=approx_tokens(system + prompt),
+                                 rows_dropped=rows_before - len(rows),
+                                 chunks_dropped=chunks_before - len(label_chunks))
 
     content, usage = complete(ANSWER_MODEL, [
         {"role": "system", "content": system},
