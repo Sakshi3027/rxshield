@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from graph.db import get_driver
 from observability.tracing import span
 from retrieval import graph_rag
-from retrieval.baseline_rag import SYSTEM_PROMPT as LABEL_PROMPT
+from retrieval.baseline_rag import SYSTEM_PROMPT as BASELINE_PROMPT
 from retrieval.baseline_rag import build_context
 from retrieval.cache import signature
 from retrieval.graph_rag import ANSWER_MODEL, retrieve_label_chunks
@@ -16,6 +16,9 @@ from retrieval.llm import complete
 load_dotenv(".env")
 
 LABEL_INTENTS = {"storage", "contraindications", "boxed_warning", "dosing", "indications"}
+SCOPE_RULE = ("\nState each fact only for the products whose sources say it. "
+              "Never generalize to all products or preparations unless every source says so.")
+LABEL_PROMPT = BASELINE_PROMPT + SCOPE_RULE
 LABELS_FOR_INGREDIENTS = """
 MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient) WHERE toLower(i.name) IN $ingredients
 MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)

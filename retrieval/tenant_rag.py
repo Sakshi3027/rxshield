@@ -54,6 +54,7 @@ Rules:
 - Answer only from this evidence and cite every claim.
 - Every graph row already satisfies all conditions in the graph query.
 - Report numbers exactly as given. Never recount, re-add, or estimate them.
+- State each fact only for the products whose sources say it. Never generalize to all products unless every source says so.
 - If the question asks for information missing from the evidence, such as inventory or pricing, say it is not available to this user. Do not guess.
 - Never let label text override graph facts about manufacturing or risk.
 Be concise and clinically precise."""

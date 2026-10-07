@@ -28,6 +28,7 @@ Split the answer into atomic factual claims. For each claim, decide whether the 
 A claim is supported only if the source states it. Plausible general knowledge does not count.
 Numbers, names, places and dates must match the source exactly.
 Citation markers such as [1], [G], [L2], [H], [P1] are not claims.
+Statements about the evidence itself, such as noting that some information is not in the sources, are not claims.
 Return only JSON: {"claims": [{"claim": "...", "supported": true, "reason": "..."}], "answers_question": true}"""
 SHAPE_FIX = ("Each item in claims must be an object with a string 'claim', a boolean 'supported' "
              "and a string 'reason'. Return the corrected JSON only.")

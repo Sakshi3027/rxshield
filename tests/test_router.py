@@ -2,6 +2,8 @@
 import pytest
 
 from retrieval.router import choose_route
+from retrieval.baseline_rag import SYSTEM_PROMPT as BASELINE_PROMPT
+from retrieval.router import LABEL_PROMPT
 
 
 @pytest.mark.parametrize("question, expected", [
@@ -18,3 +20,7 @@ from retrieval.router import choose_route
 def test_route_decisions(question, expected):
     route, _ = choose_route(question)
     assert route == expected
+
+def test_label_route_adds_scope_rule_without_changing_baseline():
+    assert "Never generalize" in LABEL_PROMPT
+    assert "Never generalize" not in BASELINE_PROMPT
