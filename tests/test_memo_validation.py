@@ -1,5 +1,5 @@
 """The memo validator must catch missing sections, invented numbers, omitted urgent items, and unused protocols."""
-from agent.shortage_memo import check_draft
+from agent.shortage_memo import RUNWAY_MARKER, check_draft, insert_runway, runway_table
 
 EVIDENCE = {
     "inventory": [
@@ -8,12 +8,14 @@ EVIDENCE = {
     ],
     "documents": [{"id": "P1", "title": "Substitution protocol", "content": "Reserve stock for ICU."}],
 }
-GOOD = (
+TABLE = runway_table(EVIDENCE["inventory"])
+GOOD = insert_runway(
     "## Situation\nLidocaine is constrained [H].\n"
-    "## Supply runway\nLidocaine A: 406 units, 7 days [H].\n"
+    f"## Supply runway\n{RUNWAY_MARKER}\nLidocaine A is the urgent item [H].\n"
     "## Protocol\nReserve stock for ICU [P1].\n"
     "## Alternatives\nOther labelers exist [R].\n"
-    "## Recommended actions\nConserve Lidocaine A [H][P1]."
+    "## Recommended actions\nConserve Lidocaine A [H][P1].",
+    TABLE,
 )
 
 
@@ -30,8 +32,13 @@ def test_missing_section_is_caught():
 
 
 def test_omitted_urgent_item_is_caught():
-    draft = GOOD.replace("Lidocaine A: 406 units, 7 days [H].", "Supply looks fine [H].")
+    draft = GOOD.replace(TABLE, "Supply looks fine [H].")
     assert any("urgent item missing" in p for p in check_draft(draft, EVIDENCE))
+
+
+def test_handwritten_runway_is_caught():
+    draft = GOOD.replace(TABLE, "Lidocaine A: 406 units, 7 days [H].")
+    assert any("Supply runway" in p for p in check_draft(draft, EVIDENCE))
 
 
 def test_unused_protocol_is_caught():

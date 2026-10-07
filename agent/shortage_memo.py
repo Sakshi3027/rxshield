@@ -16,6 +16,7 @@ from tenancy.db import user_session
 
 MAX_ATTEMPTS = 2
 URGENT_DAYS = 14
+RUNWAY_MARKER = "<<RUNWAY_TABLE>>"
 DRAFTING_ROLES = {"pharmacist", "procurement", "executive"}
 REQUIRED_SECTIONS = ["## Situation", "## Supply runway", "## Protocol", "## Alternatives", "## Recommended actions"]
 DRUGS_SQL = """
@@ -29,7 +30,8 @@ SYSTEM_PROMPT = """You draft shortage response memos for {tenant_name} pharmacy 
 Use ONLY the evidence provided. Every number you write must appear exactly in the evidence.
 Risk tiers and alternative counts come from RxShield's analysis of public FDA data. Never attribute them to the FDA.
 Every recommended action must cite the evidence it relies on. Do not introduce strategies the evidence does not support, such as preferring suppliers from a particular country.
-In Supply runway, include every inventory item, ordered by days on hand from lowest to highest.
+Under ## Supply runway, write the line <<RUNWAY_TABLE>> by itself. The system replaces it with the inventory table, sorted by days on hand. After it, write at most two sentences on what the table shows. Never write your own inventory table.
+Items with {urgent_days} or fewer days on hand are urgent. Do not invent any other thresholds or cutoffs.
 Substitution and conservation rules come only from hospital documents; cite them with [P1], [P2], ...
 Never recommend changes to dosing or prescribing; those are prescriber decisions, not supply actions.
 Use these exact section headings, in this order:
@@ -58,8 +60,25 @@ class MemoState(TypedDict, total=False):
     previous_draft: str
     review_note: str
 
+
 def normalize(value):
     return re.sub(r"(?<=\d),(?=\d)", "", value.lower())
+
+
+def runway_table(inventory):
+    """Markdown table of every inventory item, lowest days on hand first, unknown days last."""
+    rows = sorted(inventory, key=lambda r: (r["days_on_hand"] is None,
+                                            float(r["days_on_hand"] or 0), r["drug_name"]))
+    lines = ["| Product | On hand (units) | Days on hand |", "|---|---:|---:|"]
+    for r in rows:
+        days = "n/a" if r["days_on_hand"] is None else r["days_on_hand"]
+        name = str(r["drug_name"]).replace("|", "\\|")
+        lines.append(f"| {name} | {r['on_hand_units']} | {days} |")
+    return "\n".join(lines)
+
+
+def insert_runway(draft, table):
+    return draft.replace(f"`{RUNWAY_MARKER}`", RUNWAY_MARKER).replace(RUNWAY_MARKER, f"\n{table}\n", 1)
 
 
 def check_draft(draft, evidence):
@@ -81,6 +100,15 @@ def check_draft(draft, evidence):
                 not re.search(rf"(?<![\w.]){re.escape(units)}(?![\w])", clean_draft):
             problems.append(f"urgent item missing: {row['drug_name']} has only {days} days on hand")
 
+    runway = draft.split("## Supply runway", 1)[-1].split("## Protocol", 1)[0]
+    table = runway_table(evidence.get("inventory", []))
+    table_lines = sum(line.strip().startswith("|") for line in runway.splitlines())
+    if table not in runway or table_lines != len(table.splitlines()):
+        problems.append(f"the Supply runway section must contain the line {RUNWAY_MARKER} exactly once "
+                        "and no inventory table of your own")
+    if RUNWAY_MARKER in draft:
+        problems.append(f"write the line {RUNWAY_MARKER} only once, under Supply runway")
+
     if evidence.get("documents"):
         protocol = draft.split("## Protocol", 1)[-1].split("## Alternatives", 1)[0]
         if "not available" in protocol.lower() or "[P" not in protocol:
@@ -101,7 +129,7 @@ def gather(state):
         drugs = [dict(r) for r in conn.execute(text(DRUGS_SQL), {"ingredient": state["ingredient"].lower()}).mappings()]
         rxcuis = [d["drug_rxcui"] for d in drugs]
         inventory = [dict(r) for r in conn.execute(text(INVENTORY_SQL), {"rxcuis": rxcuis}).mappings()] if rxcuis else []
-        documents = query_private(conn, f"{state['ingredient']} shortage protocol", k=3)
+        documents = query_private(conn, f"{state['ingredient']} shortage protocol", k=3, rxcuis=rxcuis)
     if not inventory:
         raise ValueError(f"{identity['tenant_name']} does not stock any {state['ingredient']} products in shortage.")
     evidence = {
@@ -109,6 +137,7 @@ def gather(state):
         "inventory": inventory,
         "documents": [{"id": f"P{i}", "title": d["title"], "content": d["content"]}
                       for i, d in enumerate(documents, start=1)],
+        "urgent_days": URGENT_DAYS,
     }
     return {"identity": dict(identity), "evidence": evidence, "attempts": 0, "tokens": 0,
             "previous_draft": revision["draft"] if revision else None,
@@ -116,30 +145,32 @@ def gather(state):
 
 
 def draft(state):
+    table = runway_table(state["evidence"]["inventory"])
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT.format(**state["identity"])},
+        {"role": "system", "content": SYSTEM_PROMPT.format(**state["identity"], urgent_days=URGENT_DAYS)},
         {"role": "user", "content": f"Drug: {state['ingredient']}\n\nEvidence:\n"
                                     f"{json.dumps(state['evidence'], default=str, separators=(',', ':'))}"},
     ]
     if state.get("problems"):
         messages += [
-            {"role": "assistant", "content": state["draft"]},
+            {"role": "assistant", "content": state["draft"].replace(table, RUNWAY_MARKER)},
             {"role": "user", "content": "Fix these problems and return the full corrected memo:\n- "
                                         + "\n- ".join(state["problems"])},
         ]
     elif state.get("review_note") and state["attempts"] == 0:
         messages += [
-            {"role": "assistant", "content": state["previous_draft"]},
+            {"role": "assistant", "content": state["previous_draft"].replace(table, RUNWAY_MARKER)},
             {"role": "user", "content": f"A reviewer rejected this draft with this note:\n{state['review_note']}\n"
                                         "Write a corrected full memo that addresses the note."},
         ]
     content, usage = complete(ANSWER_MODEL, messages)
-    return {"draft": content, "attempts": state["attempts"] + 1,
+    return {"draft": insert_runway(content, table), "attempts": state["attempts"] + 1,
             "tokens": state["tokens"] + usage["prompt_tokens"] + usage["completion_tokens"]}
 
 
 def validate(state):
     return {"problems": check_draft(state["draft"], state["evidence"])}
+
 
 def next_step(state):
     if not state["problems"]:
