@@ -44,3 +44,12 @@ def test_handwritten_runway_is_caught():
 def test_unused_protocol_is_caught():
     draft = GOOD.replace("Reserve stock for ICU [P1].", "Not available in evidence.")
     assert any("Protocol section" in p for p in check_draft(draft, EVIDENCE))
+
+
+def test_number_before_comma_is_not_flagged():
+    assert check_draft(GOOD + " Lidocaine B covers 59, the longest runway [H].", EVIDENCE) == []
+
+
+def test_space_thousands_separator_is_not_flagged():
+    evidence = {**EVIDENCE, "documents": [{"id": "P1", "title": "Memo", "content": "Limit $45,000 per order."}]}
+    assert check_draft(GOOD + " Limit $45 000 per order [P1].", evidence) == []

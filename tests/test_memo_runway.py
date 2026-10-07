@@ -36,3 +36,19 @@ def test_model_written_table_is_rejected():
 def test_extra_rows_next_to_generated_table_are_rejected():
     runway = insert_runway(RUNWAY_MARKER, runway_table(INVENTORY)) + "| Drug A 20 MG/ML | 120 | 6 |"
     assert any("Supply runway" in p for p in check_draft(memo(runway), EVIDENCE))
+
+
+def test_urgent_rows_are_marked():
+    rows = runway_table(INVENTORY).splitlines()[2:]
+    assert rows[0].rstrip(" |").endswith("yes")
+    assert not rows[1].rstrip(" |").endswith("yes")
+
+
+def test_block_names_the_lowest_runway():
+    from agent.shortage_memo import runway_block
+    assert "Lowest runway: Drug A 20 MG/ML at 6 days on hand [H]." in runway_block(INVENTORY)
+
+
+def test_number_before_comma_is_not_flagged():
+    draft = insert_runway(memo(RUNWAY_MARKER), runway_table(INVENTORY)) + " Drug B covers 30, the longest [H]."
+    assert check_draft(draft, EVIDENCE) == []
