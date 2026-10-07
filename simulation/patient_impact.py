@@ -65,11 +65,13 @@ def run_patient_impact(user_id, scope, entity, duration_days):
 if __name__ == "__main__":
     user_id, scope, entity, days = sys.argv[1], sys.argv[2], sys.argv[3], int(sys.argv[4])
     impact, total_patients = run_patient_impact(user_id, scope, entity, days)
-    columns = ["drug_name", "status", "p_stockout", "patients", "icu_patients", "care_units"]
     if total_patients is None:
         columns = ["drug_name", "status", "p_stockout"]
+        order = ["p_stockout"]
         print("Patient impact is not available for your role.\n")
     else:
+        columns = ["drug_name", "status", "p_stockout", "patients", "icu_patients", "care_units"]
+        order = ["patients", "icu_patients", "p_stockout"]
         print(f"Distinct patients on at-risk drugs: {total_patients}\n")
-    ranked = impact.sort_values(["p_stockout"], ascending=False)
+    ranked = impact.sort_values(order, ascending=False)
     print(ranked[columns].head(15).to_string(index=False))
