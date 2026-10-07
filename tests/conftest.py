@@ -14,3 +14,6 @@ def clean_test_telemetry():
         conn.execute(text("""
             delete from ops.spans where trace_id in
                 (select trace_id from ops.spans where name like 'test\\_%')"""))
+        conn.execute(text("""
+            delete from ops.spans where trace_id in
+                (select trace_id from ops.spans where name = 'http' and attributes->>'path' like '/\\_test/%')"""))
