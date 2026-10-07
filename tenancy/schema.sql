@@ -237,3 +237,6 @@ create index if not exists spans_trace on ops.spans (trace_id);
 create index if not exists spans_name_time on ops.spans (name, started_at);
 grant usage on schema ops to rxshield_app;
 grant insert on ops.spans to rxshield_app;
+alter table ops.llm_calls add column if not exists trace_id text;
+alter table ops.llm_calls add column if not exists span_id text;
+create index if not exists llm_calls_trace on ops.llm_calls (trace_id);
