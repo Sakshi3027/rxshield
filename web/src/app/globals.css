@@ -49,3 +49,18 @@
   outline: 2px solid var(--public);
   outline-offset: 2px;
 }
+
+.source {
+  scroll-margin-top: 1.5rem;
+  border-radius: 0.375rem;
+}
+
+.source[data-kind="public"]:target {
+  background: var(--public-soft);
+  box-shadow: 0 0 0 6px var(--public-soft);
+}
+
+.source[data-kind="private"]:target {
+  background: var(--private-soft);
+  box-shadow: 0 0 0 6px var(--private-soft);
+}

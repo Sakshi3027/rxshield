@@ -15,6 +15,9 @@ from observability.tracing import span
 
 SIMILARITY_THRESHOLD = 0.90
 MAX_AGE_HOURS = 24
+CACHED_FIELDS = ("answer", "role", "tenant_name", "display_name",
+                 "inventory", "label_sources", "private_sources", "graph_rows")
+CACHE_FORMAT = 2
 TIERS = {
     r"\bcritical\b": "tier:critical",
     r"\bhigh[\s-]risk\b": "tier:high",
@@ -121,6 +124,8 @@ def cached_answer_for_user(user_id, question):
             if sig:
                 with span("cache_lookup") as lookup_span:
                     hit = lookup(conn, sig, query_vector, version)
+                    if hit and hit["answer"].get("format") != CACHE_FORMAT:
+                        hit = None
                     lookup_span.attributes["hit"] = bool(hit)
                 if hit:
                     similarity = round(float(hit["similarity"]), 3)
@@ -142,7 +147,7 @@ def cached_answer_for_user(user_id, question):
             result = answer_for_user(user_id, question)
         cache_status = "miss" if sig else "skipped"
         if sig:
-            payload = {key: result[key] for key in ("answer", "role", "tenant_name", "display_name")}
+            payload = {key: result[key] for key in CACHED_FIELDS} | {"format": CACHE_FORMAT}
             with span("cache_store"):
                 with user_session(user_id) as conn:
                     store(conn, question, sig, query_vector, payload, version)
