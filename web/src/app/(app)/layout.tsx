@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { api, ApiError } from "@/lib/api";
+import { Nav } from "./nav";
 
 type Me = { user_id: string; display_name: string; role: string; tenant_name: string };
 
@@ -31,11 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Link href="/ask" className="text-lg font-semibold tracking-tight">
             RxShield
           </Link>
-          <nav aria-label="Main" className="flex gap-6 text-sm">
-            <Link href="/ask" className="font-medium text-ink">
-              Ask
-            </Link>
-          </nav>
+          <Nav />
           <div className="ml-auto flex items-center gap-4">
             <Suspense fallback={<span className="block h-4 w-56 rounded bg-rule motion-safe:animate-pulse" />}>
               <Identity />
