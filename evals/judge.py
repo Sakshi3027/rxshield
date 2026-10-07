@@ -5,7 +5,7 @@ import re
 import time
 from collections import deque
 from pathlib import Path
-from groq import RateLimitError
+from groq import APIConnectionError, RateLimitError
 
 import pandas as pd
 
@@ -231,9 +231,9 @@ def main():
         print(f"[{i}/{len(questions)}] {question}")
         try:
             rows.extend(evaluate(question, budget))
-        except RateLimitError:
-            print("\nProvider token limit reached. Finished questions are saved; "
-                  "rerun with --resume after the limit resets.")
+        except (RateLimitError, APIConnectionError) as err:
+            reason = "daily token limit" if isinstance(err, RateLimitError) else "network connection lost"
+            print(f"\nStopped: {reason}. Finished questions are saved; rerun with --resume.")
             break
         RESULTS.write_text(json.dumps(rows, indent=2))
     summarize(rows)

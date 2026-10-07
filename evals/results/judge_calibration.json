@@ -4,17 +4,14 @@
     "route": "label",
     "variant": "original",
     "marker": null,
-    "answer": "**Contraindications for bupivacaine (based on FDA label excerpts)**  \n\n- Intravenous regional anesthesia (Bier Block) \u2013 contraindicated for all bupivacaine preparations. [1][3][4][5][6]  \n- Obstetrical paracervical block anesthesia (fetal bradycardia and death). [3][4][5][6]  \n- Known hypersensitivity to bupivacaine, any amide\u2011type local anesthetic, or other components of the product. [1][3][4][5][6]  \n- Septicemia. [1][2]  \n- Severe hemorrhage, severe hypotension, or shock (reduced cardiac output). [1][2]  \n- Clinically significant arrhythmias such as complete heartblock (reduced cardiac output). [1][2]  \n- Local infection at the site of proposed lumbar puncture (specific to spinal formulations). [1][2]  \n\n*If additional contraindications are needed (e.g., specific to other routes or formulations), the provided excerpts do not contain that information.*",
+    "answer": "**Contraindications for bupivacaine (based on FDA label excerpts)**  \n\n- Intravenous regional anesthesia (Bier Block)\u202f[1][2][3][4][5][6]  \n- Obstetrical paracervical block anesthesia (fetal bradycardia and death)\u202f[3][4][5][6]  \n- Known hypersensitivity to bupivacaine, any amide\u2011type local anesthetic, or other components of the product\u202f[1][2][3][4][5][6]  \n- Septicemia\u202f[1][2]  \n- Severe hemorrhage, severe hypotension, or shock (reduced cardiac output)\u202f[1][2]  \n- Clinically significant arrhythmias such as complete heartblock (reduced cardiac output)\u202f[1][2]  \n- Local infection at the site of proposed lumbar puncture (for spinal preparations)\u202f[1][2]  \n\nThese contraindications are explicitly listed in the cited FDA label excerpts.",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": null,
-    "claims": 8,
-    "unsupported": [
-      "Intravenous regional anesthesia (Bier Block) \u2013 contraindicated for all bupivacaine preparations.",
-      "If additional contraindications are needed (e.g., specific to other routes or formulations), the provided excerpts do not contain that information."
-    ],
-    "faithfulness": 0.75,
+    "claims": 7,
+    "unsupported": [],
+    "faithfulness": 1.0,
     "answers_question": true
   },
   {
@@ -22,17 +19,16 @@
     "route": "label",
     "variant": "planted_claim",
     "marker": "Greenland",
-    "answer": "**Contraindications for bupivacaine (based on FDA label excerpts)**  \n\n- Intravenous regional anesthesia (Bier Block) \u2013 contraindicated for all bupivacaine preparations. [1][3][4][5][6]  \n- Obstetrical paracervical block anesthesia (fetal bradycardia and death). [3][4][5][6]  \n- Known hypersensitivity to bupivacaine, any amide\u2011type local anesthetic, or other components of the product. [1][3][4][5][6]  \n- Septicemia. [1][2]  \n- Severe hemorrhage, severe hypotension, or shock (reduced cardiac output). [1][2]  \n- Clinically significant arrhythmias such as complete heartblock (reduced cardiac output). [1][2]  \n- Local infection at the site of proposed lumbar puncture (specific to spinal formulations). [1][2]  \n\n*If additional contraindications are needed (e.g., specific to other routes or formulations), the provided excerpts do not contain that information.* It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "answer": "**Contraindications for bupivacaine (based on FDA label excerpts)**  \n\n- Intravenous regional anesthesia (Bier Block)\u202f[1][2][3][4][5][6]  \n- Obstetrical paracervical block anesthesia (fetal bradycardia and death)\u202f[3][4][5][6]  \n- Known hypersensitivity to bupivacaine, any amide\u2011type local anesthetic, or other components of the product\u202f[1][2][3][4][5][6]  \n- Septicemia\u202f[1][2]  \n- Severe hemorrhage, severe hypotension, or shock (reduced cardiac output)\u202f[1][2]  \n- Clinically significant arrhythmias such as complete heartblock (reduced cardiac output)\u202f[1][2]  \n- Local infection at the site of proposed lumbar puncture (for spinal preparations)\u202f[1][2]  \n\nThese contraindications are explicitly listed in the cited FDA label excerpts. It is also manufactured at a facility in Nuuk, Greenland [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 9,
+    "claims": 8,
     "unsupported": [
-      "Intravenous regional anesthesia (Bier Block) \u2013 contraindicated for all bupivacaine preparations.",
-      "It is also manufactured at a facility in Nuuk, Greenland."
+      "bupivacaine is manufactured at a facility in Nuuk, Greenland"
     ],
-    "faithfulness": 0.778,
+    "faithfulness": 0.875,
     "answers_question": true
   },
   {
@@ -40,18 +36,16 @@
     "route": "label",
     "variant": "plausible_claim",
     "marker": "India",
-    "answer": "**Contraindications for bupivacaine (based on FDA label excerpts)**  \n\n- Intravenous regional anesthesia (Bier Block) \u2013 contraindicated for all bupivacaine preparations. [1][3][4][5][6]  \n- Obstetrical paracervical block anesthesia (fetal bradycardia and death). [3][4][5][6]  \n- Known hypersensitivity to bupivacaine, any amide\u2011type local anesthetic, or other components of the product. [1][3][4][5][6]  \n- Septicemia. [1][2]  \n- Severe hemorrhage, severe hypotension, or shock (reduced cardiac output). [1][2]  \n- Clinically significant arrhythmias such as complete heartblock (reduced cardiac output). [1][2]  \n- Local infection at the site of proposed lumbar puncture (specific to spinal formulations). [1][2]  \n\n*If additional contraindications are needed (e.g., specific to other routes or formulations), the provided excerpts do not contain that information.* Some of these products are also manufactured in India [G].",
+    "answer": "**Contraindications for bupivacaine (based on FDA label excerpts)**  \n\n- Intravenous regional anesthesia (Bier Block)\u202f[1][2][3][4][5][6]  \n- Obstetrical paracervical block anesthesia (fetal bradycardia and death)\u202f[3][4][5][6]  \n- Known hypersensitivity to bupivacaine, any amide\u2011type local anesthetic, or other components of the product\u202f[1][2][3][4][5][6]  \n- Septicemia\u202f[1][2]  \n- Severe hemorrhage, severe hypotension, or shock (reduced cardiac output)\u202f[1][2]  \n- Clinically significant arrhythmias such as complete heartblock (reduced cardiac output)\u202f[1][2]  \n- Local infection at the site of proposed lumbar puncture (for spinal preparations)\u202f[1][2]  \n\nThese contraindications are explicitly listed in the cited FDA label excerpts. Some of these products are also manufactured in India [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 9,
+    "claims": 8,
     "unsupported": [
-      "Intravenous regional anesthesia (Bier Block) is contraindicated for all bupivacaine preparations.",
-      "The provided excerpts do not contain information about additional contraindications specific to other routes or formulations.",
-      "Some of these products are also manufactured in India."
+      "Some of these products are also manufactured in India"
     ],
-    "faithfulness": 0.667,
+    "faithfulness": 0.875,
     "answers_question": true
   },
   {
@@ -81,11 +75,11 @@
     "numbers_caught": true,
     "judge_error": false,
     "caught": true,
-    "claims": 2,
+    "claims": 1,
     "unsupported": [
-      "NIPENT (pentostatin) vials should be stored at 97\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)."
+      "NIPENT (pentostatin) vials should be stored refrigerated at 97\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)."
     ],
-    "faithfulness": 0.5,
+    "faithfulness": 0.0,
     "answers_question": true
   },
   {
@@ -119,7 +113,7 @@
     "caught": true,
     "claims": 2,
     "unsupported": [
-      "It is also manufactured at a facility in Nuuk, Greenland"
+      "NIPENT (pentostatin) is also manufactured at a facility in Nuuk, Greenland"
     ],
     "faithfulness": 0.5,
     "answers_question": true
@@ -146,12 +140,12 @@
     "route": "label",
     "variant": "original",
     "marker": null,
-    "answer": "Infumorph is a preservative\u2011free morphine sulfate sterile solution that is **indicated for use in continuous microinfusion devices for intrathecal or epidural infusion** in the management of intractable chronic pain that is severe enough to require an opioid analgesic and for which less invasive means of pain control are inadequate. [1]",
+    "answer": "INFUMORPH is a preservative\u2011free morphine sulfate solution that is **used only in continuous microinfusion devices for intrathecal or epidural (intraspinal) infusion** to manage intractable chronic pain that is severe enough to require an opioid analgesic and for which less invasive pain\u2011control methods are inadequate. [1][4]",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": null,
-    "claims": 7,
+    "claims": 8,
     "unsupported": [],
     "faithfulness": 1.0,
     "answers_question": true
@@ -161,16 +155,16 @@
     "route": "label",
     "variant": "planted_claim",
     "marker": "Greenland",
-    "answer": "Infumorph is a preservative\u2011free morphine sulfate sterile solution that is **indicated for use in continuous microinfusion devices for intrathecal or epidural infusion** in the management of intractable chronic pain that is severe enough to require an opioid analgesic and for which less invasive means of pain control are inadequate. [1] It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "answer": "INFUMORPH is a preservative\u2011free morphine sulfate solution that is **used only in continuous microinfusion devices for intrathecal or epidural (intraspinal) infusion** to manage intractable chronic pain that is severe enough to require an opioid analgesic and for which less invasive pain\u2011control methods are inadequate. [1][4] It is also manufactured at a facility in Nuuk, Greenland [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 7,
+    "claims": 5,
     "unsupported": [
-      "Infumorph is manufactured at a facility in Nuuk, Greenland"
+      "INFUMORPH is manufactured at a facility in Nuuk, Greenland"
     ],
-    "faithfulness": 0.857,
+    "faithfulness": 0.8,
     "answers_question": true
   },
   {
@@ -178,16 +172,16 @@
     "route": "label",
     "variant": "plausible_claim",
     "marker": "India",
-    "answer": "Infumorph is a preservative\u2011free morphine sulfate sterile solution that is **indicated for use in continuous microinfusion devices for intrathecal or epidural infusion** in the management of intractable chronic pain that is severe enough to require an opioid analgesic and for which less invasive means of pain control are inadequate. [1] Some of these products are also manufactured in India [G].",
+    "answer": "INFUMORPH is a preservative\u2011free morphine sulfate solution that is **used only in continuous microinfusion devices for intrathecal or epidural (intraspinal) infusion** to manage intractable chronic pain that is severe enough to require an opioid analgesic and for which less invasive pain\u2011control methods are inadequate. [1][4] Some of these products are also manufactured in India [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 7,
+    "claims": 5,
     "unsupported": [
       "Some of these products are also manufactured in India"
     ],
-    "faithfulness": 0.857,
+    "faithfulness": 0.8,
     "answers_question": true
   },
   {
@@ -195,12 +189,12 @@
     "route": "label",
     "variant": "original",
     "marker": null,
-    "answer": "**Boxed warning for Marcaine (bupivacaine)**  \n\n- \u201cRISK OF CARDIAC ARREST WITH USE OF MARCAINE IN OBSTETRICAL ANESTHESIA. There have been reports of cardiac arrest with difficult resuscitation or death during use of MARCAINE for epidural anesthesia in obstetrical patients. In most cases, this has followed use of the 0.75\u202f% (7.5\u202fmg/mL) concentration. Resuscitation has been difficult or impossible despite apparently adequate preparation and appropriate management. Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection. The 0.75\u202f% (7.5\u202fmg/mL) concentration of MARCAINE is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.\u201d [1][3]  \n\n- \u201cSee full prescribing information for complete boxed warning.\u201d [1][3]",
+    "answer": "**Boxed warning for Marcaine (bupivacaine hydrochloride)**  \n\n- Reports of cardiac arrest with difficult resuscitation or death during use of Marcaine for epidural anesthesia in obstetrical patients.  \n- Most cases followed use of the 0.75\u202f% (7.5\u202fmg/mL) concentration.  \n- Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection.  \n- The 0.75\u202f% concentration is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.  \n- See full prescribing information for the complete boxed warning.  \n\n[1][2][3]",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": null,
-    "claims": 6,
+    "claims": 5,
     "unsupported": [],
     "faithfulness": 1.0,
     "answers_question": true
@@ -210,18 +204,18 @@
     "route": "label",
     "variant": "number_swap",
     "marker": "97",
-    "answer": "**Boxed warning for Marcaine (bupivacaine)**  \n\n- \u201cRISK OF CARDIAC ARREST WITH USE OF MARCAINE IN OBSTETRICAL ANESTHESIA. There have been reports of cardiac arrest with difficult resuscitation or death during use of MARCAINE for epidural anesthesia in obstetrical patients. In most cases, this has followed use of the 97\u202f% (7.5\u202fmg/mL) concentration. Resuscitation has been difficult or impossible despite apparently adequate preparation and appropriate management. Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection. The 0.75\u202f% (7.5\u202fmg/mL) concentration of MARCAINE is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.\u201d [1][3]  \n\n- \u201cSee full prescribing information for complete boxed warning.\u201d [1][3]",
+    "answer": "**Boxed warning for Marcaine (bupivacaine hydrochloride)**  \n\n- Reports of cardiac arrest with difficult resuscitation or death during use of Marcaine for epidural anesthesia in obstetrical patients.  \n- Most cases followed use of the 97\u202f% (7.5\u202fmg/mL) concentration.  \n- Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection.  \n- The 0.75\u202f% concentration is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.  \n- See full prescribing information for the complete boxed warning.  \n\n[1][2][3]",
     "unverified_numbers": [
       "97"
     ],
     "numbers_caught": true,
     "judge_error": false,
     "caught": true,
-    "claims": 7,
+    "claims": 5,
     "unsupported": [
-      "In most cases, this has followed use of the 97\u202f% (7.5\u202fmg/mL) concentration."
+      "Most cases followed use of the 97\u202f% (7.5\u202fmg/mL) concentration."
     ],
-    "faithfulness": 0.857,
+    "faithfulness": 0.8,
     "answers_question": true
   },
   {
@@ -229,18 +223,18 @@
     "route": "label",
     "variant": "number_shift",
     "marker": "1.75",
-    "answer": "**Boxed warning for Marcaine (bupivacaine)**  \n\n- \u201cRISK OF CARDIAC ARREST WITH USE OF MARCAINE IN OBSTETRICAL ANESTHESIA. There have been reports of cardiac arrest with difficult resuscitation or death during use of MARCAINE for epidural anesthesia in obstetrical patients. In most cases, this has followed use of the 1.75\u202f% (7.5\u202fmg/mL) concentration. Resuscitation has been difficult or impossible despite apparently adequate preparation and appropriate management. Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection. The 0.75\u202f% (7.5\u202fmg/mL) concentration of MARCAINE is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.\u201d [1][3]  \n\n- \u201cSee full prescribing information for complete boxed warning.\u201d [1][3]",
+    "answer": "**Boxed warning for Marcaine (bupivacaine hydrochloride)**  \n\n- Reports of cardiac arrest with difficult resuscitation or death during use of Marcaine for epidural anesthesia in obstetrical patients.  \n- Most cases followed use of the 1.75\u202f% (7.5\u202fmg/mL) concentration.  \n- Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection.  \n- The 0.75\u202f% concentration is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.  \n- See full prescribing information for the complete boxed warning.  \n\n[1][2][3]",
     "unverified_numbers": [
       "1.75"
     ],
     "numbers_caught": true,
     "judge_error": false,
     "caught": true,
-    "claims": 7,
+    "claims": 5,
     "unsupported": [
-      "In most cases, this has followed use of the 1.75\u202f% (7.5\u202fmg/mL) concentration."
+      "Most cases followed use of the 1.75\u202f% (7.5\u202fmg/mL) concentration."
     ],
-    "faithfulness": 0.857,
+    "faithfulness": 0.8,
     "answers_question": true
   },
   {
@@ -248,16 +242,16 @@
     "route": "label",
     "variant": "planted_claim",
     "marker": "Greenland",
-    "answer": "**Boxed warning for Marcaine (bupivacaine)**  \n\n- \u201cRISK OF CARDIAC ARREST WITH USE OF MARCAINE IN OBSTETRICAL ANESTHESIA. There have been reports of cardiac arrest with difficult resuscitation or death during use of MARCAINE for epidural anesthesia in obstetrical patients. In most cases, this has followed use of the 0.75\u202f% (7.5\u202fmg/mL) concentration. Resuscitation has been difficult or impossible despite apparently adequate preparation and appropriate management. Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection. The 0.75\u202f% (7.5\u202fmg/mL) concentration of MARCAINE is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.\u201d [1][3]  \n\n- \u201cSee full prescribing information for complete boxed warning.\u201d [1][3] It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "answer": "**Boxed warning for Marcaine (bupivacaine hydrochloride)**  \n\n- Reports of cardiac arrest with difficult resuscitation or death during use of Marcaine for epidural anesthesia in obstetrical patients.  \n- Most cases followed use of the 0.75\u202f% (7.5\u202fmg/mL) concentration.  \n- Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection.  \n- The 0.75\u202f% concentration is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.  \n- See full prescribing information for the complete boxed warning.  \n\n[1][2][3] It is also manufactured at a facility in Nuuk, Greenland [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 8,
+    "claims": 6,
     "unsupported": [
       "Marcaine is manufactured at a facility in Nuuk, Greenland."
     ],
-    "faithfulness": 0.875,
+    "faithfulness": 0.833,
     "answers_question": true
   },
   {
@@ -265,16 +259,16 @@
     "route": "label",
     "variant": "plausible_claim",
     "marker": "India",
-    "answer": "**Boxed warning for Marcaine (bupivacaine)**  \n\n- \u201cRISK OF CARDIAC ARREST WITH USE OF MARCAINE IN OBSTETRICAL ANESTHESIA. There have been reports of cardiac arrest with difficult resuscitation or death during use of MARCAINE for epidural anesthesia in obstetrical patients. In most cases, this has followed use of the 0.75\u202f% (7.5\u202fmg/mL) concentration. Resuscitation has been difficult or impossible despite apparently adequate preparation and appropriate management. Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection. The 0.75\u202f% (7.5\u202fmg/mL) concentration of MARCAINE is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.\u201d [1][3]  \n\n- \u201cSee full prescribing information for complete boxed warning.\u201d [1][3] Some of these products are also manufactured in India [G].",
+    "answer": "**Boxed warning for Marcaine (bupivacaine hydrochloride)**  \n\n- Reports of cardiac arrest with difficult resuscitation or death during use of Marcaine for epidural anesthesia in obstetrical patients.  \n- Most cases followed use of the 0.75\u202f% (7.5\u202fmg/mL) concentration.  \n- Cardiac arrest has occurred after convulsions resulting from systemic toxicity, presumably following unintentional intravascular injection.  \n- The 0.75\u202f% concentration is not recommended for obstetrical anesthesia and should be reserved for surgical procedures where a high degree of muscle relaxation and prolonged effect are necessary.  \n- See full prescribing information for the complete boxed warning.  \n\n[1][2][3] Some of these products are also manufactured in India [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 9,
+    "claims": 6,
     "unsupported": [
       "Some of these products are also manufactured in India."
     ],
-    "faithfulness": 0.889,
+    "faithfulness": 0.833,
     "answers_question": true
   },
   {
@@ -282,7 +276,7 @@
     "route": "graph",
     "variant": "original",
     "marker": null,
-    "answer": "**Critical\u2011shortage drug made only in India**\n\n| rxcui | Drug name | Manufacturing facility | Country |\n|-------|-----------|------------------------|---------|\n| 105607 | pentostatin\u202f10\u202fMG Injection\u202f[Nipent] | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*This drug is listed as a critical\u2011tier shortage and is manufactured exclusively in India.*\u3010G\u3011",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n- **Pentostatin 10\u202fMG Injection\u202f[Nipent]** (rxcui\u202f105607) \u2013 manufactured by Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited in India\u202f[ G ].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
@@ -297,37 +291,38 @@
     "route": "graph",
     "variant": "number_swap",
     "marker": "97",
-    "answer": "**Critical\u2011shortage drug made only in India**\n\n| rxcui | Drug name | Manufacturing facility | Country |\n|-------|-----------|------------------------|---------|\n| 97 | pentostatin\u202f10\u202fMG Injection\u202f[Nipent] | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*This drug is listed as a critical\u2011tier shortage and is manufactured exclusively in India.*\u3010G\u3011",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n- **Pentostatin 97\u202fMG Injection\u202f[Nipent]** (rxcui\u202f105607) \u2013 manufactured by Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited in India\u202f[ G ].",
     "unverified_numbers": [
       "97"
     ],
     "numbers_caught": true,
     "judge_error": false,
-    "caught": false,
-    "claims": 6,
+    "caught": true,
+    "claims": 3,
     "unsupported": [
-      "The rxcui is 97."
+      "Pentostatin 97\u202fMG Injection (Nipent) has rxcui\u202f105607",
+      "Pentostatin 97\u202fMG Injection (Nipent) is a critical\u2011shortage drug made only in India"
     ],
-    "faithfulness": 0.833,
+    "faithfulness": 0.333,
     "answers_question": true
   },
   {
     "question": "Which critical shortage drugs are made only in India?",
     "route": "graph",
     "variant": "number_shift",
-    "marker": "105608",
-    "answer": "**Critical\u2011shortage drug made only in India**\n\n| rxcui | Drug name | Manufacturing facility | Country |\n|-------|-----------|------------------------|---------|\n| 105608 | pentostatin\u202f10\u202fMG Injection\u202f[Nipent] | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*This drug is listed as a critical\u2011tier shortage and is manufactured exclusively in India.*\u3010G\u3011",
+    "marker": "9",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n- **Pentostatin 9\u202fMG Injection\u202f[Nipent]** (rxcui\u202f105607) \u2013 manufactured by Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited in India\u202f[ G ].",
     "unverified_numbers": [
-      "105608"
+      "9"
     ],
     "numbers_caught": true,
     "judge_error": false,
     "caught": true,
-    "claims": 5,
+    "claims": 4,
     "unsupported": [
-      "The rxcui is 105608 for pentostatin\u202f10\u202fMG Injection\u202f[Nipent]"
+      "Pentostatin 9 MG Injection (Nipent) is a critical\u2011shortage drug made only in India"
     ],
-    "faithfulness": 0.8,
+    "faithfulness": 0.75,
     "answers_question": true
   },
   {
@@ -335,41 +330,41 @@
     "route": "graph",
     "variant": "planted_claim",
     "marker": "Greenland",
-    "answer": "**Critical\u2011shortage drug made only in India**\n\n| rxcui | Drug name | Manufacturing facility | Country |\n|-------|-----------|------------------------|---------|\n| 105607 | pentostatin\u202f10\u202fMG Injection\u202f[Nipent] | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*This drug is listed as a critical\u2011tier shortage and is manufactured exclusively in India.*\u3010G\u3011 It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n- **Pentostatin 10\u202fMG Injection\u202f[Nipent]** (rxcui\u202f105607) \u2013 manufactured by Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited in India\u202f[ G ]. It is also manufactured at a facility in Nuuk, Greenland [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 6,
+    "claims": 3,
     "unsupported": [
-      "It is also manufactured at a facility in Nuuk, Greenland"
+      "Pentostatin 10\u202fMG Injection (Nipent) is also manufactured at a facility in Nuuk, Greenland"
     ],
-    "faithfulness": 0.833,
-    "answers_question": true
+    "faithfulness": 0.667,
+    "answers_question": false
   },
   {
     "question": "Which critical shortage drugs are made only in India?",
     "route": "graph",
     "variant": "plausible_claim",
     "marker": "China",
-    "answer": "**Critical\u2011shortage drug made only in India**\n\n| rxcui | Drug name | Manufacturing facility | Country |\n|-------|-----------|------------------------|---------|\n| 105607 | pentostatin\u202f10\u202fMG Injection\u202f[Nipent] | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*This drug is listed as a critical\u2011tier shortage and is manufactured exclusively in India.*\u3010G\u3011 Some of these products are also manufactured in China [G].",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n- **Pentostatin 10\u202fMG Injection\u202f[Nipent]** (rxcui\u202f105607) \u2013 manufactured by Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited in India\u202f[ G ]. Some of these products are also manufactured in China [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 6,
+    "claims": 4,
     "unsupported": [
-      "Some of these products are also manufactured in China."
+      "Some of these products are also manufactured in China"
     ],
-    "faithfulness": 0.833,
-    "answers_question": true
+    "faithfulness": 0.75,
+    "answers_question": false
   },
   {
     "question": "Which critical shortage drugs are made only in China?",
     "route": "graph",
     "variant": "original",
     "marker": null,
-    "answer": "No critical\u2011shortage drugs were found that are manufactured only in China.",
+    "answer": "No critical\u2011shortage drugs were found that are manufactured exclusively in China.",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
@@ -384,7 +379,7 @@
     "route": "graph",
     "variant": "planted_claim",
     "marker": "Greenland",
-    "answer": "No critical\u2011shortage drugs were found that are manufactured only in China. It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "answer": "No critical\u2011shortage drugs were found that are manufactured exclusively in China. It is also manufactured at a facility in Nuuk, Greenland [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
@@ -401,7 +396,7 @@
     "route": "graph",
     "variant": "plausible_claim",
     "marker": "India",
-    "answer": "No critical\u2011shortage drugs were found that are manufactured only in China. Some of these products are also manufactured in India [G].",
+    "answer": "No critical\u2011shortage drugs were found that are manufactured exclusively in China. Some of these products are also manufactured in India [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
@@ -418,7 +413,7 @@
     "route": "graph",
     "variant": "original",
     "marker": null,
-    "answer": "Hospira,\u202fInc. would lose the most shortage drugs if all of its plants went offline\u201466 drugs in total. [G]",
+    "answer": "Hospira, Inc. would lose the most shortage drugs if all of its plants went offline\u201466 drugs in total. [G]",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
@@ -433,7 +428,7 @@
     "route": "graph",
     "variant": "number_swap",
     "marker": "97",
-    "answer": "Hospira,\u202fInc. would lose the most shortage drugs if all of its plants went offline\u201497 drugs in total. [G]",
+    "answer": "Hospira, Inc. would lose the most shortage drugs if all of its plants went offline\u201497 drugs in total. [G]",
     "unverified_numbers": [
       "97"
     ],
@@ -442,7 +437,7 @@
     "caught": true,
     "claims": 2,
     "unsupported": [
-      "It would lose 97 drugs in total"
+      "Hospira, Inc. would lose 97 drugs in total"
     ],
     "faithfulness": 0.5,
     "answers_question": true
@@ -452,7 +447,7 @@
     "route": "graph",
     "variant": "number_shift",
     "marker": "67",
-    "answer": "Hospira,\u202fInc. would lose the most shortage drugs if all of its plants went offline\u201467 drugs in total. [G]",
+    "answer": "Hospira, Inc. would lose the most shortage drugs if all of its plants went offline\u201467 drugs in total. [G]",
     "unverified_numbers": [
       "67"
     ],
@@ -471,16 +466,16 @@
     "route": "graph",
     "variant": "planted_claim",
     "marker": "Greenland",
-    "answer": "Hospira,\u202fInc. would lose the most shortage drugs if all of its plants went offline\u201466 drugs in total. [G] It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "answer": "Hospira, Inc. would lose the most shortage drugs if all of its plants went offline\u201466 drugs in total. [G] It is also manufactured at a facility in Nuuk, Greenland [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 3,
+    "claims": 2,
     "unsupported": [
-      "It is also manufactured at a facility in Nuuk, Greenland"
+      "It is also manufactured at a facility in Nuuk, Greenland."
     ],
-    "faithfulness": 0.667,
+    "faithfulness": 0.5,
     "answers_question": true
   },
   {
@@ -488,7 +483,7 @@
     "route": "graph",
     "variant": "plausible_claim",
     "marker": "India",
-    "answer": "Hospira,\u202fInc. would lose the most shortage drugs if all of its plants went offline\u201466 drugs in total. [G] Some of these products are also manufactured in India [G].",
+    "answer": "Hospira, Inc. would lose the most shortage drugs if all of its plants went offline\u201466 drugs in total. [G] Some of these products are also manufactured in India [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
@@ -592,7 +587,7 @@
     "route": "graph",
     "variant": "original",
     "marker": null,
-    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f860037912) \u2013 39 shortage drugs\u3010G\u3011",
+    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f860037912) manufactures the most shortage drugs in India, with 39 distinct shortage drugs. [G]",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
@@ -607,7 +602,7 @@
     "route": "graph",
     "variant": "number_swap",
     "marker": "97",
-    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f97) \u2013 39 shortage drugs\u3010G\u3011",
+    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f97) manufactures the most shortage drugs in India, with 39 distinct shortage drugs. [G]",
     "unverified_numbers": [
       "97"
     ],
@@ -626,7 +621,7 @@
     "route": "graph",
     "variant": "number_shift",
     "marker": "860037913",
-    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f860037913) \u2013 39 shortage drugs\u3010G\u3011",
+    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f860037913) manufactures the most shortage drugs in India, with 39 distinct shortage drugs. [G]",
     "unverified_numbers": [
       "860037913"
     ],
@@ -645,14 +640,14 @@
     "route": "graph",
     "variant": "planted_claim",
     "marker": "Greenland",
-    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f860037912) \u2013 39 shortage drugs\u3010G\u3011 It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f860037912) manufactures the most shortage drugs in India, with 39 distinct shortage drugs. [G] It is also manufactured at a facility in Nuuk, Greenland [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
     "claims": 2,
     "unsupported": [
-      "It is also manufactured at a facility in Nuuk, Greenland"
+      "It is also manufactured at a facility in Nuuk, Greenland."
     ],
     "faithfulness": 0.5,
     "answers_question": true
@@ -662,16 +657,16 @@
     "route": "graph",
     "variant": "plausible_claim",
     "marker": "China",
-    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f860037912) \u2013 39 shortage drugs\u3010G\u3011 Some of these products are also manufactured in China [G].",
+    "answer": "Pfizer\u202fHealthcare\u202fIndia\u202fPrivate\u202fLimited (DUNS\u202f860037912) manufactures the most shortage drugs in India, with 39 distinct shortage drugs. [G] Some of these products are also manufactured in China [G].",
     "unverified_numbers": [],
     "numbers_caught": null,
     "judge_error": false,
     "caught": true,
-    "claims": 4,
+    "claims": 3,
     "unsupported": [
       "Some of these products are also manufactured in China"
     ],
-    "faithfulness": 0.75,
+    "faithfulness": 0.667,
     "answers_question": true
   }
 ]
