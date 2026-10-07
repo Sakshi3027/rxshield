@@ -15,6 +15,7 @@ from tenancy.actions import create_action
 from tenancy.db import user_session
 
 MAX_ATTEMPTS = 2
+URGENT_DAYS = 14
 DRAFTING_ROLES = {"pharmacist", "procurement", "executive"}
 REQUIRED_SECTIONS = ["## Situation", "## Supply runway", "## Protocol", "## Alternatives", "## Recommended actions"]
 DRUGS_SQL = """
@@ -28,6 +29,8 @@ SYSTEM_PROMPT = """You draft shortage response memos for {tenant_name} pharmacy 
 Use ONLY the evidence provided. Every number you write must appear exactly in the evidence.
 Risk tiers and alternative counts come from RxShield's analysis of public FDA data. Never attribute them to the FDA.
 Every recommended action must cite the evidence it relies on. Do not introduce strategies the evidence does not support, such as preferring suppliers from a particular country.
+In Supply runway, include every inventory item, ordered by days on hand from lowest to highest.
+Substitution and conservation rules come only from hospital documents; cite them with [P1], [P2], ...
 Use these exact section headings, in this order:
 ## Situation
 ## Supply runway
@@ -56,14 +59,29 @@ def normalize(value):
     return re.sub(r"(?<=\d),(?=\d)", "", value.lower())
 
 
-def check_draft(draft, evidence_text):
+def check_draft(draft, evidence):
+    evidence_text = normalize(json.dumps(evidence, default=str))
+    clean_draft = normalize(draft)
     problems = [f"missing section '{s}'" for s in REQUIRED_SECTIONS if s not in draft]
+
     for number in set(re.findall(r"(?<![\w.])\d[\d,]*(?:\.\d+)?(?![\w])", draft)):
         clean = normalize(number)
         if len(clean) < 2 and "." not in clean:
             continue
         if not re.search(rf"(?<![\w.]){re.escape(clean)}(?![\w])", evidence_text):
             problems.append(f"number {number} does not appear in the evidence")
+
+    for row in evidence.get("inventory", []):
+        days = row.get("days_on_hand")
+        units = str(row["on_hand_units"])
+        if days is not None and float(days) <= URGENT_DAYS and \
+                not re.search(rf"(?<![\w.]){re.escape(units)}(?![\w])", clean_draft):
+            problems.append(f"urgent item missing: {row['drug_name']} has only {days} days on hand")
+
+    if evidence.get("documents"):
+        protocol = draft.split("## Protocol", 1)[-1].split("## Alternatives", 1)[0]
+        if "not available" in protocol.lower() or "[P" not in protocol:
+            problems.append("the Protocol section must summarize and cite the hospital documents [P1], [P2], ...")
     return problems
 
 
@@ -105,9 +123,7 @@ def draft(state):
 
 
 def validate(state):
-    evidence_text = normalize(json.dumps(state["evidence"], default=str))
-    return {"problems": check_draft(state["draft"], evidence_text)}
-
+    return {"problems": check_draft(state["draft"], state["evidence"])}
 
 def next_step(state):
     if not state["problems"]:
