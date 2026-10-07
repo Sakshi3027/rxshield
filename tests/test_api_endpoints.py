@@ -52,6 +52,7 @@ def test_whatif_gives_pharmacist_patient_impact():
     assert body["entity"] == "IND"
     assert isinstance(body["patients_affected"], int)
     assert all("patients_at_risk" in drug for drug in body["drugs"])
+    assert body["entity_name"] == "India"
 
 
 def test_whatif_hides_patients_from_procurement():

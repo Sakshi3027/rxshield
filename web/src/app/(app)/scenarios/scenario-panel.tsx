@@ -47,7 +47,7 @@ function Results({ result }: { result: Extract<ScenarioState, { status: "done" }
   const likely = result.drugs.filter((drug) => drug.p_stockout >= 0.5).length;
   const patientView = result.patients !== null;
   const rows = showAll ? result.drugs : result.drugs.slice(0, VISIBLE_ROWS);
-  const source = result.scope === "country" ? result.entity : `${result.scope} ${result.entity}`;
+  const source = result.scope === "country" ? result.entityName : `${result.scope} ${result.entity}`;
 
   if (result.drugs.length === 0) {
     return (

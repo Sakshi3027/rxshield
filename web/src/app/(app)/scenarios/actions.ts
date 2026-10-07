@@ -16,12 +16,21 @@ export type DrugImpact = {
 
 export type ScenarioState =
   | { status: "idle" }
-  | { status: "done"; scope: string; entity: string; days: number; patients: number | null; drugs: DrugImpact[] }
+  | {
+      status: "done";
+      scope: string;
+      entity: string;
+      entityName: string;
+      days: number;
+      patients: number | null;
+      drugs: DrugImpact[];
+    }
   | { status: "failed"; message: string; traceId: string | null };
 
 type WhatIfResponse = {
   scope: string;
   entity: string;
+  entity_name: string;
   duration_days: number;
   patients_affected: number | null;
   drugs: DrugImpact[];
@@ -43,8 +52,13 @@ export async function runScenario(_previous: ScenarioState, formData: FormData):
       body: JSON.stringify({ scope, entity, duration_days: days }),
     });
     return {
-      status: "done", scope: data.scope, entity: data.entity, days: data.duration_days,
-      patients: data.patients_affected, drugs: data.drugs,
+      status: "done",
+      scope: data.scope,
+      entity: data.entity,
+      entityName: data.entity_name,
+      days: data.duration_days,
+      patients: data.patients_affected,
+      drugs: data.drugs,
     };
   } catch (error) {
     if (!(error instanceof ApiError)) throw error;

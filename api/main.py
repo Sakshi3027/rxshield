@@ -52,6 +52,10 @@ ERRORS = {
 }
 INTERNAL_ERROR = {"error": "internal_error",
                   "message": "Something went wrong. Share the trace id with support."}
+
+COUNTRY_NAME_SQL = text(
+    "select country from analytics.stg_facilities where country_code = :code and country is not null limit 1")
+
 WARMUPS = {
     "embedding_model": lambda: embed_query("warm up"),
     "vocabulary": vocabulary,
@@ -206,10 +210,14 @@ def ask(body: AskRequest, user_id: str = Depends(current_user)):
 def whatif(body: WhatIfRequest, user_id: str = Depends(current_user)):
     entity = body.entity.upper() if body.scope == "country" else body.entity
     impact, total_patients = run_patient_impact(user_id, body.scope, entity, body.duration_days)
+    entity_name = entity
+    if body.scope == "country":
+        with app_engine().connect() as conn:
+            entity_name = conn.execute(COUNTRY_NAME_SQL, {"code": entity}).scalar() or entity
     order = ["patients_at_risk", "p_stockout"] if total_patients is not None else ["p_stockout"]
     ranked = impact.sort_values(order, ascending=False)
     return {
-        "scope": body.scope, "entity": entity, "duration_days": body.duration_days,
+        "scope": body.scope, "entity": entity, "entity_name": entity_name, "duration_days": body.duration_days,
         "patients_affected": total_patients,
         "drugs": json.loads(ranked.to_json(orient="records")),
     }
