@@ -68,8 +68,7 @@ def run_one(system, fn, question):
     except (NotAnswerable, PermissionError) as err:
         return {**row, "passed": False, "recall": 0.0, "error": str(err)}
     except Exception as err:
-        return {**row, "passed": False, "recall": 0.0, "error": f"{type(err).__name__}: {err}"}
-    forbidden = [t.lower() for t in question.get("must_not_include", [])]
+        return {**row, "passed": False, "recall": 0.0, "error": type(err).__name__}
     return {**row, **score(out["answer"], question),
             "tokens": out["prompt_tokens"] + out["completion_tokens"],
             "total_ms": out["total_ms"], "cypher": out.get("cypher"),
