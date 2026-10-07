@@ -11,7 +11,7 @@ from retrieval.graph_rag import ANSWER_MODEL
 from retrieval.llm import complete
 from retrieval.private_search import query_private
 from retrieval.tenant_rag import IDENTITY_SQL, INVENTORY_SQL
-from tenancy.actions import create_action
+from tenancy.actions import create_action, get_action
 from tenancy.db import user_session
 
 MAX_ATTEMPTS = 2
@@ -31,6 +31,7 @@ Risk tiers and alternative counts come from RxShield's analysis of public FDA da
 Every recommended action must cite the evidence it relies on. Do not introduce strategies the evidence does not support, such as preferring suppliers from a particular country.
 In Supply runway, include every inventory item, ordered by days on hand from lowest to highest.
 Substitution and conservation rules come only from hospital documents; cite them with [P1], [P2], ...
+Never recommend changes to dosing or prescribing; those are prescriber decisions, not supply actions.
 Use these exact section headings, in this order:
 ## Situation
 ## Supply runway
@@ -53,7 +54,9 @@ class MemoState(TypedDict, total=False):
     attempts: int
     tokens: int
     action_id: int
-
+    revision_of: int
+    previous_draft: str
+    review_note: str
 
 def normalize(value):
     return re.sub(r"(?<=\d),(?=\d)", "", value.lower())
@@ -90,6 +93,11 @@ def gather(state):
         identity = conn.execute(text(IDENTITY_SQL)).mappings().one_or_none()
         if identity is None or identity["role"] not in DRAFTING_ROLES:
             raise PermissionError("Only pharmacists, procurement, and executives can draft shortage memos.")
+        revision = None
+        if state.get("revision_of"):
+            revision = get_action(conn, state["revision_of"])
+            if not revision or revision["status"] != "rejected":
+                raise ValueError("Only a rejected action from your hospital can be revised.")
         drugs = [dict(r) for r in conn.execute(text(DRUGS_SQL), {"ingredient": state["ingredient"].lower()}).mappings()]
         rxcuis = [d["drug_rxcui"] for d in drugs]
         inventory = [dict(r) for r in conn.execute(text(INVENTORY_SQL), {"rxcuis": rxcuis}).mappings()] if rxcuis else []
@@ -102,7 +110,9 @@ def gather(state):
         "documents": [{"id": f"P{i}", "title": d["title"], "content": d["content"]}
                       for i, d in enumerate(documents, start=1)],
     }
-    return {"identity": dict(identity), "evidence": evidence, "attempts": 0, "tokens": 0}
+    return {"identity": dict(identity), "evidence": evidence, "attempts": 0, "tokens": 0,
+            "previous_draft": revision["draft"] if revision else None,
+            "review_note": revision["review_note"] if revision else None}
 
 
 def draft(state):
@@ -116,6 +126,12 @@ def draft(state):
             {"role": "assistant", "content": state["draft"]},
             {"role": "user", "content": "Fix these problems and return the full corrected memo:\n- "
                                         + "\n- ".join(state["problems"])},
+        ]
+    elif state.get("review_note") and state["attempts"] == 0:
+        messages += [
+            {"role": "assistant", "content": state["previous_draft"]},
+            {"role": "user", "content": f"A reviewer rejected this draft with this note:\n{state['review_note']}\n"
+                                        "Write a corrected full memo that addresses the note."},
         ]
     content, usage = complete(ANSWER_MODEL, messages)
     return {"draft": content, "attempts": state["attempts"] + 1,
@@ -134,7 +150,8 @@ def next_step(state):
 def save(state):
     evidence = state["evidence"]
     summary = {"drug_rxcuis": [r["drug_rxcui"] for r in evidence["inventory"]],
-               "documents": [d["title"] for d in evidence["documents"]], "attempts": state["attempts"]}
+               "documents": [d["title"] for d in evidence["documents"]], "attempts": state["attempts"],
+               "revision_of": state.get("revision_of")}
     with user_session(state["user_id"]) as conn:
         action_id = create_action(conn, "shortage_response_memo",
                                   f"Shortage response: {state['ingredient']}", state["draft"], summary)
@@ -155,21 +172,24 @@ def build_agent():
     return graph.compile()
 
 
-def draft_memo(user_id, ingredient):
-    return build_agent().invoke({"user_id": user_id, "ingredient": ingredient})
+def draft_memo(user_id, ingredient, revision_of=None):
+    return build_agent().invoke({"user_id": user_id, "ingredient": ingredient, "revision_of": revision_of})
 
 
 def main():
-    user_id, ingredient = sys.argv[1], sys.argv[2]
+    args = sys.argv
+    user_id, ingredient = args[1], args[2]
+    revision_of = int(args[args.index("--revise") + 1]) if "--revise" in args else None
     try:
-        state = draft_memo(user_id, ingredient)
+        state = draft_memo(user_id, ingredient, revision_of)
     except (PermissionError, ValueError) as err:
         print(err)
         return
     print(state["draft"])
     print(f"\nattempts: {state['attempts']} | tokens: {state['tokens']} | problems: {state.get('problems') or 'none'}")
     if state.get("action_id"):
-        print(f"Saved as action {state['action_id']}, pending approval")
+        print(f"Saved as action {state['action_id']}, pending approval"
+              + (f" (revision of {revision_of})" if revision_of else ""))
     else:
         print("Not saved: the draft failed validation after the retry")
 

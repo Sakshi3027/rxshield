@@ -43,3 +43,10 @@ def pending_actions(user_id):
             from tenancy.agent_actions where status = 'pending_approval'
             order by created_at""")).mappings().all()
     return [dict(row) for row in rows]
+
+def get_action(conn, action_id):
+    row = conn.execute(text("""
+        select action_id, subject, draft, status, review_note
+        from tenancy.agent_actions where action_id = :action_id"""),
+        {"action_id": action_id}).mappings().one_or_none()
+    return dict(row) if row else None
