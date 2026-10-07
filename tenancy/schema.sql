@@ -221,3 +221,19 @@ create policy orders_read on tenancy.medication_orders for select
            and tenancy.session_role() in ('pharmacist', 'clinician', 'executive'));
 
 grant select on tenancy.medication_orders to rxshield_app;
+
+create table if not exists ops.spans (
+    span_id text primary key,
+    trace_id text not null,
+    parent_id text,
+    name text not null,
+    started_at timestamptz not null,
+    duration_ms numeric not null,
+    status text not null check (status in ('ok', 'denied', 'error')),
+    error_type text,
+    attributes jsonb not null default '{}'
+);
+create index if not exists spans_trace on ops.spans (trace_id);
+create index if not exists spans_name_time on ops.spans (name, started_at);
+grant usage on schema ops to rxshield_app;
+grant insert on ops.spans to rxshield_app;
