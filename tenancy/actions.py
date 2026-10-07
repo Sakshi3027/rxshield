@@ -5,6 +5,8 @@ from sqlalchemy import text
 
 from tenancy.audit import log_access
 from tenancy.db import user_session
+from sqlalchemy.exc import ProgrammingError
+
 
 
 def create_action(conn, action_type, subject, draft, evidence):
@@ -18,18 +20,26 @@ def create_action(conn, action_type, subject, draft, evidence):
     log_access(conn, "action_draft", subject, {"action_id": action_id, "action_type": action_type})
     return action_id
 
+class ReviewNotAllowed(PermissionError):
+    """The database refused the review: only an executive who did not draft the memo may review it."""
+
 
 def review_action(user_id, action_id, decision, note=None):
     if decision not in ("approved", "rejected"):
         raise ValueError("decision must be 'approved' or 'rejected'")
     with user_session(user_id) as conn:
-        reviewed = conn.execute(text("""
-            update tenancy.agent_actions
-            set status = :decision, reviewed_by = current_setting('app.user_id', true),
-                review_note = :note, reviewed_at = now()
-            where action_id = :action_id
-            returning action_id"""),
-            {"decision": decision, "note": note, "action_id": action_id}).scalar()
+        try:
+            reviewed = conn.execute(text("""
+                update tenancy.agent_actions
+                set status = :decision, reviewed_by = current_setting('app.user_id', true),
+                    review_note = :note, reviewed_at = now()
+                where action_id = :action_id
+                returning action_id"""),
+                {"decision": decision, "note": note, "action_id": action_id}).scalar()
+        except ProgrammingError as err:
+            if getattr(err.orig, "sqlstate", None) == "42501":
+                raise ReviewNotAllowed() from None
+            raise
         if reviewed is None:
             raise PermissionError("Action not found, already reviewed, or you are not allowed to review it.")
         log_access(conn, "action_review", f"{decision} action {action_id}", {"action_id": action_id, "note": note})

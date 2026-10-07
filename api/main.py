@@ -26,6 +26,7 @@ from simulation.patient_impact import run_patient_impact
 from tenancy.actions import get_action, pending_actions, review_action
 from tenancy.db import get_app_engine, user_session
 from observability import writer
+from tenancy.actions import ReviewNotAllowed, get_action, pending_actions, review_action
 
 load_dotenv(".env")
 
@@ -41,6 +42,7 @@ class InvalidRequest(Exception):
 UNTRACED = {"/health", "/ready"}
 LLM_UNAVAILABLE = (503, "llm_unavailable", "The language model is temporarily unavailable. Please try again later.")
 ERRORS = {
+    ReviewNotAllowed: (403, "review_not_allowed", "Memos must be reviewed by an executive who didn't draft them."),
     AuthError: (401, "unauthorized", "Invalid credentials or token."),
     PermissionError: (403, "forbidden", "You do not have access to this resource."),
     RateLimited: (429, "rate_limited", "Too many requests. Please wait a minute and try again."),

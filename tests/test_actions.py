@@ -4,7 +4,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 
 from ingestion.db import get_engine
-from tenancy.actions import create_action, review_action
+from tenancy.actions import ReviewNotAllowed, create_action, review_action
 from tenancy.db import user_session
 
 
@@ -18,7 +18,7 @@ def pending_action():
 
 
 def test_creator_cannot_approve_own_draft(pending_action):
-    with pytest.raises(DBAPIError, match="row-level security"):
+    with pytest.raises(ReviewNotAllowed):
         review_action("northshore-pharmacist", pending_action, "approved")
 
 
