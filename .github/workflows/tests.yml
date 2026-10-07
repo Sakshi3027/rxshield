@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: shared-database
+  group: tests
   cancel-in-progress: false
 
 jobs:

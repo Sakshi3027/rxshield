@@ -13,7 +13,7 @@ on:
       - "evals/questions.json"
 
 concurrency:
-  group: shared-database
+  group: eval-gate
   cancel-in-progress: false
 
 jobs:
