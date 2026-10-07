@@ -108,7 +108,8 @@ def store(conn, question, sig, query_vector, payload, version):
             (scope_tenant, scope_role, signature, question, embedding, answer, data_version)
         values (tenancy.session_tenant(), tenancy.session_role(), :sig, :question,
                 cast(:q as vector), cast(:answer as jsonb), :v)"""),
-        {"sig": sig, "question": question, "q": query_vector, "answer": json.dumps(payload, default=str), "v": version})
+        {"sig": sig, "question": question, "q": query_vector,
+         "answer": json.dumps({**payload, "format": CACHE_FORMAT}, default=str), "v": version})
 
 
 def cached_answer_for_user(user_id, question):
@@ -147,7 +148,7 @@ def cached_answer_for_user(user_id, question):
             result = answer_for_user(user_id, question)
         cache_status = "miss" if sig else "skipped"
         if sig:
-            payload = {key: result[key] for key in CACHED_FIELDS} | {"format": CACHE_FORMAT}
+            payload = {key: result[key] for key in CACHED_FIELDS}
             with span("cache_store"):
                 with user_session(user_id) as conn:
                     store(conn, question, sig, query_vector, payload, version)
