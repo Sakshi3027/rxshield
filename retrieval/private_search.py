@@ -6,15 +6,33 @@ from retrieval.vector_search import embed_query
 from tenancy.audit import log_access
 from tenancy.db import user_session
 
+ANY_DOCUMENT_SQL = text("""
+    select chunk_id, tenant_id, doc_type, title, content,
+           1 - (embedding <=> cast(:q as vector)) as similarity
+    from rag.tenant_chunks
+    order by embedding <=> cast(:q as vector)
+    limit :k""")
 
-def query_private(conn, question, k=4):
-    conn.execute(text(SEARCH_PATH))
-    rows = conn.execute(text("""
-        select chunk_id, tenant_id, doc_type, title, content,
-               1 - (embedding <=> cast(:q as vector)) as similarity
+DRUG_DOCUMENT_SQL = text("""
+    with candidates as materialized (
+        select chunk_id, tenant_id, doc_type, title, content, embedding
         from rag.tenant_chunks
-        order by embedding <=> cast(:q as vector)
-        limit :k"""), {"q": embed_query(question), "k": k}).mappings().all()
+        where drug_rxcui = any(:rxcuis)
+    )
+    select chunk_id, tenant_id, doc_type, title, content,
+           1 - (embedding <=> cast(:q as vector)) as similarity
+    from candidates
+    order by embedding <=> cast(:q as vector)
+    limit :k""")
+
+
+def query_private(conn, question, k=4, rxcuis=None):
+    conn.execute(text(SEARCH_PATH))
+    params = {"q": embed_query(question), "k": k}
+    if rxcuis:
+        rows = conn.execute(DRUG_DOCUMENT_SQL, {**params, "rxcuis": list(rxcuis)}).mappings().all()
+    else:
+        rows = conn.execute(ANY_DOCUMENT_SQL, params).mappings().all()
     return [dict(row) for row in rows]
 
 

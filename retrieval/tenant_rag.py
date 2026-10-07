@@ -73,7 +73,7 @@ def gather_tenant_evidence(user_id, question, rxcuis, k=4, audit_extra=None):
             [dict(r) for r in conn.execute(text(INVENTORY_SQL), {"rxcuis": list(rxcuis)}).mappings()]
             if rxcuis else []
         )
-        private = query_private(conn, question, k)
+        private = query_private(conn, question, k, rxcuis=rxcuis)
         log_access(conn, "answer", question, {
             "private_chunks": [p["chunk_id"] for p in private],
             "inventory_drugs": [row["drug_rxcui"] for row in inventory],
