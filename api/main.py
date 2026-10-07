@@ -1,18 +1,22 @@
-"""RxShield HTTP API: authentication, request tracing, safe error mapping, health and readiness."""
+"""RxShield HTTP API: authentication, request tracing, safe error mapping, and core endpoints."""
+import json
 from functools import lru_cache
+from typing import Literal
 
 from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
 
 from api.auth import TOKEN_TTL_SECONDS, AuthError, check_password, current_user, issue_token
 from graph.db import get_driver
 from graph.text2cypher import NotAnswerable
 from observability.tracing import span
+from retrieval.cache import cached_answer_for_user
 from retrieval.rate_limit import RateLimited
 from retrieval.tenant_rag import IDENTITY_SQL
+from simulation.patient_impact import run_patient_impact
 from tenancy.db import get_app_engine, user_session
 
 load_dotenv(".env")
@@ -31,8 +35,21 @@ app = FastAPI(title="RxShield API", version="0.1.0")
 
 
 class LoginRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     user_id: str = Field(min_length=1, max_length=100)
     password: str = Field(min_length=1, max_length=200)
+
+
+class AskRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    question: str = Field(min_length=3, max_length=500)
+
+
+class WhatIfRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    scope: Literal["facility", "company", "country"]
+    entity: str = Field(min_length=2, max_length=20, pattern=r"^[A-Za-z0-9]+$")
+    duration_days: int = Field(ge=1, le=365)
 
 
 @lru_cache(maxsize=1)
@@ -106,3 +123,34 @@ def me(user_id: str = Depends(current_user)):
     if identity is None:
         raise PermissionError()
     return {"user_id": user_id, **identity}
+
+
+@app.post("/ask")
+def ask(body: AskRequest, user_id: str = Depends(current_user)):
+    result = cached_answer_for_user(user_id, body.question)
+    return {
+        "answer": result["answer"],
+        "cache": result["cache"],
+        "trace_id": result.get("trace_id"),
+        "sources": {
+            "labels": [{"product": s.get("product_label"), "section": s.get("section_name")}
+                       for s in result.get("label_sources", [])],
+            "documents": [{"title": d.get("title"), "type": d.get("doc_type")}
+                          for d in result.get("private_sources", [])],
+            "inventory": result.get("inventory", []),
+            "graph_rows": len(result.get("graph_rows", [])),
+        },
+    }
+
+
+@app.post("/simulations/whatif")
+def whatif(body: WhatIfRequest, user_id: str = Depends(current_user)):
+    entity = body.entity.upper() if body.scope == "country" else body.entity
+    impact, total_patients = run_patient_impact(user_id, body.scope, entity, body.duration_days)
+    order = ["patients_at_risk", "p_stockout"] if total_patients is not None else ["p_stockout"]
+    ranked = impact.sort_values(order, ascending=False)
+    return {
+        "scope": body.scope, "entity": entity, "duration_days": body.duration_days,
+        "patients_affected": total_patients,
+        "drugs": json.loads(ranked.to_json(orient="records")),
+    }

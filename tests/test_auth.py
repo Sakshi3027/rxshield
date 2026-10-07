@@ -63,7 +63,7 @@ def test_expired_token_is_rejected():
 
 
 def test_token_signed_with_another_secret_is_rejected():
-    assert me(jwt.encode(claims(), "attacker-secret", algorithm=ALGORITHM)).status_code == 401
+    assert me(jwt.encode(claims(), "attacker-secret-that-is-long-enough-for-hs256", algorithm=ALGORITHM)).status_code == 401
 
 
 def test_unsigned_alg_none_token_is_rejected():
