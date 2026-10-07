@@ -28,6 +28,8 @@ def test_pharmacist_gets_consistent_patient_impact():
     assert (impact["patients"] <= impact["active_orders"]).all()
     assert (impact["icu_patients"] <= impact["patients"]).all()
     assert total_patients <= impact["patients"].sum()
+    assert (impact["patients_at_risk"] <= impact["patients"]).all()
+    assert (impact.loc[impact["p_stockout"] == 0, "patients_at_risk"] == 0).all()
 
 
 def test_procurement_gets_no_patient_impact():

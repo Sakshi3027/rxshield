@@ -59,6 +59,7 @@ def run_patient_impact(user_id, scope, entity, duration_days):
     for column in ["active_orders", "patients", "icu_patients"]:
         impact[column] = impact[column].fillna(0).astype(int)
     impact["care_units"] = impact["care_units"].fillna("")
+    impact["patients_at_risk"] = (impact["patients"] * impact["p_stockout"]).round(1)
     return impact, total_patients
 
 
@@ -70,8 +71,8 @@ if __name__ == "__main__":
         order = ["p_stockout"]
         print("Patient impact is not available for your role.\n")
     else:
-        columns = ["drug_name", "status", "p_stockout", "patients", "icu_patients", "care_units"]
-        order = ["patients", "icu_patients", "p_stockout"]
+        columns = ["drug_name", "status", "p_stockout", "patients", "patients_at_risk", "icu_patients", "care_units"]
+        order = ["patients_at_risk", "icu_patients", "p_stockout"]
         print(f"Distinct patients on at-risk drugs: {total_patients}\n")
     ranked = impact.sort_values(order, ascending=False)
     print(ranked[columns].head(15).to_string(index=False))
