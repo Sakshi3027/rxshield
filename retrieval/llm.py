@@ -20,6 +20,7 @@ LOG_SQL = """
          attempts, succeeded, trace_id, span_id)
     values (:caller, :model, :p, :c, :ms, :finish, :attempts, :ok, :trace_id, :span_id)
 """
+BRACKETS = str.maketrans({"【": "[", "】": "]"})
 
 _capture = contextvars.ContextVar("rxshield_llm_capture", default=None)
 
@@ -66,7 +67,7 @@ def complete(model, messages, max_completion_tokens=4096, reasoning_effort="medi
             usage["prompt_tokens"] += response.usage.prompt_tokens
             usage["completion_tokens"] += response.usage.completion_tokens
             choice = response.choices[0]
-            content = (choice.message.content or "").strip()
+            content = (choice.message.content or "").strip().translate(BRACKETS)
             current.attributes.update(usage, attempts=attempts, finish_reason=choice.finish_reason)
             if content and choice.finish_reason != "length":
                 log_call(caller, model, usage, round((time.perf_counter() - start) * 1000),

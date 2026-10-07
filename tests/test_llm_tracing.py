@@ -58,3 +58,8 @@ def test_capture_collects_calls_only_inside_the_block(monkeypatch):
     assert len(calls) == 1
     assert calls[0]["content"] == "Answer."
     assert calls[0]["messages"][-1]["content"] == "hi"
+
+def test_fullwidth_citation_brackets_are_normalized(monkeypatch):
+    monkeypatch.setattr(llm, "client", lambda: fake_client("Stock covers 12 days【H】【P1】.", "stop"))
+    content, _ = llm.complete("test-model", [{"role": "user", "content": "hi"}])
+    assert content == "Stock covers 12 days[H][P1]."
