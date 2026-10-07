@@ -19,3 +19,5 @@ xgboost==3.4.1
 fastapi==0.142.2
 starlette==1.7.0
 uvicorn==0.54.0
+bcrypt==5.0.0
+PyJWT==2.15.1

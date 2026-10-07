@@ -240,3 +240,19 @@ grant insert on ops.spans to rxshield_app;
 alter table ops.llm_calls add column if not exists trace_id text;
 alter table ops.llm_calls add column if not exists span_id text;
 create index if not exists llm_calls_trace on ops.llm_calls (trace_id);
+
+create table if not exists tenancy.credentials (
+    user_id text primary key references tenancy.users (user_id),
+    password_hash text not null,
+    updated_at timestamptz not null default now()
+);
+alter table tenancy.credentials enable row level security;
+revoke all on tenancy.credentials from rxshield_app;
+
+create or replace function tenancy.password_hash(p_user_id text)
+returns text
+language sql stable security definer set search_path = tenancy as $$
+    select password_hash from tenancy.credentials where user_id = p_user_id
+$$;
+revoke all on function tenancy.password_hash(text) from public;
+grant execute on function tenancy.password_hash(text) to rxshield_app;

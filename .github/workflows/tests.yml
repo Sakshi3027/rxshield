@@ -26,6 +26,8 @@ jobs:
       NEO4J_USERNAME: ${{ secrets.NEO4J_USERNAME }}
       NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
       GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
       FASTEMBED_CACHE_PATH: /home/runner/.cache/fastembed
     steps:
       - uses: actions/checkout@v4
