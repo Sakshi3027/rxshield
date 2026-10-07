@@ -6,14 +6,14 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/ask", label: "Ask" },
   { href: "/scenarios", label: "Scenarios" },
+  { href: "/memos", label: "Memos" },
 ];
 
-export function Nav() {
-  const pathname = usePathname();
+function NavLinks({ pathname }: { pathname: string | null }) {
   return (
     <nav aria-label="Main" className="flex gap-6 text-sm">
       {LINKS.map((link) => {
-        const active = pathname.startsWith(link.href);
+        const active = pathname?.startsWith(link.href) ?? false;
         return (
           <Link
             key={link.href}
@@ -31,4 +31,12 @@ export function Nav() {
       })}
     </nav>
   );
+}
+
+export function Nav() {
+  return <NavLinks pathname={usePathname()} />;
+}
+
+export function NavFallback() {
+  return <NavLinks pathname={null} />;
 }

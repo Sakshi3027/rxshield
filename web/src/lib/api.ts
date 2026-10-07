@@ -10,6 +10,7 @@ export class ApiError extends Error {
     public code: string,
     message: string,
     public traceId?: string,
+    public details?: unknown,
   ) {
     super(message);
   }
@@ -33,6 +34,7 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
       body.error ?? "error",
       body.message ?? "Request failed.",
       response.headers.get("x-trace-id") ?? undefined,
+      body,
     );
   }
   return body as T;
