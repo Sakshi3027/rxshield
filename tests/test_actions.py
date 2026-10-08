@@ -35,7 +35,7 @@ def test_other_hospital_cannot_review(pending_action):
 def test_executive_can_approve_once(pending_action):
     assert review_action("northshore-executive", pending_action, "approved", "Looks right") == pending_action
     with pytest.raises(PermissionError):
-        review_action("northshore-executive", pending_action, "rejected")
+            review_action("northshore-executive", pending_action, "rejected", "Second review attempt")
 
 
 def test_draft_text_cannot_be_edited(pending_action):
@@ -43,3 +43,15 @@ def test_draft_text_cannot_be_edited(pending_action):
         with user_session("northshore-executive") as conn:
             conn.execute(text("update tenancy.agent_actions set draft = 'tampered' where action_id = :a"),
                          {"a": pending_action})
+
+def test_rejection_without_note_is_refused(pending_action):
+    with pytest.raises(ValueError, match="needs a note"):
+        review_action("northshore-executive", pending_action, "rejected", "   ")
+
+
+def test_api_model_refuses_rejection_without_note():
+    from pydantic import ValidationError
+    from api.main import ReviewRequest
+    with pytest.raises(ValidationError):
+        ReviewRequest(decision="rejected", note="")
+    assert ReviewRequest(decision="approved").note is None

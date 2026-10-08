@@ -8,7 +8,6 @@ from tenancy.db import user_session
 from sqlalchemy.exc import ProgrammingError
 
 
-
 def create_action(conn, action_type, subject, draft, evidence):
     action_id = conn.execute(text("""
         insert into tenancy.agent_actions (tenant_id, created_by, action_type, subject, draft, evidence)
@@ -27,6 +26,8 @@ class ReviewNotAllowed(PermissionError):
 def review_action(user_id, action_id, decision, note=None):
     if decision not in ("approved", "rejected"):
         raise ValueError("decision must be 'approved' or 'rejected'")
+    if decision == "rejected" and not (note and note.strip()):
+        raise ValueError("A rejection needs a note.")
     with user_session(user_id) as conn:
         try:
             reviewed = conn.execute(text("""

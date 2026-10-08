@@ -27,6 +27,7 @@ from tenancy.actions import get_action, pending_actions, review_action
 from tenancy.db import get_app_engine, user_session
 from observability import writer
 from tenancy.actions import ReviewNotAllowed, get_action, pending_actions, review_action
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 load_dotenv(".env")
 
@@ -115,6 +116,11 @@ class ReviewRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     decision: Literal["approved", "rejected"]
     note: str | None = Field(default=None, max_length=1000)
+    @model_validator(mode="after")
+    def rejection_needs_note(self):
+        if self.decision == "rejected" and not (self.note and self.note.strip()):
+            raise ValueError("A rejection needs a note.")
+        return self
 
 
 @lru_cache(maxsize=1)
