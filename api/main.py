@@ -9,6 +9,7 @@ from dotenv import load_dotenv
 from fastapi import Depends, FastAPI, Request
 from fastapi.responses import JSONResponse
 from groq import APIConnectionError
+from groq import PermissionDeniedError as ProviderAccessDenied
 from groq import RateLimitError as ProviderRateLimit
 from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import text
@@ -52,6 +53,7 @@ ERRORS = {
     InvalidRequest: (400, "invalid_request", "This request cannot be applied."),
     ProviderRateLimit: LLM_UNAVAILABLE,
     APIConnectionError: LLM_UNAVAILABLE,
+    ProviderAccessDenied: LLM_UNAVAILABLE,
 }
 INTERNAL_ERROR = {"error": "internal_error",
                   "message": "Something went wrong. Share the trace id with support."}

@@ -77,3 +77,8 @@ def test_ready_checks_both_databases():
     response = client.get("/ready")
     assert response.status_code == 200
     assert response.json() == {"status": "ready", "checks": {"postgres": "ok", "neo4j": "ok"}}
+
+def test_provider_access_denied_maps_to_llm_unavailable():
+    from groq import PermissionDeniedError
+    from api.main import ERRORS, LLM_UNAVAILABLE
+    assert ERRORS[PermissionDeniedError] == LLM_UNAVAILABLE
