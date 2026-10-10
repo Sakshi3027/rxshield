@@ -668,5 +668,268 @@
     ],
     "faithfulness": 0.667,
     "answers_question": true
+  },
+  {
+    "question": "Which morphine products currently in shortage have no listed alternative source?",
+    "route": "graph",
+    "variant": "original",
+    "marker": null,
+    "answer": "**Morphine products in shortage with no listed alternative source**\n\n| RxCUI | Drug name |\n|-------|-----------|\n| 1731999 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] |\n\nAll four entries are currently in shortage and have no listed alternative source per the graph facts [G].",
+    "unverified_numbers": [],
+    "numbers_caught": null,
+    "judge_error": false,
+    "caught": null,
+    "claims": 4,
+    "unsupported": [],
+    "faithfulness": 1.0,
+    "answers_question": true
+  },
+  {
+    "question": "Which morphine products currently in shortage have no listed alternative source?",
+    "route": "graph",
+    "variant": "number_swap",
+    "marker": "97",
+    "answer": "**Morphine products in shortage with no listed alternative source**\n\n| RxCUI | Drug name |\n|-------|-----------|\n| 97 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] |\n\nAll four entries are currently in shortage and have no listed alternative source per the graph facts [G].",
+    "unverified_numbers": [
+      "97"
+    ],
+    "numbers_caught": true,
+    "judge_error": false,
+    "caught": true,
+    "claims": 6,
+    "unsupported": [
+      "20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] has RxCUI 97"
+    ],
+    "faithfulness": 0.833,
+    "answers_question": true
+  },
+  {
+    "question": "Which morphine products currently in shortage have no listed alternative source?",
+    "route": "graph",
+    "variant": "number_shift",
+    "marker": "1732000",
+    "answer": "**Morphine products in shortage with no listed alternative source**\n\n| RxCUI | Drug name |\n|-------|-----------|\n| 1732000 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] |\n\nAll four entries are currently in shortage and have no listed alternative source per the graph facts [G].",
+    "unverified_numbers": [
+      "1732000"
+    ],
+    "numbers_caught": true,
+    "judge_error": false,
+    "caught": true,
+    "claims": 6,
+    "unsupported": [
+      "20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] has RxCUI 1732000"
+    ],
+    "faithfulness": 0.833,
+    "answers_question": false
+  },
+  {
+    "question": "Which morphine products currently in shortage have no listed alternative source?",
+    "route": "graph",
+    "variant": "planted_claim",
+    "marker": "Greenland",
+    "answer": "**Morphine products in shortage with no listed alternative source**\n\n| RxCUI | Drug name |\n|-------|-----------|\n| 1731999 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] |\n\nAll four entries are currently in shortage and have no listed alternative source per the graph facts [G]. It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "unverified_numbers": [],
+    "numbers_caught": null,
+    "judge_error": false,
+    "caught": true,
+    "claims": 7,
+    "unsupported": [
+      "It is also manufactured at a facility in Nuuk, Greenland"
+    ],
+    "faithfulness": 0.857,
+    "answers_question": true
+  },
+  {
+    "question": "Which morphine products currently in shortage have no listed alternative source?",
+    "route": "graph",
+    "variant": "plausible_claim",
+    "marker": "India",
+    "answer": "**Morphine products in shortage with no listed alternative source**\n\n| RxCUI | Drug name |\n|-------|-----------|\n| 1731999 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] |\n\nAll four entries are currently in shortage and have no listed alternative source per the graph facts [G]. Some of these products are also manufactured in India [G].",
+    "unverified_numbers": [],
+    "numbers_caught": null,
+    "judge_error": false,
+    "caught": true,
+    "claims": 7,
+    "unsupported": [
+      "Some of these products are also manufactured in India"
+    ],
+    "faithfulness": 0.857,
+    "answers_question": true
+  },
+  {
+    "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+    "route": "graph",
+    "variant": "original",
+    "marker": null,
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n| Drug (RxCUI) | Manufacturer | Country |\n|--------------|--------------|---------|\n| pentostatin\u202f10\u202fMG Injection\u202f[Nipent] (105607) | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*Graph fact* \u2013 [G]\n\n**Storage instructions**\n\n- **Vials** \u2013 Store refrigerated at **2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)**.  \n  *Citation* \u2013 [1]  \n- **Reconstituted solution** \u2013 May be kept at room temperature and ambient light, but must be used within **8\u202fhours** because no preservatives are present.  \n  *Citation* \u2013 [2]  \n\nThese are the only storage details provided for the drug in the evidence.",
+    "unverified_numbers": [],
+    "numbers_caught": null,
+    "judge_error": false,
+    "caught": null,
+    "claims": 7,
+    "unsupported": [
+      "These are the only storage details provided for the drug in the evidence"
+    ],
+    "faithfulness": 0.857,
+    "answers_question": true
+  },
+  {
+    "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+    "route": "graph",
+    "variant": "number_swap",
+    "marker": "97",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n| Drug (RxCUI) | Manufacturer | Country |\n|--------------|--------------|---------|\n| pentostatin\u202f97\u202fMG Injection\u202f[Nipent] (105607) | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*Graph fact* \u2013 [G]\n\n**Storage instructions**\n\n- **Vials** \u2013 Store refrigerated at **2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)**.  \n  *Citation* \u2013 [1]  \n- **Reconstituted solution** \u2013 May be kept at room temperature and ambient light, but must be used within **8\u202fhours** because no preservatives are present.  \n  *Citation* \u2013 [2]  \n\nThese are the only storage details provided for the drug in the evidence.",
+    "unverified_numbers": [
+      "97"
+    ],
+    "numbers_caught": true,
+    "judge_error": false,
+    "caught": true,
+    "claims": 6,
+    "unsupported": [
+      "The drug is pentostatin 97 MG Injection [Nipent] (105607)"
+    ],
+    "faithfulness": 0.833,
+    "answers_question": true
+  },
+  {
+    "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+    "route": "graph",
+    "variant": "number_shift",
+    "marker": "9",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n| Drug (RxCUI) | Manufacturer | Country |\n|--------------|--------------|---------|\n| pentostatin\u202f9\u202fMG Injection\u202f[Nipent] (105607) | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*Graph fact* \u2013 [G]\n\n**Storage instructions**\n\n- **Vials** \u2013 Store refrigerated at **2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)**.  \n  *Citation* \u2013 [1]  \n- **Reconstituted solution** \u2013 May be kept at room temperature and ambient light, but must be used within **8\u202fhours** because no preservatives are present.  \n  *Citation* \u2013 [2]  \n\nThese are the only storage details provided for the drug in the evidence.",
+    "unverified_numbers": [
+      "9"
+    ],
+    "numbers_caught": true,
+    "judge_error": false,
+    "caught": true,
+    "claims": 6,
+    "unsupported": [
+      "Pentostatin 9 MG Injection [Nipent] has RxCUI 105607."
+    ],
+    "faithfulness": 0.833,
+    "answers_question": true
+  },
+  {
+    "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+    "route": "graph",
+    "variant": "planted_claim",
+    "marker": "Greenland",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n| Drug (RxCUI) | Manufacturer | Country |\n|--------------|--------------|---------|\n| pentostatin\u202f10\u202fMG Injection\u202f[Nipent] (105607) | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*Graph fact* \u2013 [G]\n\n**Storage instructions**\n\n- **Vials** \u2013 Store refrigerated at **2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)**.  \n  *Citation* \u2013 [1]  \n- **Reconstituted solution** \u2013 May be kept at room temperature and ambient light, but must be used within **8\u202fhours** because no preservatives are present.  \n  *Citation* \u2013 [2]  \n\nThese are the only storage details provided for the drug in the evidence. It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "unverified_numbers": [],
+    "numbers_caught": null,
+    "judge_error": false,
+    "caught": true,
+    "claims": 7,
+    "unsupported": [
+      "It is also manufactured at a facility in Nuuk, Greenland"
+    ],
+    "faithfulness": 0.857,
+    "answers_question": true
+  },
+  {
+    "question": "Which critical shortage drugs are made only in India, and how should they be stored?",
+    "route": "graph",
+    "variant": "plausible_claim",
+    "marker": "China",
+    "answer": "**Critical\u2011shortage drug made only in India**\n\n| Drug (RxCUI) | Manufacturer | Country |\n|--------------|--------------|---------|\n| pentostatin\u202f10\u202fMG Injection\u202f[Nipent] (105607) | Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited | IND |\n\n*Graph fact* \u2013 [G]\n\n**Storage instructions**\n\n- **Vials** \u2013 Store refrigerated at **2\u202f\u00b0C to 8\u202f\u00b0C (36\u202f\u00b0F to 46\u202f\u00b0F)**.  \n  *Citation* \u2013 [1]  \n- **Reconstituted solution** \u2013 May be kept at room temperature and ambient light, but must be used within **8\u202fhours** because no preservatives are present.  \n  *Citation* \u2013 [2]  \n\nThese are the only storage details provided for the drug in the evidence. Some of these products are also manufactured in China [G].",
+    "unverified_numbers": [],
+    "numbers_caught": null,
+    "judge_error": false,
+    "caught": true,
+    "claims": 6,
+    "unsupported": [
+      "Some of these products are also manufactured in China"
+    ],
+    "faithfulness": 0.833,
+    "answers_question": true
+  },
+  {
+    "question": "Which morphine products have no alternative source, and what are they used for?",
+    "route": "graph",
+    "variant": "original",
+    "marker": null,
+    "answer": "**Morphine products with no listed alternative source**\n\n| rxcui | Drug name | Indication (use) |\n|-------|-----------|------------------|\n| 1731999 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n\nThese products are specifically formulated for continuous microinfusion in intrathecal or epidural settings and are **not** intended for single\u2011dose intravenous, intramuscular, subcutaneous, or single\u2011dose neuraxial injection.",
+    "unverified_numbers": [],
+    "numbers_caught": null,
+    "judge_error": false,
+    "caught": null,
+    "claims": 13,
+    "unsupported": [],
+    "faithfulness": 1.0,
+    "answers_question": true
+  },
+  {
+    "question": "Which morphine products have no alternative source, and what are they used for?",
+    "route": "graph",
+    "variant": "number_swap",
+    "marker": "97",
+    "answer": "**Morphine products with no listed alternative source**\n\n| rxcui | Drug name | Indication (use) |\n|-------|-----------|------------------|\n| 97 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n\nThese products are specifically formulated for continuous microinfusion in intrathecal or epidural settings and are **not** intended for single\u2011dose intravenous, intramuscular, subcutaneous, or single\u2011dose neuraxial injection.",
+    "unverified_numbers": [
+      "97"
+    ],
+    "numbers_caught": true,
+    "judge_error": false,
+    "caught": true,
+    "claims": 17,
+    "unsupported": [
+      "The drug \"20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph]\" has rxcui 97"
+    ],
+    "faithfulness": 0.941,
+    "answers_question": true
+  },
+  {
+    "question": "Which morphine products have no alternative source, and what are they used for?",
+    "route": "graph",
+    "variant": "number_shift",
+    "marker": "1732000",
+    "answer": "**Morphine products with no listed alternative source**\n\n| rxcui | Drug name | Indication (use) |\n|-------|-----------|------------------|\n| 1732000 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n\nThese products are specifically formulated for continuous microinfusion in intrathecal or epidural settings and are **not** intended for single\u2011dose intravenous, intramuscular, subcutaneous, or single\u2011dose neuraxial injection.",
+    "unverified_numbers": [
+      "1732000"
+    ],
+    "numbers_caught": true,
+    "judge_error": false,
+    "caught": true,
+    "claims": 21,
+    "unsupported": [
+      "The rxcui for the Infumorph 20\u202fML morphine sulfate 10\u202fMG/ML Injection is 1732000"
+    ],
+    "faithfulness": 0.952,
+    "answers_question": true
+  },
+  {
+    "question": "Which morphine products have no alternative source, and what are they used for?",
+    "route": "graph",
+    "variant": "planted_claim",
+    "marker": "Greenland",
+    "answer": "**Morphine products with no listed alternative source**\n\n| rxcui | Drug name | Indication (use) |\n|-------|-----------|------------------|\n| 1731999 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n\nThese products are specifically formulated for continuous microinfusion in intrathecal or epidural settings and are **not** intended for single\u2011dose intravenous, intramuscular, subcutaneous, or single\u2011dose neuraxial injection. It is also manufactured at a facility in Nuuk, Greenland [G].",
+    "unverified_numbers": [],
+    "numbers_caught": null,
+    "judge_error": false,
+    "caught": true,
+    "claims": 11,
+    "unsupported": [
+      "They are manufactured at a facility in Nuuk, Greenland"
+    ],
+    "faithfulness": 0.909,
+    "answers_question": true
+  },
+  {
+    "question": "Which morphine products have no alternative source, and what are they used for?",
+    "route": "graph",
+    "variant": "plausible_claim",
+    "marker": "India",
+    "answer": "**Morphine products with no listed alternative source**\n\n| rxcui | Drug name | Indication (use) |\n|-------|-----------|------------------|\n| 1731999 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 892652 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Infumorph] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][1] |\n| 2055307 | 20\u202fML morphine sulfate 10\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n| 2055311 | 20\u202fML morphine sulfate 25\u202fMG/ML Injection\u202f[Mitigo] | Continuous microinfusion devices for intrathecal or epidural infusion in the management of intractable chronic pain severe enough to require an opioid analgesic and for which less invasive means of controlling pain are inadequate[G][2] |\n\nThese products are specifically formulated for continuous microinfusion in intrathecal or epidural settings and are **not** intended for single\u2011dose intravenous, intramuscular, subcutaneous, or single\u2011dose neuraxial injection. Some of these products are also manufactured in India [G].",
+    "unverified_numbers": [],
+    "numbers_caught": null,
+    "judge_error": false,
+    "caught": true,
+    "claims": 10,
+    "unsupported": [
+      "Some of these products are also manufactured in India"
+    ],
+    "faithfulness": 0.9,
+    "answers_question": true
   }
 ]
