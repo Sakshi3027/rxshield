@@ -12,12 +12,14 @@ from typing import Literal
 import httpx
 from dotenv import load_dotenv
 from mcp.server import MCPServer
+from mcp.server.mcpserver.exceptions import ToolError
 
 load_dotenv(Path(__file__).resolve().parents[1] / ".env")
 
 
-class RxShieldError(Exception):
-    """A readable error for the AI client, never a raw traceback."""
+
+class RxShieldError(ToolError):
+    """A readable error for the AI client. ToolError messages are passed through by the MCP SDK; other exceptions are masked."""
 
 
 def _error_message(response: httpx.Response) -> str:
@@ -41,14 +43,20 @@ class RxShieldClient:
         self._password = password
         self._token: str | None = None
 
+    def _call(self, method: str, path: str, **kwargs) -> httpx.Response:
+        try:
+            return self._http.request(method, path, **kwargs)
+        except httpx.TransportError:
+            raise RxShieldError("The RxShield API is unreachable. Check that it is running.") from None
+
     def _login(self) -> None:
-        response = self._http.post("/auth/login", json={"user_id": self._user_id, "password": self._password})
+        response = self._call("POST", "/auth/login", json={"user_id": self._user_id, "password": self._password})
         if response.status_code != 200:
             raise RxShieldError(f"Login failed: {_error_message(response)}")
         self._token = response.json()["access_token"]
 
     def _send(self, method: str, path: str, body: dict | None) -> httpx.Response:
-        return self._http.request(method, path, json=body, headers={"Authorization": f"Bearer {self._token}"})
+        return self._call(method, path, json=body, headers={"Authorization": f"Bearer {self._token}"})
 
     def request(self, method: str, path: str, body: dict | None = None) -> dict:
         if self._token is None:

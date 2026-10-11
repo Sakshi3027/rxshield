@@ -56,3 +56,16 @@ def test_bad_password_fails_clearly():
 
     with pytest.raises(RxShieldError, match="Login failed"):
         make_client(handler).request("GET", "/memos/pending")
+
+
+def test_unreachable_api_gives_clear_error():
+    def handler(request):
+        raise httpx.ConnectError("connection refused", request=request)
+
+    with pytest.raises(RxShieldError, match="unreachable"):
+        make_client(handler).request("GET", "/memos/pending")
+
+
+def test_errors_are_mcp_tool_errors_so_messages_reach_the_client():
+    from mcp.server.mcpserver.exceptions import ToolError
+    assert issubclass(RxShieldError, ToolError)
