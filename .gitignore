@@ -226,3 +226,4 @@ ml/artifacts/
 !web/src/lib/
 tableau/data/
 *.twbr
+.DS_Store
