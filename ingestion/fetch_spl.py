@@ -3,7 +3,7 @@ import time
 from pathlib import Path
 
 import pandas as pd
-import requests
+from ingestion.http_client import session
 
 SPL_URL = "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls/{set_id}.xml"
 RAW_DIR = Path("data/raw/spl")
@@ -19,7 +19,7 @@ def download(set_id):
     path = RAW_DIR / f"{set_id}.xml"
     if path.exists():
         return "cached"
-    response = requests.get(SPL_URL.format(set_id=set_id), timeout=60)
+    response = session.get(SPL_URL.format(set_id=set_id), timeout=60)
     if response.status_code == 404:
         return "missing"
     response.raise_for_status()

@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 import pandas as pd
-import requests
+from ingestion.http_client import session
 
 BASE_URL = "https://rxnav.nlm.nih.gov/REST"
 RAW_DIR = Path("data/raw/rxnorm")
@@ -15,7 +15,7 @@ def cached_get(kind, key, url, params):
     path = RAW_DIR / kind / f"{key}.json"
     if path.exists():
         return json.loads(path.read_text())
-    response = requests.get(url, params=params, timeout=30)
+    response = session.get(url, params=params, timeout=30)
     response.raise_for_status()
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(response.text)

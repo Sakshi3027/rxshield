@@ -3,7 +3,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-import requests
+from ingestion.http_client import session
 
 BASE_URL = "https://api.fda.gov"
 PAGE_SIZE = 1000
@@ -17,7 +17,7 @@ def fetch_endpoint(endpoint, search=None):
         params = {"limit": PAGE_SIZE, "skip": skip}
         if search:
             params["search"] = search
-        response = requests.get(f"{BASE_URL}/{endpoint}.json", params=params, timeout=60)
+        response = session.get(f"{BASE_URL}/{endpoint}.json", params=params, timeout=60)
         response.raise_for_status()
         payload = response.json()
         total = payload["meta"]["results"]["total"]
