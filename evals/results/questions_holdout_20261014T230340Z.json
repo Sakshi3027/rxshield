@@ -1,0 +1,564 @@
+[
+  {
+    "id": "h01",
+    "category": "label",
+    "system": "baseline",
+    "question": "What are the contraindications for ropivacaine?",
+    "expected": [
+      "hypersensitivity"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 945,
+    "total_ms": 1759,
+    "cypher": null,
+    "route": null,
+    "answer": "Contraindications for ropivacaine  \n- Known hypersensitivity to ropivacaine or to any local anesthetic agent of the amide type. [2] [3] [4] [5] [6]"
+  },
+  {
+    "id": "h01",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "What are the contraindications for ropivacaine?",
+    "expected": [
+      "hypersensitivity"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 4782,
+    "total_ms": 3251,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'ropivacaine' OR toLower(d.name) CONTAINS 'ropivacaine'\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.name AS drug, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 1",
+    "route": null,
+    "answer": "**Contraindications for ropivacaine (Naropin)**  \n- Patients with a known hypersensitivity to ropivacaine or to any local\u2011anesthetic agent of the amide type.  \n- History of hypersensitivity to local anesthetics of the amide type.  \n\n[1] Naropin (ropivacaine hydrochloride) | Contraindications  \n[G] 20\u202fML ropivacaine hydrochloride 10\u202fMG/ML Injection [Naropin]"
+  },
+  {
+    "id": "h01",
+    "category": "label",
+    "system": "routed",
+    "question": "What are the contraindications for ropivacaine?",
+    "expected": [
+      "hypersensitivity"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 860,
+    "total_ms": 1185,
+    "cypher": null,
+    "route": "label",
+    "answer": "Contraindications for ropivacaine  \n- It is contraindicated in patients with a known hypersensitivity to ropivacaine or to any local anesthetic agent of the amide type. [1][2][3][4][5][6]"
+  },
+  {
+    "id": "h02",
+    "category": "label",
+    "system": "baseline",
+    "question": "What is dexmedetomidine indicated for?",
+    "expected": [
+      "sedation"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "sedation"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2394,
+    "total_ms": 818,
+    "cypher": null,
+    "route": null,
+    "answer": "The provided excerpts do not contain any information about dexmedetomidine or its indications."
+  },
+  {
+    "id": "h02",
+    "category": "label",
+    "system": "graph_rag",
+    "question": "What is dexmedetomidine indicated for?",
+    "expected": [
+      "sedation"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 6347,
+    "total_ms": 7552,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'dexmedetomidine' OR toLower(d.name) CONTAINS 'dexmedetomidine'\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN collect(DISTINCT d.name)[..10] AS drugs, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 1",
+    "route": null,
+    "answer": "Dexmedetomidine injection is indicated for:\n\n- Sedation of initially intubated and mechanically ventilated adult patients during treatment in an intensive\u2011care setting (continuous infusion, not to exceed 24\u202fh)[1].\n- Sedation of non\u2011intubated adult patients prior to and/or during surgical and other procedures[1].\n- Sedation of non\u2011intubated pediatric patients aged 1\u202fmonth to <18\u202fyears prior to and during non\u2011invasive procedures[1]."
+  },
+  {
+    "id": "h02",
+    "category": "label",
+    "system": "routed",
+    "question": "What is dexmedetomidine indicated for?",
+    "expected": [
+      "sedation"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2455,
+    "total_ms": 18329,
+    "cypher": null,
+    "route": "label",
+    "answer": "Dexmedetomidine injection is indicated for:\n\n1. **Sedation of initially intubated and mechanically ventilated adult patients during treatment in an intensive\u2011care setting** (continuous infusion, not to exceed 24\u202fh)[1].  \n2. **Sedation of non\u2011intubated adult patients prior to and/or during surgical and other procedures**[1].  \n3. **Sedation of non\u2011intubated pediatric patients aged 1\u202fmonth to <18\u202fyears prior to and during non\u2011invasive procedures**[1]."
+  },
+  {
+    "id": "h03",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Other than the United States, which country would cause the most shortage drugs to lose all known manufacturing if it went offline?",
+    "expected": [
+      "india"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 1962,
+    "total_ms": 13832,
+    "cypher": null,
+    "route": null,
+    "answer": "India would be the country whose offline status would most likely eliminate all known manufacturing for the listed drugs.  \n- Furosemide is \u201cMade in India\u201d[1].  \n- Hydralazine Hydrochloride is \u201cProduct of India\u201d[4].  \n- Quinapril is manufactured by Aurobindo Pharma Limited in Hyderabad, India[5]."
+  },
+  {
+    "id": "h03",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Other than the United States, which country would cause the most shortage drugs to lose all known manufacturing if it went offline?",
+    "expected": [
+      "india"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 6215,
+    "total_ms": 7299,
+    "cypher": "MATCH (d:Drug) WHERE d.risk_tier IS NOT NULL\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility)-[:LOCATED_IN]->(c:Country)\nWITH d, collect(DISTINCT c) AS countries\nWHERE size(countries) = 1 AND countries[0].code <> 'USA'\nWITH countries[0] AS country, d\nRETURN country.name AS country, country.code AS code, count(DISTINCT d) AS shortage_drugs_lost\nORDER BY shortage_drugs_lost DESC\nLIMIT 1",
+    "route": null,
+    "answer": "The country that would cause the most shortage drugs to lose all known manufacturing if it went offline (excluding the United States) is **India (IND)**, with **24** shortage drugs affected. [G]"
+  },
+  {
+    "id": "h03",
+    "category": "multi_hop",
+    "system": "routed",
+    "question": "Other than the United States, which country would cause the most shortage drugs to lose all known manufacturing if it went offline?",
+    "expected": [
+      "india"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2670,
+    "total_ms": 4474,
+    "cypher": "MATCH (c:Country)\nWHERE c.code <> 'USA'\nRETURN c.name AS country, c.drugs_lost_if_offline AS drugs_lost_if_offline\nORDER BY c.drugs_lost_if_offline DESC\nLIMIT 1",
+    "route": "graph",
+    "answer": "The country that would cause the most shortage drugs to lose all known manufacturing if it went offline is **India**, with **24** drugs affected. [G]"
+  },
+  {
+    "id": "h04",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "Which facility in China manufactures the most shortage drugs?",
+    "expected": [
+      "nanjing"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "nanjing"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2097,
+    "total_ms": 13081,
+    "cypher": null,
+    "route": null,
+    "answer": "The excerpts do not provide enough information to determine which Chinese facility manufactures the most shortage drugs. They list only two Chinese manufacturers (Hainan\u202fPoly\u202fPharm and Zhejiang\u202fHuahai\u202fPharmaceutical) but do not indicate the number of shortage drugs each produces."
+  },
+  {
+    "id": "h04",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "Which facility in China manufactures the most shortage drugs?",
+    "expected": [
+      "nanjing"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2899,
+    "total_ms": 6233,
+    "cypher": "MATCH (f:Facility)-[:LOCATED_IN]->(c:Country {code: 'CHN'})\nMATCH (f)-[:MANUFACTURES]->(p:Product)<-[:OF_PRODUCT]-(:Package)-[:IS_DRUG]->(d:Drug)\nWHERE d.risk_tier IS NOT NULL\nWITH f, count(DISTINCT d) AS shortage_drug_count\nORDER BY shortage_drug_count DESC\nRETURN f.name AS facility, f.duns AS duns, shortage_drug_count\nLIMIT 1",
+    "route": null,
+    "answer": "The facility in China that manufactures the most shortage drugs is:\n\n- **Facility:** Nanjing King\u2011Friend Biochemical Pharmaceutical Co., Ltd (API and FDF Site)  \n- **DUNS:** 421297554  \n- **Shortage drug count:** 5  \n\n[G]"
+  },
+  {
+    "id": "h04",
+    "category": "multi_hop",
+    "system": "routed",
+    "question": "Which facility in China manufactures the most shortage drugs?",
+    "expected": [
+      "nanjing"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2891,
+    "total_ms": 5050,
+    "cypher": "MATCH (f:Facility)-[:LOCATED_IN]->(c:Country {code: 'CHN'})\nMATCH (f)-[:MANUFACTURES]->(p:Product)<-[:OF_PRODUCT]-(:Package)-[:IS_DRUG]->(d:Drug)\nWHERE d.risk_tier IS NOT NULL\nWITH f, count(DISTINCT d) AS shortage_drug_count\nORDER BY shortage_drug_count DESC\nRETURN f.name AS facility, f.duns AS duns, shortage_drug_count\nLIMIT 1",
+    "route": "graph",
+    "answer": "The facility in China that manufactures the most shortage drugs is **Nanjing King\u2011Friend Biochemical Pharmaceutical Co., Ltd (API and FDF Site)**, with a DUNS number of **421297554** and **5** shortage drugs. [G]"
+  },
+  {
+    "id": "h05",
+    "category": "multi_hop",
+    "system": "baseline",
+    "question": "How many critical shortage drugs have no listed alternative source and only one manufacturing site?",
+    "expected": [
+      "8"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "8"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2476,
+    "total_ms": 16294,
+    "cypher": null,
+    "route": null,
+    "answer": "The excerpts do not identify which drugs are listed as critical shortages, nor do they provide information on alternative sources for those drugs. Therefore, I cannot determine how many critical\u2011shortage drugs have no listed alternative source and only one manufacturing site."
+  },
+  {
+    "id": "h05",
+    "category": "multi_hop",
+    "system": "graph_rag",
+    "question": "How many critical shortage drugs have no listed alternative source and only one manufacturing site?",
+    "expected": [
+      "8"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 3170,
+    "total_ms": 8886,
+    "cypher": "MATCH (d:Drug)\nWHERE d.risk_tier = 'critical' AND d.alternative_status = 'no_listed_alternative' AND d.manufacturing_site_count = 1\nWITH count(d) AS total\nRETURN total, 'critical' AS risk_tier, 'no_listed_alternative' AS alternative_status, 1 AS manufacturing_site_count\nLIMIT 1",
+    "route": null,
+    "answer": "There are **8** critical shortage drugs that have no listed alternative source and only one manufacturing site. [G]"
+  },
+  {
+    "id": "h05",
+    "category": "multi_hop",
+    "system": "routed",
+    "question": "How many critical shortage drugs have no listed alternative source and only one manufacturing site?",
+    "expected": [
+      "8"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2799,
+    "total_ms": 1682,
+    "cypher": "MATCH (d:Drug)\nWHERE d.risk_tier = 'critical' \n  AND d.alternative_status = 'no_listed_alternative' \n  AND d.manufacturing_site_count = 1\nRETURN count(d) AS total\nLIMIT 1",
+    "route": "graph",
+    "answer": "There are 8 critical shortage drugs that have no listed alternative source and only one manufacturing site. [G]"
+  },
+  {
+    "id": "h06",
+    "category": "negative",
+    "system": "baseline",
+    "question": "Which critical shortage drugs are made only in Germany?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 1401,
+    "total_ms": 9790,
+    "cypher": null,
+    "route": null,
+    "answer": "The provided FDA label excerpts do not contain any information about the manufacturing location of these drugs. Therefore, I cannot determine which critical\u2011shortage drugs are made only in Germany."
+  },
+  {
+    "id": "h06",
+    "category": "negative",
+    "system": "graph_rag",
+    "question": "Which critical shortage drugs are made only in Germany?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 5691,
+    "total_ms": 3943,
+    "cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES|MANUFACTURES_API]-(f:Facility)-[:LOCATED_IN]->(c:Country)\nWITH d, collect(DISTINCT c.code) AS countries, collect(DISTINCT f.name) AS facilities\nWHERE countries = ['DEU']\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier, facilities, countries, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "route": null,
+    "answer": "No critical\u2011shortage drugs were found that are manufactured exclusively in Germany."
+  },
+  {
+    "id": "h06",
+    "category": "negative",
+    "system": "routed",
+    "question": "Which critical shortage drugs are made only in Germany?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 5934,
+    "total_ms": 37816,
+    "cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility)-[:LOCATED_IN]->(c:Country)\nWITH d, collect(DISTINCT c.code) AS countries, collect(DISTINCT f.name) AS facilities\nWHERE countries = ['DEU']\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier, facilities, countries, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "route": "graph",
+    "answer": "No matching drugs were found."
+  },
+  {
+    "id": "h07",
+    "category": "hybrid",
+    "system": "baseline",
+    "question": "Which dexmedetomidine products are in shortage, and what is the drug used for?",
+    "expected": [
+      "dexmedetomidine",
+      "sedation"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2594,
+    "total_ms": 1098,
+    "cypher": null,
+    "route": null,
+    "answer": "The provided FDA label excerpts do not contain any information about which dexmedetomidine products are currently in shortage.  \n\nThe drug is indicated for:\n- Sedation of initially intubated and mechanically ventilated adult patients during treatment in an intensive care setting (continuous infusion, not to exceed 24\u202fh)[6].\n- Sedation of non\u2011intubated adult patients prior to and/or during surgical and other procedures[6]."
+  },
+  {
+    "id": "h07",
+    "category": "hybrid",
+    "system": "graph_rag",
+    "question": "Which dexmedetomidine products are in shortage, and what is the drug used for?",
+    "expected": [
+      "dexmedetomidine",
+      "sedation"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 6579,
+    "total_ms": 20274,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE (toLower(i.name) CONTAINS 'dexmedetomidine' OR toLower(d.name) CONTAINS 'dexmedetomidine')\n  AND d.risk_tier IS NOT NULL\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier, collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "route": null,
+    "answer": "**Dexmedetomidine products in shortage**\n\n| RXCUI | Product name | Risk tier |\n|-------|--------------|-----------|\n| 1718909 | 100\u202fML dexmedetomidine 0.004\u202fMG/ML Injection | elevated |\n| 1788947 | dexmedetomidine 0.1\u202fMG/ML Injectable Solution | high |\n| 284397 | 2\u202fML dexmedetomidine 0.1\u202fMG/ML Injection\u202f[Precedex] | elevated |\n| 2396892 | 250\u202fML dexmedetomidine 0.004\u202fMG/ML Injection\u202f[Precedex] | elevated |\n| 1718910 | 100\u202fML dexmedetomidine 0.004\u202fMG/ML Injection\u202f[Precedex] | elevated |\n| 1718907 | 50\u202fML dexmedetomidine 0.004\u202fMG/ML Injection\u202f[Precedex] | elevated |\n| 1718900 | 20\u202fML dexmedetomidine 0.004\u202fMG/ML Injection | high |\n| 1718906 | 50\u202fML dexmedetomidine 0.004\u202fMG/ML Injection | elevated |\n| 1718902 | 20\u202fML dexmedetomidine 0.004\u202fMG/ML Injection\u202f[Precedex] | elevated |\n| 309710 | 2\u202fML dexmedetomidine 0.1\u202fMG/ML Injection | elevated |\n\n*Source: [G]*\n\n**Indication for dexmedetomidine**\n\nDexmedetomidine is an \u03b1\u2082\u2011adrenergic receptor agonist used for:\n\n- Sedation of initially intubated and mechanically ventilated adult patients in the intensive\u2011care setting (continuous infusion \u2264\u202f24\u202fh)[1].\n- Sedation of non\u2011intubated adult patients before and/or during surgical or other procedures[1].\n\nThese indications are taken from the FDA label excerpts."
+  },
+  {
+    "id": "h07",
+    "category": "hybrid",
+    "system": "routed",
+    "question": "Which dexmedetomidine products are in shortage, and what is the drug used for?",
+    "expected": [
+      "dexmedetomidine",
+      "sedation"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 7125,
+    "total_ms": 4154,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE (toLower(i.name) CONTAINS 'dexmedetomidine' OR toLower(d.name) CONTAINS 'dexmedetomidine')\n  AND d.risk_tier IS NOT NULL\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui, d.name AS drug, d.risk_tier AS risk_tier, d.has_current_shortage AS has_current_shortage,\n       collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "route": "graph",
+    "answer": "**Dexmedetomidine products currently in shortage**\n\n| Drug (rxcui) | Risk tier | Shortage status |\n|--------------|-----------|-----------------|\n| 100\u202fML dexmedetomidine\u202f0.004\u202fMG/ML Injection | elevated | true [G] |\n| dexmedetomidine\u202f0.1\u202fMG/ML Injectable Solution | high | true [G] |\n| 2\u202fML dexmedetomidine\u202f0.1\u202fMG/ML Injection\u202f[Precedex] | elevated | true [G] |\n| 250\u202fML dexmedetomidine\u202f0.004\u202fMG/ML Injection\u202f[Precedex] | elevated | true [G] |\n| 100\u202fML dexmedetomidine\u202f0.004\u202fMG/ML Injection\u202f[Precedex] | elevated | true [G] |\n| 50\u202fML dexmedetomidine\u202f0.004\u202fMG/ML Injection\u202f[Precedex] | elevated | true [G] |\n| 20\u202fML dexmedetomidine\u202f0.004\u202fMG/ML Injection | high | true [G] |\n| 50\u202fML dexmedetomidine\u202f0.004\u202fMG/ML Injection | elevated | true [G] |\n| 20\u202fML dexmedetomidine\u202f0.004\u202fMG/ML Injection\u202f[Precedex] | elevated | true [G] |\n| 2\u202fML dexmedetomidine\u202f0.1\u202fMG/ML Injection | elevated | true [G] |\n\n**Indication for dexmedetomidine**\n\nDexmedetomidine is an alpha\u20112\u2011adrenergic receptor agonist used for:\n- Sedation of initially intubated and mechanically ventilated adult patients during treatment in an intensive\u2011care setting (continuous infusion, not to exceed 24\u202fh)  \n- Sedation of non\u2011intubated adult patients prior to and/or during surgical and other procedures  \n\n(Indication text from label excerpt\u202f[1])."
+  },
+  {
+    "id": "h08",
+    "category": "hybrid",
+    "system": "baseline",
+    "question": "Where is pentostatin manufactured, and what does its boxed warning say?",
+    "expected": [
+      "fludarabine",
+      "zydus"
+    ],
+    "recall": 0.0,
+    "missing": [
+      "fludarabine",
+      "zydus"
+    ],
+    "forbidden_found": [],
+    "passed": false,
+    "tokens": 2209,
+    "total_ms": 18120,
+    "cypher": null,
+    "route": null,
+    "answer": "Pentostatin is isolated from fermentation cultures of *Streptomyces antibioticus*[1].  \nThe exact wording of the boxed warning is not included in the supplied excerpts."
+  },
+  {
+    "id": "h08",
+    "category": "hybrid",
+    "system": "graph_rag",
+    "question": "Where is pentostatin manufactured, and what does its boxed warning say?",
+    "expected": [
+      "fludarabine",
+      "zydus"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 5274,
+    "total_ms": 22939,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'pentostatin' OR toLower(d.name) CONTAINS 'pentostatin'\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility)-[:LOCATED_IN]->(c:Country)\nOPTIONAL MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui,\n       d.name AS drug,\n       collect(DISTINCT f.name) AS facilities,\n       collect(DISTINCT c.name) AS countries,\n       collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 25",
+    "route": null,
+    "answer": "Pentostatin (Nipent) is manufactured in **India** by **Zydus\u202fHospira Oncology Private Limited**[G].\n\n**Boxed Warning**  \n\u201cWARNING NIPENT should be administered under the supervision of a physician qualified and experienced in the use of cancer chemotherapeutic agents. The use of higher doses than those specified (see DOSAGE AND ADMINISTRATION) is not recommended. Dose\u2011limiting severe renal, liver, pulmonary, and CNS toxicities occurred in Phase\u202f1 studies that used NIPENT at higher doses (20\u201150\u202fmg/m\u00b2 in divided doses over 5\u202fdays) than recommended. In a clinical investigation in patients with refractory chronic lymphocytic leukemia using NIPENT at the recommended dose in combination with fludarabine phosphate, 4 of 6 patients entered in the study had severe or fatal pulmonary toxicity. The use of NIPENT in combination with fludarabine phosphate is not recommended.\u201d[1]"
+  },
+  {
+    "id": "h08",
+    "category": "hybrid",
+    "system": "routed",
+    "question": "Where is pentostatin manufactured, and what does its boxed warning say?",
+    "expected": [
+      "fludarabine",
+      "zydus"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 7041,
+    "total_ms": 16946,
+    "cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient)\nWHERE toLower(i.name) CONTAINS 'pentostatin' OR toLower(d.name) CONTAINS 'pentostatin'\nMATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(p:Product)<-[:MANUFACTURES]-(f:Facility)\nOPTIONAL MATCH (f)-[:LOCATED_IN]->(c:Country)\nOPTIONAL MATCH (p)<-[:DESCRIBES]-(l:Label)\nRETURN d.rxcui AS rxcui,\n       d.name AS drug,\n       collect(DISTINCT f.name) AS facilities,\n       collect(DISTINCT c.name) AS countries,\n       collect(DISTINCT l.spl_set_id) AS spl_set_ids\nLIMIT 50",
+    "route": "graph",
+    "answer": "Pentostatin (Nipent) is manufactured in **India** by **Zydus\u202fHospira\u202fOncology\u202fPrivate\u202fLimited**\u202f[G].\n\n**Boxed Warning**  \n\u201cWARNING\u202fNIPENT should be administered under the supervision of a physician qualified and experienced in the use of cancer chemotherapeutic agents. The use of higher doses than those specified (see DOSAGE AND ADMINISTRATION) is not recommended. Dose\u2011limiting severe renal, liver, pulmonary, and CNS toxicities occurred in Phase\u202f1 studies that used NIPENT at higher doses (20\u201150\u202fmg/m\u00b2 in divided doses over 5\u202fdays) than recommended. In a clinical investigation in patients with refractory chronic lymphocytic leukemia using NIPENT at the recommended dose in combination with fludarabine phosphate, 4 of 6 patients entered in the study had severe or fatal pulmonary toxicity. The use of NIPENT in combination with fludarabine phosphate is not recommended.\u201d\u202f[1]"
+  },
+  {
+    "id": "h09",
+    "category": "private",
+    "system": "tenant",
+    "question": "How many units of heparin do we have on hand?",
+    "expected": [
+      "995"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2773,
+    "total_ms": 20631,
+    "cypher": null,
+    "route": null,
+    "answer": "We have **995 containers** of 1000\u202fmL heparin sodium, porcine 2\u202fUSP\u202funits/mL Injection on hand[H].  \nEach 1000\u202fmL vial contains 2\u202fUSP\u202funits/mL \u00d7 1000\u202fmL = **2000 USP units** of heparin[L5].  \nThus the total heparin activity available is 995\u202f\u00d7\u202f2000\u202f= **1,990,000 USP units**."
+  },
+  {
+    "id": "h10",
+    "category": "private",
+    "system": "tenant",
+    "question": "What do we pay per unit for furosemide under our contract?",
+    "expected": [
+      "40.70"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2746,
+    "total_ms": 20979,
+    "cypher": null,
+    "route": null,
+    "answer": "We pay **$40.70 per unit** for the 10\u202fmL\u202fFUROSEMIDE\u202f10\u202fMG/ML\u202fINJECTION under our current contract[H]."
+  },
+  {
+    "id": "h11",
+    "category": "private",
+    "system": "tenant",
+    "question": "How many units of midazolam do we have on hand?",
+    "expected": [
+      "554"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2201,
+    "total_ms": 20698,
+    "cypher": null,
+    "route": null,
+    "answer": "We have **554 units** of 1\u202fmL midazolam 5\u202fmg/mL injection on hand[H]."
+  },
+  {
+    "id": "h12",
+    "category": "private",
+    "system": "tenant",
+    "question": "How many units of arsenic trioxide do we have on hand, and what is our contract price for it?",
+    "expected": [
+      "250.80",
+      "3232"
+    ],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 1573,
+    "total_ms": 8674,
+    "cypher": null,
+    "route": null,
+    "answer": "We have **3,232 units** of 10\u202fmL arsenic trioxide 1\u202fmg/mL injection on hand, and the contract price is **$250.80 per unit**[H]."
+  },
+  {
+    "id": "h13",
+    "category": "rbac",
+    "system": "tenant",
+    "question": "How many units of morphine do we have on hand?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 3424,
+    "total_ms": 25670,
+    "cypher": null,
+    "route": null,
+    "answer": "I don\u2019t have access to the current inventory data for morphine at Northshore Health System, so I can\u2019t provide a unit count."
+  },
+  {
+    "id": "h14",
+    "category": "rbac",
+    "system": "tenant",
+    "question": "What is our contract price for etomidate?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 1706,
+    "total_ms": 15738,
+    "cypher": null,
+    "route": null,
+    "answer": "I\u2019m sorry, but the contract price for etomidate is not listed in the available evidence. The inventory data shows `unit_price` as null, and no hospital document or label excerpt provides pricing information. Therefore, this information is not available to you."
+  },
+  {
+    "id": "h15",
+    "category": "rbac",
+    "system": "tenant",
+    "question": "How many units of fentanyl does Northshore Health have on hand?",
+    "expected": [],
+    "recall": 1.0,
+    "missing": [],
+    "forbidden_found": [],
+    "passed": true,
+    "tokens": 2665,
+    "total_ms": 18732,
+    "cypher": null,
+    "route": null,
+    "answer": "I don\u2019t have access to Northshore Health\u2019s inventory data, so I can\u2019t provide a number of fentanyl units on hand."
+  }
+]

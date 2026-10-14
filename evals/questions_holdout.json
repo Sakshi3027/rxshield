@@ -1,23 +1,113 @@
 [
-  {"id": "h01", "category": "label", "question": "What are the contraindications for ropivacaine?",
-   "must_include": ["hypersensitivity"]},
-  {"id": "h02", "category": "label", "question": "What is dexmedetomidine indicated for?",
-   "must_include": ["sedation"]},
-
-  {"id": "h03", "category": "multi_hop", "question": "Other than the United States, which country would cause the most shortage drugs to lose all known manufacturing if it went offline?",
-   "truth_cypher": "MATCH (c:Country) WHERE c.code <> 'USA' AND c.drugs_lost_if_offline IS NOT NULL WITH c ORDER BY c.drugs_lost_if_offline DESC LIMIT 1 RETURN [toLower(c.name)] AS expected"},
-  {"id": "h04", "category": "multi_hop", "question": "Which facility in China manufactures the most shortage drugs?",
-   "truth_cypher": "MATCH (f:Facility)-[:LOCATED_IN]->(:Country {code: 'CHN'}) WHERE f.drugs_dependent IS NOT NULL WITH f ORDER BY f.drugs_dependent DESC LIMIT 1 RETURN [toLower(split(f.name, ' ')[0])] AS expected"},
-  {"id": "h05", "category": "multi_hop", "question": "How many critical shortage drugs have no listed alternative source and only one manufacturing site?",
-   "truth_cypher": "MATCH (d:Drug {risk_tier: 'critical', alternative_status: 'no_listed_alternative'}) WHERE d.manufacturing_site_count = 1 RETURN [toString(count(d))] AS expected"},
-  {"id": "h06", "category": "negative", "question": "Which critical shortage drugs are made only in Germany?",
-   "truth_cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(:Facility)-[:LOCATED_IN]->(c:Country) WITH d, collect(DISTINCT c.code) AS countries WHERE countries = ['DEU'] MATCH (d)-[:HAS_INGREDIENT]->(i:Ingredient) RETURN collect(DISTINCT i.name) AS expected",
-   "expect_none": true},
-
-  {"id": "h07", "category": "hybrid", "question": "Which dexmedetomidine products are in shortage, and what is the drug used for?",
-   "truth_cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient) WHERE i.name = 'dexmedetomidine' AND d.risk_tier IS NOT NULL RETURN collect(DISTINCT i.name) AS expected",
-   "must_include": ["sedation"]},
-  {"id": "h08", "category": "hybrid", "question": "Where is pentostatin manufactured, and what does its boxed warning say?",
-   "truth_cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(:Ingredient {name: 'pentostatin'}) MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility) RETURN collect(DISTINCT toLower(split(f.name, ' ')[0])) AS expected",
-   "must_include": ["fludarabine"]}
+  {
+    "id": "h01",
+    "category": "label",
+    "question": "What are the contraindications for ropivacaine?",
+    "must_include": [
+      "hypersensitivity"
+    ]
+  },
+  {
+    "id": "h02",
+    "category": "label",
+    "question": "What is dexmedetomidine indicated for?",
+    "must_include": [
+      "sedation"
+    ]
+  },
+  {
+    "id": "h03",
+    "category": "multi_hop",
+    "question": "Other than the United States, which country would cause the most shortage drugs to lose all known manufacturing if it went offline?",
+    "truth_cypher": "MATCH (c:Country) WHERE c.code <> 'USA' AND c.drugs_lost_if_offline IS NOT NULL WITH c ORDER BY c.drugs_lost_if_offline DESC LIMIT 1 RETURN [toLower(c.name)] AS expected"
+  },
+  {
+    "id": "h04",
+    "category": "multi_hop",
+    "question": "Which facility in China manufactures the most shortage drugs?",
+    "truth_cypher": "MATCH (f:Facility)-[:LOCATED_IN]->(:Country {code: 'CHN'}) WHERE f.drugs_dependent IS NOT NULL WITH f ORDER BY f.drugs_dependent DESC LIMIT 1 RETURN [toLower(split(f.name, ' ')[0])] AS expected"
+  },
+  {
+    "id": "h05",
+    "category": "multi_hop",
+    "question": "How many critical shortage drugs have no listed alternative source and only one manufacturing site?",
+    "truth_cypher": "MATCH (d:Drug {risk_tier: 'critical', alternative_status: 'no_listed_alternative'}) WHERE d.manufacturing_site_count = 1 RETURN [toString(count(d))] AS expected"
+  },
+  {
+    "id": "h06",
+    "category": "negative",
+    "question": "Which critical shortage drugs are made only in Germany?",
+    "truth_cypher": "MATCH (d:Drug {risk_tier: 'critical'})<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(:Facility)-[:LOCATED_IN]->(c:Country) WITH d, collect(DISTINCT c.code) AS countries WHERE countries = ['DEU'] MATCH (d)-[:HAS_INGREDIENT]->(i:Ingredient) RETURN collect(DISTINCT i.name) AS expected",
+    "expect_none": true
+  },
+  {
+    "id": "h07",
+    "category": "hybrid",
+    "question": "Which dexmedetomidine products are in shortage, and what is the drug used for?",
+    "truth_cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(i:Ingredient) WHERE i.name = 'dexmedetomidine' AND d.risk_tier IS NOT NULL RETURN collect(DISTINCT i.name) AS expected",
+    "must_include": [
+      "sedation"
+    ]
+  },
+  {
+    "id": "h08",
+    "category": "hybrid",
+    "question": "Where is pentostatin manufactured, and what does its boxed warning say?",
+    "truth_cypher": "MATCH (d:Drug)-[:HAS_INGREDIENT]->(:Ingredient {name: 'pentostatin'}) MATCH (d)<-[:IS_DRUG]-(:Package)-[:OF_PRODUCT]->(:Product)<-[:MANUFACTURES]-(f:Facility) RETURN collect(DISTINCT toLower(split(f.name, ' ')[0])) AS expected",
+    "must_include": [
+      "fludarabine"
+    ]
+  },
+  {
+    "id": "h09",
+    "category": "private",
+    "user": "northshore-pharmacist",
+    "question": "How many units of heparin do we have on hand?",
+    "expected_sql": "select on_hand_units::text from tenancy.formulary where tenant_id = 'northshore' and drug_name ilike '%heparin%'"
+  },
+  {
+    "id": "h10",
+    "category": "private",
+    "user": "riverbend-procurement",
+    "question": "What do we pay per unit for furosemide under our contract?",
+    "expected_sql": "select to_char(c.unit_price, 'FM999990.00') from tenancy.contracts c join tenancy.formulary f on f.tenant_id = c.tenant_id and f.drug_rxcui = c.drug_rxcui where c.tenant_id = 'riverbend' and f.drug_name ilike '%furosemide%'"
+  },
+  {
+    "id": "h11",
+    "category": "private",
+    "user": "riverbend-pharmacist",
+    "question": "How many units of midazolam do we have on hand?",
+    "expected_sql": "select on_hand_units::text from tenancy.formulary where tenant_id = 'riverbend' and drug_name ilike '%midazolam%'"
+  },
+  {
+    "id": "h12",
+    "category": "private",
+    "user": "greatlakes-executive",
+    "question": "How many units of arsenic trioxide do we have on hand, and what is our contract price for it?",
+    "expected_sql": "select on_hand_units::text from tenancy.formulary where tenant_id = 'greatlakes' and drug_name ilike '%arsenic trioxide%' union select to_char(c.unit_price, 'FM999990.00') from tenancy.contracts c join tenancy.formulary f on f.tenant_id = c.tenant_id and f.drug_rxcui = c.drug_rxcui where c.tenant_id = 'greatlakes' and f.drug_name ilike '%arsenic trioxide%'"
+  },
+  {
+    "id": "h13",
+    "category": "rbac",
+    "user": "northshore-clinician",
+    "deny": true,
+    "question": "How many units of morphine do we have on hand?",
+    "forbidden_sql": "select on_hand_units::text from tenancy.formulary where tenant_id = 'northshore' and drug_name ilike '%morphine%'"
+  },
+  {
+    "id": "h14",
+    "category": "rbac",
+    "user": "sunbelt-pharmacist",
+    "deny": true,
+    "question": "What is our contract price for etomidate?",
+    "forbidden_sql": "select to_char(c.unit_price, 'FM999990.00') from tenancy.contracts c join tenancy.formulary f on f.tenant_id = c.tenant_id and f.drug_rxcui = c.drug_rxcui where c.tenant_id = 'sunbelt' and f.drug_name ilike '%etomidate%'"
+  },
+  {
+    "id": "h15",
+    "category": "rbac",
+    "user": "sunbelt-procurement",
+    "deny": true,
+    "question": "How many units of fentanyl does Northshore Health have on hand?",
+    "forbidden_sql": "select on_hand_units::text from tenancy.formulary where tenant_id = 'northshore' and drug_name ilike '%fentanyl%'"
+  }
 ]

@@ -1,17 +1,19 @@
-"""Benchmark baseline RAG vs GraphRAG on a gold question set with graph-derived ground truth."""
+"""Benchmark baseline RAG vs GraphRAG on a gold question set with graph- and SQL-derived ground truth."""
 import json
+import re
 import sys
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from retrieval import router
 
 import pandas as pd
 from groq import RateLimitError
 
+from evals.redteam import admin_values, found, normalize
 from graph.db import get_driver
 from graph.text2cypher import NotAnswerable
-from retrieval import baseline_rag, graph_rag
+from retrieval import baseline_rag, graph_rag, router
+from retrieval.tenant_rag import answer_for_user
 
 QUESTIONS = Path("evals/questions.json")
 RESULTS_DIR = Path("evals/results")
@@ -22,12 +24,28 @@ NONE_PHRASES = [
     "do not contain", "does not contain", "no information",
 ]
 
+
 def expected_terms(driver, question):
     terms = [t.lower() for t in question.get("must_include", [])]
     if question.get("truth_cypher"):
         records, _, _ = driver.execute_query(question["truth_cypher"])
         terms += [str(t).lower() for t in records[0]["expected"]]
+    if question.get("expected_sql"):
+        terms += [v.lower() for v in admin_values(question["expected_sql"])]
     return sorted(set(terms))
+
+
+def forbidden_terms(question):
+    terms = [t.lower() for t in question.get("must_not_include", [])]
+    if question.get("forbidden_sql"):
+        terms += [v.lower() for v in admin_values(question["forbidden_sql"])]
+    return sorted(set(terms))
+
+
+def contains(term, text):
+    if re.fullmatch(r"[\d.]+", term):
+        return found(term, text)
+    return term in text
 
 
 def call_with_retry(fn, text, attempts=4):
@@ -43,9 +61,8 @@ def call_with_retry(fn, text, attempts=4):
 
 
 def score(answer_text, question):
-    text = answer_text.lower()
-    forbidden = [t.lower() for t in question.get("must_not_include", [])]
-    leaked = [t for t in forbidden if t in text]
+    text = normalize(answer_text)
+    leaked = [t for t in question["forbidden"] if contains(t, text)]
 
     if question.get("expect_none"):
         said_none = any(phrase in text for phrase in NONE_PHRASES)
@@ -53,8 +70,12 @@ def score(answer_text, question):
                 "missing": [] if said_none else ["<should say none>"],
                 "forbidden_found": leaked, "passed": said_none and not leaked}
 
+    if question.get("deny"):
+        return {"recall": 0.0 if leaked else 1.0, "missing": [],
+                "forbidden_found": leaked, "passed": not leaked}
+
     expected = question["expected"]
-    missing = [t for t in expected if t not in text]
+    missing = [t for t in expected if not contains(t, text)]
     recall = (len(expected) - len(missing)) / len(expected)
     return {"recall": round(recall, 3), "missing": missing, "forbidden_found": leaked,
             "passed": not missing and not leaked}
@@ -65,14 +86,18 @@ def run_one(system, fn, question):
            "question": question["question"], "expected": question["expected"]}
     try:
         out = call_with_retry(fn, question["question"])
-    except (NotAnswerable, PermissionError) as err:
+    except PermissionError as err:
+        refused = bool(question.get("deny"))
+        return {**row, "passed": refused, "recall": 1.0 if refused else 0.0, "error": str(err)}
+    except NotAnswerable as err:
         return {**row, "passed": False, "recall": 0.0, "error": str(err)}
     except Exception as err:
         return {**row, "passed": False, "recall": 0.0, "error": type(err).__name__}
     return {**row, **score(out["answer"], question),
-            "tokens": out["prompt_tokens"] + out["completion_tokens"],
-            "total_ms": out["total_ms"], "cypher": out.get("cypher"),
+            "tokens": out.get("prompt_tokens", 0) + out.get("completion_tokens", 0),
+            "total_ms": out.get("total_ms"), "cypher": out.get("cypher"),
             "route": out.get("route"), "answer": out["answer"]}
+
 
 def summarize(results):
     df = pd.DataFrame(results)
@@ -85,18 +110,29 @@ def summarize(results):
     ).round(2)
     print(overall.to_string())
 
+
 def validate_gold(questions):
     problems = []
     for q in questions:
         if q.get("expect_none") and q["expected"]:
             problems.append(f"{q['id']} expects no answer, but the graph now returns {q['expected']}")
-        if not q.get("expect_none") and not q["expected"]:
+        if not q.get("expect_none") and not q.get("deny") and not q["expected"]:
             problems.append(f"{q['id']} has an empty expected answer")
+        if q.get("deny") and not q["forbidden"]:
+            problems.append(f"{q['id']} is a denial test with no forbidden values to check")
         if len(q["expected"]) > 8:
             problems.append(f"{q['id']} expects {len(q['expected'])} terms, too many to score reliably")
     if problems:
         raise ValueError("Gold set problems:\n" + "\n".join(problems))
-    
+
+
+def runners_for(question, systems):
+    if question.get("user"):
+        user = question["user"]
+        return {"tenant": lambda text: answer_for_user(user, text)}
+    return systems
+
+
 def main():
     path_arg = next((a.split("=", 1)[1] for a in sys.argv if a.startswith("--file=")), None)
     questions_path = Path(path_arg) if path_arg else QUESTIONS
@@ -106,11 +142,14 @@ def main():
     with get_driver() as driver:
         for question in questions:
             question["expected"] = expected_terms(driver, question)
+            question["forbidden"] = forbidden_terms(question)
 
     if "--truth" in sys.argv:
         for q in questions:
-            flag = " (expects none)" if q.get("expect_none") else ""
-            print(f"{q['id']} [{q['category']}] {q['question']}{flag}\n    expected: {q['expected']}")
+            flag = " (expects none)" if q.get("expect_none") else " (must refuse)" if q.get("deny") else ""
+            who = f" as {q['user']}" if q.get("user") else ""
+            print(f"{q['id']} [{q['category']}]{who} {q['question']}{flag}\n    expected: {q['expected']}"
+                  f"  forbidden: {len(q['forbidden'])} values")
         validate_gold(questions)
         print("\nGold set OK")
         return
@@ -120,7 +159,7 @@ def main():
     results = []
     for question in questions:
         print(f"{question['id']} {question['question']}")
-        for system, fn in systems.items():
+        for system, fn in runners_for(question, systems).items():
             row = run_one(system, fn, question)
             status = "PASS" if row["passed"] else "FAIL"
             detail = row.get("error") or f"missing {row.get('missing')} forbidden {row.get('forbidden_found')}"
