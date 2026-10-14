@@ -9,16 +9,27 @@ from sqlalchemy import create_engine, make_url, text
 load_dotenv(".env")
 
 
-@lru_cache(maxsize=1)
-def get_app_engine():
+def app_database_url():
+    """The app role's connection URL.
+
+    Deployed: read APP_DATABASE_URL, so the server never holds admin credentials.
+    Local: derive it from the admin DATABASE_URL by swapping in the app role and its password.
+    """
+    explicit = os.environ.get("APP_DATABASE_URL")
+    if explicit:
+        return make_url(explicit).set(drivername="postgresql+psycopg")
     admin_url = make_url(os.environ["DATABASE_URL"])
     project_ref = admin_url.username.split(".", 1)[1]
-    app_url = admin_url.set(
+    return admin_url.set(
         drivername="postgresql+psycopg",
         username=f"rxshield_app.{project_ref}",
         password=os.environ["APP_DB_PASSWORD"],
     )
-    return create_engine(app_url, pool_pre_ping=True, hide_parameters=True)
+
+
+@lru_cache(maxsize=1)
+def get_app_engine():
+    return create_engine(app_database_url(), pool_pre_ping=True, hide_parameters=True)
 
 @contextmanager
 def user_session(user_id):

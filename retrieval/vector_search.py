@@ -6,7 +6,7 @@ import re
 from fastembed import TextEmbedding
 from sqlalchemy import text
 
-from ingestion.db import get_engine
+from tenancy.db import get_app_engine
 from retrieval.embed_labels import MODEL_NAME, QUERY_PREFIX, SEARCH_PATH, to_vector
 
 SECTION_HINTS = [
@@ -37,7 +37,7 @@ def get_model():
 
 @lru_cache(maxsize=1)
 def get_cached_engine():
-    return get_engine()
+    return get_app_engine()
 
 
 def embed_query(question):
