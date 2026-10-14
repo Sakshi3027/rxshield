@@ -31,6 +31,34 @@ headroom for the deployed environment while still catching real regressions.
 
 ## Caveats
 
-- Measured locally with one worker. Deployed numbers will differ; rerun the load test after deploying.
 - The cache-miss target is based on 21 traced requests and mostly reflects the LLM provider's latency.
 - Load tests deliberately avoid new questions so they do not spend the LLM budget.
+
+## Deployed run (Render free tier: 0.15 vCPU, 512 MB)
+
+Same Locust profile against the deployed API in Render's Virginia region, next to Supabase (us-east-1).
+Two runs: 2 users for 2 minutes (what one person experiences) and 20 users for 3 minutes (capacity).
+Zero failures in both.
+
+| Path | Laptop p95 | Render p95, 2 users | Render p95, 20 users |
+|---|---|---|---|
+| Pending memos (`GET /memos/pending`) | 330 ms | 240 ms (median 59 ms) | 16,000 ms |
+| Identity (`GET /me`) | 330 ms | 810 ms (median 63 ms) | 13,000 ms |
+| Cached answer (`POST /ask`, cache hit) | 452 ms | 2,100 ms | 23,000 ms |
+| Outage simulation (`POST /simulations/whatif`) | 960 ms | 4,200 ms | 126,000 ms |
+| Login (`POST /auth/login`) | 520 ms | 4,100 ms | 39,000 ms |
+| Throughput | 8.7 req/s | 0.65 req/s | 0.78 req/s |
+
+Results: `loadtest/results/prod_light_stats.csv` and `loadtest/results/prod_stats.csv`.
+
+### Findings
+
+- **Database-bound requests are faster deployed than on the laptop.** Median `/me` is 63 ms on Render
+  against a floor of about 165 ms locally, because the API runs in the same region as the database.
+- **CPU-bound requests are 4 to 8 times slower.** A cached answer embeds the question before the lookup,
+  login runs bcrypt, and the outage simulation is computation heavy. Each takes seconds on 0.15 vCPU.
+- **Capacity is about 1 request per second.** Throughput barely rises from 2 to 20 users, so the CPU is
+  saturated and extra users wait in a queue (about 12 requests in flight at 0.78 req/s and 15.7 s average).
+- **The free tier meets the availability SLO but not the latency SLOs on CPU-bound paths.** The targets are
+  unchanged: they describe the service on a dedicated CPU. Meeting them in production takes more CPU,
+  not code changes.
