@@ -28,6 +28,7 @@ jobs:
       NEO4J_USERNAME: ${{ secrets.NEO4J_USERNAME }}
       NEO4J_PASSWORD: ${{ secrets.NEO4J_PASSWORD }}
       FASTEMBED_CACHE_PATH: /home/runner/.cache/fastembed
+      PYTHONUNBUFFERED: "1"
     steps:
       - uses: actions/checkout@v4
 

@@ -2,7 +2,7 @@
 import numpy as np
 import pandas as pd
 from fastembed import TextEmbedding
-from sqlalchemy import text
+from sqlalchemy import inspect, text
 from tqdm import tqdm
 
 from ingestion.db import get_engine
@@ -56,23 +56,39 @@ def embed(model, texts):
     vectors = np.array(list(tqdm(model.embed(texts, batch_size=64, parallel=0), total=len(texts), desc="Embedding")))
     return vectors / np.linalg.norm(vectors, axis=1, keepdims=True)
 
+DIMENSIONS = 384
+REUSE_KEYS = ["chunk_id", "content", "product_label", "section_name"]
+
+
+def existing_embeddings(engine):
+    if not inspect(engine).has_table("label_chunks", schema="rag"):
+        return pd.DataFrame(columns=REUSE_KEYS + ["embedding"])
+    return pd.read_sql(
+        "select chunk_id, content, product_label, section_name, embedding::text as embedding "
+        "from rag.label_chunks", engine)
+
+
 def main():
     engine = get_engine()
     sections = pd.read_sql("select * from silver.spl_sections", engine)
     chunks = build_chunks(sections)
     print(f"{len(sections)} sections -> {len(chunks)} chunks")
 
-    print(f"Embedding with {MODEL_NAME} (a few minutes)")
+    chunks = chunks.merge(existing_embeddings(engine), on=REUSE_KEYS, how="left")
+    todo = chunks["embedding"].isna()
+    print(f"Reusing {(~todo).sum()} embeddings, embedding {todo.sum()} new or changed chunks")
+
     model = TextEmbedding(MODEL_NAME)
-    embeddings = embed(model, chunks["embed_text"].tolist())
-    chunks["embedding"] = [to_vector(e) for e in embeddings]
+    if todo.any():
+        vectors = embed(model, chunks.loc[todo, "embed_text"].tolist())
+        chunks.loc[todo, "embedding"] = [to_vector(v) for v in vectors]
 
     with engine.begin() as conn:
         conn.execute(text("create schema if not exists rag"))
         conn.execute(text(SEARCH_PATH))
-        conn.execute(text("drop table if exists rag.label_chunks cascade"))
+        conn.execute(text("drop table if exists rag.label_chunks_new"))
         conn.execute(text(f"""
-            create table rag.label_chunks (
+            create table rag.label_chunks_new (
                 chunk_id text primary key,
                 section_id text not null,
                 spl_set_id text not null,
@@ -80,12 +96,12 @@ def main():
                 section_name text,
                 chunk_index int,
                 content text not null,
-                embedding vector({embeddings.shape[1]}) not null
+                embedding vector({DIMENSIONS}) not null
             )"""))
 
     records = chunks.drop(columns=["embed_text"]).to_dict("records")
     insert = text("""
-        insert into rag.label_chunks
+        insert into rag.label_chunks_new
             (chunk_id, section_id, spl_set_id, product_label, section_name, chunk_index, content, embedding)
         values
             (:chunk_id, :section_id, :spl_set_id, :product_label, :section_name, :chunk_index, :content,
@@ -94,15 +110,24 @@ def main():
         with engine.begin() as conn:
             conn.execute(text(SEARCH_PATH))
             conn.execute(insert, records[start:start + INSERT_BATCH])
-    print(f"Inserted {len(records)} chunks")
+    print(f"Inserted {len(records)} chunks into rag.label_chunks_new")
 
     with engine.begin() as conn:
         conn.execute(text(SEARCH_PATH))
         conn.execute(text(
-            "create index label_chunks_embedding_idx on rag.label_chunks "
+            "create index label_chunks_new_embedding_idx on rag.label_chunks_new "
             "using hnsw (embedding vector_cosine_ops)"))
+
+    with engine.begin() as conn:
+        conn.execute(text(SEARCH_PATH))
+        conn.execute(text("drop table if exists rag.label_chunks cascade"))
+        conn.execute(text("alter table rag.label_chunks_new rename to label_chunks"))
+        conn.execute(text("alter index rag.label_chunks_new_embedding_idx rename to label_chunks_embedding_idx"))
+        conn.execute(text("alter table rag.label_chunks rename constraint label_chunks_new_pkey to label_chunks_pkey"))
+        conn.execute(text("grant select on rag.label_chunks to rxshield_app"))
         count = conn.execute(text("select count(*) from rag.label_chunks")).scalar()
     print(f"Index built, {count} rows in rag.label_chunks")
+
 
     question = "How should bupivacaine vials be stored?"
     query_vector = to_vector(embed(model, [QUERY_PREFIX + question])[0])
