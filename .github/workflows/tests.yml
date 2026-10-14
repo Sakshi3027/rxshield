@@ -30,15 +30,15 @@ jobs:
       DEMO_PASSWORD: ${{ secrets.DEMO_PASSWORD }}
       FASTEMBED_CACHE_PATH: /home/runner/.cache/fastembed
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
           cache: pip
 
       - name: Cache embedding model
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: /home/runner/.cache/fastembed
           key: fastembed-bge-small-en-v1.5
